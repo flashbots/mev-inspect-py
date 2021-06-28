@@ -8,6 +8,7 @@ w3 = Web3(base_provider)
 
 cache_directoty = './cache'
 
+
 class BlockData:
     def __init__(self, block_number, data, receipts, calls, logs) -> None:
         self.block_number = block_number
