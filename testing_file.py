@@ -1,3 +1,4 @@
+from processor import Processor
 from web3.providers import base
 from inspector_uniswap import UniswapInspector
 import block
@@ -18,3 +19,8 @@ block_data = block.createFromBlockNumber(args.block_number[0], base_provider)
 
 ## Build a Uniswap inspector
 uniswap_inspector = UniswapInspector(base_provider)
+
+## Create a processor, pass in an ARRAY of inspects
+processor = Processor(base_provider, [uniswap_inspector, uniswap_inspector])
+
+processor.get_transaction_evaluations(block_data)
