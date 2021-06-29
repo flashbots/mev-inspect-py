@@ -62,7 +62,7 @@ class UniswapInspector:
                 ## The result looks like this: 'swapETHForExactTokens(uint256,address[],address,uint256)'
 
                 ## Take the first 4 bytes of the sha3 hash of the above string.
-                selector = Web3.sha3(text=function)[0:4]
+                selector = (Web3.sha3(text=function)[0:4])
 
                 ## Add that to an array
                 result.append(selector)
@@ -75,5 +75,7 @@ class UniswapInspector:
         trade_calls = []
 
         for call in calls:
-            if (call.action.to == uniswap_router_address.lower() or call.action.to == sushiswap_router_address.lower()) and utils.check_call_for_signature(call, self.uniswap_router_trade_signatures):
-                print("WIP, here is where there is a call that matches what we are looking for")
+            print('\n',call)
+            if (call['action']['to'] == uniswap_router_address.lower() or call['action']['to'] == sushiswap_router_address.lower()) and utils.check_call_for_signature(call, self.uniswap_router_trade_signatures):
+                # print("WIP, here is where there is a call that matches what we are looking for")
+                1 == 1
