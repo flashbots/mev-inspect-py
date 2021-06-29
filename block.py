@@ -4,10 +4,8 @@ import json
 
 rpc_end_point = ""
 base_provider = Web3.HTTPProvider(rpc_end_point)
-w3 = Web3(base_provider)
 
 cache_directoty = './cache'
-
 
 class BlockData:
     def __init__(self, block_number, data, receipts, calls, logs) -> None:
@@ -62,20 +60,23 @@ class BlockData:
 
 
 ## Creates a block object, either from the cache or from the chain itself
-def createFromBlockNumber(block_number):
+## Note that you need to pass in the provider, not the web3 wrapped provider object!
+## This is because only the provider allows you to make json rpc requests
+def createFromBlockNumber(block_number, base_provider):
     cache_file = '{cacheDirectory}/{blockNumber}.json'.format(cacheDirectory=cache_directoty, blockNumber=block_number)
     
     ## Check to see if the data already exists in the cache
     ## if it exists load the data from cache
     ## If not then get the data from the chain and save it to the cache
     if (Path(cache_file).is_file()):
-        print("Cache for this block exists, loading again")
+        print(('Cache for block {block_number} exists, loading data from cache').format(block_number=block_number))
         block_file = open(cache_file)
         block_json = json.load(block_file)
         block = BlockData(block_number, block_json['data'], block_json['receipts'], block_json['calls'], block_json['logs'])
         return block
     else:
-        print("Cache for this block did not exist, getting data")
+        w3 = Web3(base_provider)
+        print(("Cache for block {block_number} did not exist, getting data").format(block_number=block_number))
         
         ## Get block data
         block_data = w3.eth.get_block(block_number, True)
