@@ -2,9 +2,6 @@ from web3 import Web3
 from pathlib import Path
 import json
 
-rpc_end_point = ""
-base_provider = Web3.HTTPProvider(rpc_end_point)
-
 cache_directoty = './cache'
 
 class BlockData:
