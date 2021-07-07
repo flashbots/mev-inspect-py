@@ -5,13 +5,14 @@ import json
 cache_directoty = './cache'
 
 class BlockData:
-    def __init__(self, block_number, data, receipts, calls, logs) -> None:
+    def __init__(self, block_number, data, receipts, calls, logs, txs_gas_data) -> None:
         self.block_number = block_number
         self.data = data
         self.receipts = receipts
         self.calls = calls
         self.logs = logs
         self.transaction_hashes = self.get_transaction_hashes()
+        self.txs_gas_data = txs_gas_data
         pass
     
     ## Gets a list of unique transasction hashes in the calls of this block
@@ -34,7 +35,7 @@ class BlockData:
     ## Writes this object to a JSON file for loading later
     def writeJSON(self):
         json_data = self.toJSON()
-        cache_file = '{cacheDirectory}/{blockNumber}.json'.format(cacheDirectory=cache_directoty, blockNumber=self.block_number)
+        cache_file = '{cacheDirectory}/{blockNumber}-new.json'.format(cacheDirectory=cache_directoty, blockNumber=self.block_number)
         file_exists = Path(cache_file).is_file()
         if file_exists:
             f = open(cache_file, "w")
@@ -60,7 +61,7 @@ class BlockData:
 ## Note that you need to pass in the provider, not the web3 wrapped provider object!
 ## This is because only the provider allows you to make json rpc requests
 def createFromBlockNumber(block_number, base_provider):
-    cache_file = '{cacheDirectory}/{blockNumber}.json'.format(cacheDirectory=cache_directoty, blockNumber=block_number)
+    cache_file = '{cacheDirectory}/{blockNumber}-new.json'.format(cacheDirectory=cache_directoty, blockNumber=block_number)
     
     ## Check to see if the data already exists in the cache
     ## if it exists load the data from cache
@@ -69,7 +70,7 @@ def createFromBlockNumber(block_number, base_provider):
         print(('Cache for block {block_number} exists, loading data from cache').format(block_number=block_number))
         block_file = open(cache_file)
         block_json = json.load(block_file)
-        block = BlockData(block_number, block_json['data'], block_json['receipts'], block_json['calls'], block_json['logs'])
+        block = BlockData(block_number, block_json['data'], block_json['receipts'], block_json['calls'], block_json['logs'], block_json['txs_gas_data'])
         return block
     else:
         w3 = Web3(base_provider)
@@ -89,9 +90,21 @@ def createFromBlockNumber(block_number, base_provider):
         ## Get the logs
         block_hash = (block_data.hash).hex()
         block_logs = w3.eth.get_logs({'blockHash': block_hash})
+
+        ## Get gas used by individual txs and store them too
+        txs_gas_data = {}
+        for transaction in block_data['transactions']:
+            tx_hash = (transaction.hash).hex()
+            tx_data = w3.eth.get_transaction(tx_hash)
+            tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+            txs_gas_data[tx_hash] = {
+                'gasUsed': tx_receipt['gasUsed'], # fix: why does this return 0 for certain txs?
+                'gasPrice': tx_data['gasPrice'],
+                'netFeePaid': tx_data['gasPrice'] * tx_receipt['gasUsed']
+            }
         
         ## Create a new object
-        block = BlockData(block_number, block_data, block_receipts_raw, block_calls, block_logs)
+        block = BlockData(block_number, block_data, block_receipts_raw, block_calls, block_logs, txs_gas_data)
         
         ## Write the result to a JSON file for loading in the future
         block.writeJSON()

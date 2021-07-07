@@ -1,0 +1,3 @@
+# venv and test cache files
+env/
+__pycache__
