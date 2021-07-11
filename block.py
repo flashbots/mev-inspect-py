@@ -2,7 +2,7 @@ from web3 import Web3
 from pathlib import Path
 import json
 
-cache_directoty = './cache'
+cache_directory = './cache'
 
 class BlockData:
     def __init__(self, block_number, data, receipts, calls, logs, txs_gas_data) -> None:
@@ -13,7 +13,6 @@ class BlockData:
         self.logs = logs
         self.transaction_hashes = self.get_transaction_hashes()
         self.txs_gas_data = txs_gas_data
-        pass
     
     ## Gets a list of unique transasction hashes in the calls of this block
     def get_transaction_hashes(self):
