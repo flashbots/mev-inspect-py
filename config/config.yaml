@@ -1,0 +1,7 @@
+web3:
+  infura: "PUT YOUR INFURA URL HERE"
+
+inspection-target:
+  aave:
+    address: "0x398eC7346DcD622eDc5ae82352F02bE94C62d119"
+    abi: abi/aave.json
