@@ -28,7 +28,7 @@ def write_json(block: Block):
     write_mode = "w" if cache_path.is_file() else "x"
 
     with open(cache_path, mode=write_mode) as cache_file:
-        cache_file.write(block.json())
+        cache_file.write(block.json(sort_keys=True, indent=4))
 
 
 ## Creates a block object, either from the cache or from the chain itself
