@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.9
 LABEL maintainer "Nicola Bernini <nicola.bernini@gmail.com>"
 COPY requirements.txt .
 RUN apt-get update && apt-get -y install sudo
