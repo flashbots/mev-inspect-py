@@ -2,11 +2,9 @@ import json
 from enum import Enum
 from typing import Dict, List, Optional
 
-from hexbytes import HexBytes
 from pydantic import BaseModel
-from web3.datastructures import AttributeDict
 
-from .utils import CamelModel
+from .utils import CamelModel, Web3Model
 
 
 class BlockCallType(Enum):
@@ -30,7 +28,7 @@ class BlockCall(CamelModel):
     error: Optional[str]
 
 
-class Block(BaseModel):
+class Block(Web3Model):
     block_number: int
     calls: List[BlockCall]
     data: dict
@@ -38,12 +36,6 @@ class Block(BaseModel):
     receipts: dict
     transaction_hashes: List[str]
     txs_gas_data: Dict[str, dict]
-
-    class Config:
-        json_encoders = {
-            AttributeDict: dict,
-            HexBytes: lambda h: h.hex(),
-        }
 
     def get_filtered_calls(self, hash: str) -> List[BlockCall]:
         return [
