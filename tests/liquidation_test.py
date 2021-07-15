@@ -1,6 +1,7 @@
 import unittest
-import inspector_compound
-import inspector_aave
+
+from mev_inspect import inspector_compound
+from mev_inspect import inspector_aave
 
 class TestLiquidations (unittest.TestCase):
     def test_compound_liquidation(self):

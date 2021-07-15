@@ -1,5 +1,7 @@
 import unittest
-import tokenflow
+
+from mev_inspect import tokenflow
+
 
 class TestTokenFlow (unittest.TestCase):
     def test_simple_arb(self):
