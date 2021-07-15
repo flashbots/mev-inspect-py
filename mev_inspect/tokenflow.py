@@ -1,10 +1,10 @@
-# from web3 import Web3, HTTPProvider
-from pathlib import Path
 import json
-import configparser
+from pathlib import Path
 
-config = configparser.ConfigParser()
-config.read('./utils/config.ini')
+from mev_inspect.config import load_config
+
+config = load_config()
+
 rpc_url = config['RPC']['Endpoint']
 weth_address = config['ADDRESSES']['WETH']
 # w3 = Web3(HTTPProvider(rpc_url))

@@ -1,4 +1,4 @@
-from schemas.utils import to_original_json_dict
+from mev_inspect.schemas.utils import to_original_json_dict
 
 
 class Processor:
