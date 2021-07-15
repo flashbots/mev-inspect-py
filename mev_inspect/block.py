@@ -4,7 +4,7 @@ from typing import List
 
 from web3 import Web3
 
-from schemas import Block, BlockCall, BlockCallType
+from mev_inspect.schemas import Block, BlockCall, BlockCallType
 
 
 cache_directory = './cache'

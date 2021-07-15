@@ -1,11 +1,11 @@
-from web3 import Web3
-import configparser
 import json
-import utils
 
-## Config file is used for addresses/ABIs
-config = configparser.ConfigParser()
-config.read('./utils/config.ini')
+from web3 import Web3
+
+from mev_inspect import utils
+from mev_inspect.config import load_config
+
+config = load_config()
 
 uniswap_router_abi = json.loads(config['ABI']['UniswapV2Router'])
 uniswap_router_address = (config['ADDRESSES']['UniswapV2Router'])
