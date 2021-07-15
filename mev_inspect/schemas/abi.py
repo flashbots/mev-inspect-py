@@ -6,8 +6,6 @@ from hexbytes import HexBytes
 from pydantic import BaseModel
 from web3 import Web3
 
-from .utils import CamelModel
-
 
 class ABIDescriptionType(str, Enum):
     function = "function"
@@ -25,8 +23,8 @@ NON_FUNCTION_DESCRIPTION_TYPES = Union[
 ]
 
 
-class ABIDescriptionInput(CamelModel):
-    internal_type: str
+class ABIDescriptionInput(BaseModel):
+    type: str
 
 
 class ABIGenericDescription(BaseModel):
@@ -43,8 +41,7 @@ class ABIFunctionDescription(BaseModel):
         return Web3.sha3(text=signature)[0:4]
 
     def get_signature(self) -> str:
-        joined_input_types = ",".join(input.internal_type for input in self.inputs)
-
+        joined_input_types = ",".join(input.type for input in self.inputs)
         return f"{self.name}({joined_input_types})"
 
 
