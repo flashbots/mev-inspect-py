@@ -1,3 +1,5 @@
 # venv and test cache files
 env/
 __pycache__
+
+*.swp
