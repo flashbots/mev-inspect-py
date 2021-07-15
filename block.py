@@ -1,76 +1,52 @@
-from web3 import Web3
-from pathlib import Path
 import json
+from pathlib import Path
+from typing import List
 
-cache_directoty = './cache'
+from web3 import Web3
 
-class BlockData:
-    def __init__(self, block_number, data, receipts, calls, logs, txs_gas_data) -> None:
-        self.block_number = block_number
-        self.data = data
-        self.receipts = receipts
-        self.calls = calls
-        self.logs = logs
-        self.transaction_hashes = self.get_transaction_hashes()
-        self.txs_gas_data = txs_gas_data
-        pass
+from schemas import Block
+
+
+cache_directory = './cache'
+
+
+def get_transaction_hashes(calls: List[dict]) -> List[str]:
+    result = []
+
+    for call in calls:
+        if call['type'] != 'reward':
+            if call['transactionHash'] in result:
+                continue
+            else:
+                result.append(call['transactionHash'])
     
-    ## Gets a list of unique transasction hashes in the calls of this block
-    def get_transaction_hashes(self):
-        result = []
-        for call in self.calls:
-            if call['type'] != 'reward':
-                if call['transactionHash'] in result:
-                    continue
-                else: 
-                    result.append(call['transactionHash'])
-        
-        return result
+    return result
 
-    ## Makes a nicely formatted JSON object out of this data object.
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, 
-            sort_keys=True, indent=4)
-    
-    ## Writes this object to a JSON file for loading later
-    def writeJSON(self):
-        json_data = self.toJSON()
-        cache_file = '{cacheDirectory}/{blockNumber}-new.json'.format(cacheDirectory=cache_directoty, blockNumber=self.block_number)
-        file_exists = Path(cache_file).is_file()
-        if file_exists:
-            f = open(cache_file, "w")
-            f.write(json_data)
-            f.close()
-        else:
-            f = open(cache_file, "x")
-            f.write(json_data)
-            f.close()
-    
-    ## Gets all the calls associated with a transaction hash
-    def get_filtered_calls(self, hash):
-        result = []
 
-        for call in self.calls:
-            if call['transactionHash'] == hash:
-                result.append(call)
-        
-        return result
+def write_json(block: Block):
+    cache_path = _get_cache_path(block.block_number)
+    write_mode = "w" if cache_path.is_file() else "x"
+
+    with open(cache_path, mode=write_mode) as cache_file:
+        cache_file.write(block.json(sort_keys=True, indent=4))
 
 
 ## Creates a block object, either from the cache or from the chain itself
 ## Note that you need to pass in the provider, not the web3 wrapped provider object!
 ## This is because only the provider allows you to make json rpc requests
-def createFromBlockNumber(block_number, base_provider):
-    cache_file = '{cacheDirectory}/{blockNumber}-new.json'.format(cacheDirectory=cache_directoty, blockNumber=block_number)
+def createFromBlockNumber(block_number: int, base_provider) -> Block:
+    cache_path = _get_cache_path(block_number)
     
     ## Check to see if the data already exists in the cache
     ## if it exists load the data from cache
     ## If not then get the data from the chain and save it to the cache
-    if (Path(cache_file).is_file()):
-        print(('Cache for block {block_number} exists, loading data from cache').format(block_number=block_number))
-        block_file = open(cache_file)
-        block_json = json.load(block_file)
-        block = BlockData(block_number, block_json['data'], block_json['receipts'], block_json['calls'], block_json['logs'], block_json['txs_gas_data'])
+    if (cache_path.is_file()):
+        print(
+            f'Cache for block {block_number} exists, ' \
+            'loading data from cache'
+        )
+
+        block = Block.parse_file(cache_path)
         return block
     else:
         w3 = Web3(base_provider)
@@ -103,9 +79,25 @@ def createFromBlockNumber(block_number, base_provider):
                 'netFeePaid': tx_data['gasPrice'] * tx_receipt['gasUsed']
             }
         
+        transaction_hashes = get_transaction_hashes(block_calls)
+
         ## Create a new object
-        block = BlockData(block_number, block_data, block_receipts_raw, block_calls, block_logs, txs_gas_data)
+        block = Block(
+            block_number=block_number,
+            data=block_data,
+            receipts=block_receipts_raw,
+            calls=block_calls,
+            logs=block_logs,
+            transaction_hashes=transaction_hashes,
+            txs_gas_data=txs_gas_data,
+        )
         
         ## Write the result to a JSON file for loading in the future
-        block.writeJSON()
+        write_json(block)
+
         return block
+
+
+def _get_cache_path(block_number: int) -> Path:
+    cache_directory_path = Path(cache_directory)
+    return cache_directory_path / f"{block_number}-new.json"
