@@ -1,8 +1,5 @@
-import json
 from enum import Enum
 from typing import Dict, List, Optional
-
-from pydantic import BaseModel
 
 from .utils import CamelModel, Web3Model
 
@@ -38,7 +35,4 @@ class Block(Web3Model):
     txs_gas_data: Dict[str, dict]
 
     def get_filtered_calls(self, hash: str) -> List[BlockCall]:
-        return [
-            call for call in self.calls
-            if call.transaction_hash == hash
-        ]
+        return [call for call in self.calls if call.transaction_hash == hash]

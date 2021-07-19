@@ -1,9 +1,10 @@
 from hexbytes.main import HexBytes
 
+
 def check_call_for_signature(call, signatures):
-    if (call['action']['input'] == None):
+    if call["action"]["input"] == None:
         return False
-    
+
     ## By default set this to False
     signature_present_boolean = False
 
@@ -11,8 +12,8 @@ def check_call_for_signature(call, signatures):
     for signature in signatures:
         # print("Desired signature:", str(signature))
         # print("Actual", HexBytes(call['action']['input']))
-        
-        if HexBytes(call['action']['input']).startswith((signature)):
+
+        if HexBytes(call["action"]["input"]).startswith((signature)):
             ## Note that we are turning the input into hex bytes here, which seems to be fine
             ## Working with strings was doing weird things
             print("hit")

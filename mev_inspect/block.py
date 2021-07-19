@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from typing import List
 
@@ -7,7 +6,7 @@ from web3 import Web3
 from mev_inspect.schemas import Block, BlockCall, BlockCallType
 
 
-cache_directory = './cache'
+cache_directory = "./cache"
 
 
 ## Creates a block object, either from the cache or from the chain itself
@@ -16,17 +15,12 @@ cache_directory = './cache'
 def createFromBlockNumber(block_number: int, base_provider) -> Block:
     cache_path = _get_cache_path(block_number)
 
-    if (cache_path.is_file()):
-        print(
-            f'Cache for block {block_number} exists, ' \
-            'loading data from cache'
-        )
+    if cache_path.is_file():
+        print(f"Cache for block {block_number} exists, " "loading data from cache")
 
         return Block.parse_file(cache_path)
     else:
-        print(
-           f"Cache for block {block_number} did not exist, getting data"
-        )
+        print(f"Cache for block {block_number} did not exist, getting data")
 
         w3 = Web3(base_provider)
         block = fetch_block(w3, base_provider, block_number)
@@ -39,36 +33,37 @@ def createFromBlockNumber(block_number: int, base_provider) -> Block:
 def fetch_block(w3, base_provider, block_number: int) -> Block:
     ## Get block data
     block_data = w3.eth.get_block(block_number, True)
-    
+
     ## Get the block receipts
     ## TODO: evaluate whether or not this is sufficient or if gas used needs to be converted to a proper big number.
     ## In inspect-ts it needed to be converted
-    block_receipts_raw = base_provider.make_request("eth_getBlockReceipts", [block_number])
+    block_receipts_raw = base_provider.make_request(
+        "eth_getBlockReceipts", [block_number]
+    )
 
     ## Trace the whole block, return those calls
     block_calls_json = w3.parity.trace_block(block_number)
-    block_calls = [
-        BlockCall(**call_json)
-        for call_json in block_calls_json
-    ]
-    
+    block_calls = [BlockCall(**call_json) for call_json in block_calls_json]
+
     ## Get the logs
     block_hash = (block_data.hash).hex()
-    block_logs = w3.eth.get_logs({'blockHash': block_hash})
+    block_logs = w3.eth.get_logs({"blockHash": block_hash})
 
     ## Get gas used by individual txs and store them too
     txs_gas_data = {}
 
-    for transaction in block_data['transactions']:
+    for transaction in block_data["transactions"]:
         tx_hash = (transaction.hash).hex()
         tx_data = w3.eth.get_transaction(tx_hash)
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         txs_gas_data[tx_hash] = {
-            'gasUsed': tx_receipt['gasUsed'], # fix: why does this return 0 for certain txs?
-            'gasPrice': tx_data['gasPrice'],
-            'netFeePaid': tx_data['gasPrice'] * tx_receipt['gasUsed']
+            "gasUsed": tx_receipt[
+                "gasUsed"
+            ],  # fix: why does this return 0 for certain txs?
+            "gasPrice": tx_data["gasPrice"],
+            "netFeePaid": tx_data["gasPrice"] * tx_receipt["gasUsed"],
         }
-    
+
     transaction_hashes = get_transaction_hashes(block_calls)
 
     ## Create a new object
@@ -88,7 +83,10 @@ def get_transaction_hashes(calls: List[BlockCall]) -> List[str]:
 
     for call in calls:
         if call.type != BlockCallType.reward:
-            if call.transaction_hash not in result:
+            if (
+                call.transaction_hash is not None
+                and call.transaction_hash not in result
+            ):
                 result.append(call.transaction_hash)
 
     return result
