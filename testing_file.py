@@ -3,7 +3,7 @@ import argparse
 from web3 import Web3
 
 from mev_inspect import block
-from mev_inspect.inspector_uniswap import UniswapInspector
+from mev_inspect.inspectors.uniswap import UniswapInspector
 from mev_inspect.processor import Processor
 
 parser = argparse.ArgumentParser(description="Inspect some blocks.")
@@ -29,6 +29,6 @@ block_data = block.create_from_block_number(args.block_number[0], base_provider)
 uniswap_inspector = UniswapInspector(base_provider)
 
 ## Create a processor, pass in an ARRAY of inspects
-processor = Processor(base_provider, [uniswap_inspector, uniswap_inspector])
+processor = Processor([uniswap_inspector, uniswap_inspector])
 
 processor.get_transaction_evaluations(block_data)
