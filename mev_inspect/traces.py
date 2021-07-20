@@ -1,9 +1,26 @@
+from itertools import groupby
 from typing import Iterable, List
 
 from mev_inspect.schemas import Trace, NestedTrace
 
 
 def as_nested_traces(traces: Iterable[Trace]) -> List[NestedTrace]:
+    nested_traces = []
+
+    sorted_by_transaction_hash = sorted(traces, key=_get_transaction_hash)
+    for _, transaction_traces in groupby(
+        sorted_by_transaction_hash, _get_transaction_hash
+    ):
+        nested_traces += _as_nested_traces_by_transaction(transaction_traces)
+
+    return nested_traces
+
+
+def _get_transaction_hash(trace) -> str:
+    return trace.transaction_hash
+
+
+def _as_nested_traces_by_transaction(traces: Iterable[Trace]) -> List[NestedTrace]:
     """
     Turns a list of Traces into a a tree of NestedTraces
     using their trace addresses
