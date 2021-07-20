@@ -1,2 +1,2 @@
 from .abi import ABI
-from .blocks import Block, BlockCall, BlockCallType
+from .blocks import Block, Trace, TraceType
