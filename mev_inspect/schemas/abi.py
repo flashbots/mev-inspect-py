@@ -24,6 +24,7 @@ NON_FUNCTION_DESCRIPTION_TYPES = Union[
 
 
 class ABIDescriptionInput(BaseModel):
+    name: str
     type: str
 
 
