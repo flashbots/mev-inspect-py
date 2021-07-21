@@ -1,7 +1,7 @@
-import json
-from pathlib import Path
+from typing import List, Optional
 
 from mev_inspect.config import load_config
+from mev_inspect.schemas import Block, Trace, TraceType
 
 config = load_config()
 
@@ -10,30 +10,6 @@ weth_address = config["ADDRESSES"]["WETH"]
 # w3 = Web3(HTTPProvider(rpc_url))
 
 cache_directory = "./cache"
-
-
-def get_tx_traces(txHash, blockNo):
-    # block_calls = w3.parity.trace_block(10803840)
-    cache_file = "{cacheDirectory}/{blockNumber}-new.json".format(
-        cacheDirectory=cache_directory, blockNumber=blockNo
-    )
-    file_exists = Path(cache_file).is_file()
-
-    tx_traces = []
-    # if have the traces cached
-    if file_exists:
-        block_file = open(cache_file)
-        block_json = json.load(block_file)
-        for call in block_json["calls"]:
-            if call["transactionHash"] == txHash:
-                tx_traces.append(call)
-        block_file.close()
-    else:
-        # todo, fetch and cache traces that don't exist
-        # depending on the best way to call block.py from here
-        print("traces do not exist")
-
-    return tx_traces
 
 
 def is_stablecoin_address(address):
@@ -85,41 +61,34 @@ def is_known_router_address(address):
 
 
 # we're interested in the to address to run token flow on it as well
-def get_tx_to_address(txHash, blockNo):
-    cache_file = "{cacheDirectory}/{blockNumber}-new.json".format(
-        cacheDirectory=cache_directory, blockNumber=blockNo
-    )
-    block_file = open(cache_file)
-    block_json = json.load(block_file)
-    for receipt in block_json["receipts"]["result"]:
-        if receipt["transactionHash"] == txHash:
-            block_file.close()
+def get_tx_to_address(tx_hash, block) -> Optional[str]:
+    for receipt in block.receipts["result"]:
+        if receipt["transactionHash"] == tx_hash:
             return receipt["to"]
 
+    return None
 
-def get_tx_proxies(tx_traces, to_address):
+
+def get_tx_proxies(tx_traces: List[Trace], to_address: Optional[str]):
     proxies = []
+
     for trace in tx_traces:
         if (
-            trace["type"] == "call"
-            and trace["action"]["callType"] == "delegatecall"
-            and trace["action"]["from"] == to_address
+            trace.type == TraceType.call
+            and trace.action["callType"] == "delegatecall"
+            and trace.action["from"] == to_address
         ):
-            proxies.append(trace["action"]["to"])
+            proxies.append(trace.action["to"])
+
     return proxies
 
 
-def get_net_gas_used(txHash, blockNo):
-    cache_file = "{cacheDirectory}/{blockNumber}.json".format(
-        cacheDirectory=cache_directory, blockNumber=blockNo
-    )
-    block_file = open(cache_file)
-    block_json = json.load(block_file)
-    gas_used = 0
-    for trace in block_json["calls"]:
-        if trace["transactionHash"] == txHash:
-            gas_used = gas_used + int(trace["result"]["gasUsed"], 16)
-    print(gas_used)
+def get_net_gas_used(tx_hash, block):
+    for trace in block.traces:
+        if trace.transaction_hash == tx_hash:
+            gas_used += int(trace.result["gasUsed"], 16)
+
+    return gas_used
 
 
 def get_ether_flows(tx_traces, addresses_to_check):
@@ -127,60 +96,56 @@ def get_ether_flows(tx_traces, addresses_to_check):
     eth_outflow = 0
 
     for trace in tx_traces:
-        if trace["type"] == "call":
+        if trace.type == TraceType.call:
             value = int(
-                trace["action"]["value"], 16
+                trace.action["value"], 16
             )  # converting from 0x prefix to decimal
             # ETH_GET
             if (
-                trace["action"]["callType"] != "delegatecall"
-                and trace["action"]["from"] != weth_address
+                trace.action["callType"] != "delegatecall"
+                and trace.action["from"] != weth_address
                 and value > 0
-                and trace["action"]["to"] in addresses_to_check
+                and trace.action["to"] in addresses_to_check
             ):
                 eth_inflow = eth_inflow + value
 
             # ETH_GIVE
             if (
-                trace["action"]["callType"] != "delegatecall"
-                and trace["action"]["to"] != weth_address
+                trace.action["callType"] != "delegatecall"
+                and trace.action["to"] != weth_address
                 and value > 0
-                and trace["action"]["from"] in addresses_to_check
+                and trace.action["from"] in addresses_to_check
             ):
                 eth_outflow = eth_outflow + value
 
-            if trace["action"]["to"] == weth_address:
+            if trace.action["to"] == weth_address:
                 # WETH_GET1 & WETH_GET2 (to account for both 'transfer' and 'transferFrom' methods)
                 # WETH_GIVE1 & WETH_GIVE2
 
                 # transfer(address to,uint256 value) with args
-                if len(trace["action"]["input"]) == 138:
-                    if trace["action"]["input"][2:10] == "a9059cbb":
-                        transfer_to = "0x" + trace["action"]["input"][34:74]
-                        transfer_value = int(
-                            "0x" + trace["action"]["input"][74:138], 16
-                        )
+                if len(trace.action["input"]) == 138:
+                    if trace.action["input"][2:10] == "a9059cbb":
+                        transfer_to = "0x" + trace.action["input"][34:74]
+                        transfer_value = int("0x" + trace.action["input"][74:138], 16)
                         if transfer_to in addresses_to_check:
                             eth_inflow = eth_inflow + transfer_value
-                        elif trace["action"]["from"] in addresses_to_check:
+                        elif trace.action["from"] in addresses_to_check:
                             eth_outflow = eth_outflow + transfer_value
 
                 # transferFrom(address from,address to,uint256 value )
-                if len(trace["action"]["input"]) == 202:
-                    if trace["action"]["input"][2:10] == "23b872dd":
-                        transfer_from = "0x" + trace["action"]["input"][34:74]
-                        transfer_to = "0x" + trace["action"]["input"][98:138]
-                        transfer_value = int(
-                            "0x" + trace["action"]["input"][138:202], 16
-                        )
+                if len(trace.action["input"]) == 202:
+                    if trace.action["input"][2:10] == "23b872dd":
+                        transfer_from = "0x" + trace.action["input"][34:74]
+                        transfer_to = "0x" + trace.action["input"][98:138]
+                        transfer_value = int("0x" + trace.action["input"][138:202], 16)
                         if transfer_to in addresses_to_check:
                             eth_inflow = eth_inflow + transfer_value
                         elif transfer_from in addresses_to_check:
                             eth_outflow = eth_outflow + transfer_value
 
-        if trace["type"] == "suicide":
-            if trace["action"]["refundAddress"] in addresses_to_check:
-                refund_value = int("0x" + trace["action"]["balance"], 16)
+        if trace.type == TraceType.suicide:
+            if trace.action["refundAddress"] in addresses_to_check:
+                refund_value = int("0x" + trace.action["balance"], 16)
                 eth_inflow = eth_inflow + refund_value
 
     return [eth_inflow, eth_outflow]
@@ -190,30 +155,28 @@ def get_dollar_flows(tx_traces, addresses_to_check):
     dollar_inflow = 0
     dollar_outflow = 0
     for trace in tx_traces:
-        if trace["type"] == "call" and is_stablecoin_address(trace["action"]["to"]):
-            _ = int(
-                trace["action"]["value"], 16
-            )  # converting from 0x prefix to decimal
+        if trace.type == TraceType.call and is_stablecoin_address(trace.action["to"]):
+            _ = int(trace.action["value"], 16)  # converting from 0x prefix to decimal
 
             # USD_GET1 & USD_GET2 (to account for both 'transfer' and 'transferFrom' methods)
             # USD_GIVE1 & USD_GIVE2
 
             # transfer(address to,uint256 value) with args
-            if len(trace["action"]["input"]) == 138:
-                if trace["action"]["input"][2:10] == "a9059cbb":
-                    transfer_to = "0x" + trace["action"]["input"][34:74]
-                    transfer_value = int("0x" + trace["action"]["input"][74:138], 16)
+            if len(trace.action["input"]) == 138:
+                if trace.action["input"][2:10] == "a9059cbb":
+                    transfer_to = "0x" + trace.action["input"][34:74]
+                    transfer_value = int("0x" + trace.action["input"][74:138], 16)
                     if transfer_to in addresses_to_check:
                         dollar_inflow = dollar_inflow + transfer_value
-                    elif trace["action"]["from"] in addresses_to_check:
+                    elif trace.action["from"] in addresses_to_check:
                         dollar_outflow = dollar_outflow + transfer_value
 
             # transferFrom(address from,address to,uint256 value )
-            if len(trace["action"]["input"]) == 202:
-                if trace["action"]["input"][2:10] == "23b872dd":
-                    transfer_from = "0x" + trace["action"]["input"][34:74]
-                    transfer_to = "0x" + trace["action"]["input"][98:138]
-                    transfer_value = int("0x" + trace["action"]["input"][138:202], 16)
+            if len(trace.action["input"]) == 202:
+                if trace.action["input"][2:10] == "23b872dd":
+                    transfer_from = "0x" + trace.action["input"][34:74]
+                    transfer_to = "0x" + trace.action["input"][98:138]
+                    transfer_value = int("0x" + trace.action["input"][138:202], 16)
                     if transfer_to in addresses_to_check:
                         dollar_inflow = dollar_inflow + transfer_value
                     elif transfer_from in addresses_to_check:
@@ -221,13 +184,18 @@ def get_dollar_flows(tx_traces, addresses_to_check):
     return [dollar_inflow, dollar_outflow]
 
 
-def run_tokenflow(txHash, blockNo):
-    tx_traces = get_tx_traces(txHash, blockNo)
-    to_address = get_tx_to_address(txHash, blockNo)
+def run_tokenflow(tx_hash: str, block: Block):
+    tx_traces = block.get_filtered_traces(tx_hash)
+    to_address = get_tx_to_address(tx_hash, block)
+
+    if to_address is None:
+        raise ValueError("No to address found")
+
     addresses_to_check = []
 
     # check for proxies, add them to addresses to check
     proxies = get_tx_proxies(tx_traces, to_address)
+
     for proxy in proxies:
         addresses_to_check.append(proxy.lower())
 
@@ -247,8 +215,8 @@ def run_tokenflow(txHash, blockNo):
 
 
 # note: not the gas set by user, only gas consumed upon execution
-# def get_gas_used_by_tx(txHash):
-#     # tx_receipt = w3.eth.getTransactionReceipt(txHash)
+# def get_gas_used_by_tx(tx_hash):
+#     # tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
 #     return tx_receipt["gasUsed"]
 
 
