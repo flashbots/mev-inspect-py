@@ -1,0 +1,5 @@
+services:
+  mev-inspect:
+    build: .
+    volumes:
+      - .:/app
