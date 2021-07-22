@@ -1,5 +1,13 @@
 # mev-inspect
 
+## Containers
+mev-inspect's local setup is built on [Docker Compose](https://docs.docker.com/compose/)
+
+By default it starts up:
+- `mev-insepct` - a container with the code in this repo used for running scripts
+- `db` - a postgres database instance
+- `pgadmin` - a postgres DB UI for querying and more (avaiable at localhost:5050)
+
 ## Running locally
 Setup [Docker](https://www.docker.com/products/docker-desktop)
 
@@ -34,7 +42,7 @@ docker compose exec mev-inspect python testing_file.py \
 
 Or to run the tests:
 ```
-docker compose exec mev-inspect python -m unittest test/*py
+docker compose exec mev-inspect python -m unittest tests/*py
 ```
 
 ## Rebuilding containers
