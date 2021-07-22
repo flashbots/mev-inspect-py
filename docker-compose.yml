@@ -1,5 +1,5 @@
 services:
-  mev-inspect:
+  app:
     build: .
     depends_on:
       - db
