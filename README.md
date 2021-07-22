@@ -1,4 +1,5 @@
 # mev-inspect
+A [WIP] Ethereum MEV Inspector in Python
 
 ## Containers
 mev-inspect's local setup is built on [Docker Compose](https://docs.docker.com/compose/)
@@ -20,7 +21,7 @@ or to run in the background
 docker compose up -d
 ```
 
-To stop the services
+To stop the services (if running in the background, otherwise just ctrl+c)
 ```
 docker compose down
 ```
