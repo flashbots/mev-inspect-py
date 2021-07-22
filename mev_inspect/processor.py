@@ -8,8 +8,8 @@ class Processor:
 
     def get_transaction_evaluations(self, block_data):
         for transaction_hash in block_data.transaction_hashes:
-            calls = block_data.get_filtered_calls(transaction_hash)
-            calls_json = [to_original_json_dict(call) for call in calls]
+            traces = block_data.get_filtered_traces(transaction_hash)
+            traces_json = [to_original_json_dict(trace) for trace in traces]
 
             for inspector in self.inspectors:
-                inspector.inspect(calls_json)
+                inspector.inspect(traces_json)

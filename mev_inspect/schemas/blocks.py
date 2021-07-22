@@ -1,10 +1,12 @@
 from enum import Enum
 from typing import Dict, List, Optional
 
+from pydantic import BaseModel
+
 from .utils import CamelModel, Web3Model
 
 
-class BlockCallType(Enum):
+class TraceType(Enum):
     call = "call"
     create = "create"
     delegate_call = "delegateCall"
@@ -12,7 +14,7 @@ class BlockCallType(Enum):
     suicide = "suicide"
 
 
-class BlockCall(CamelModel):
+class Trace(CamelModel):
     action: dict
     block_hash: str
     block_number: int
@@ -21,18 +23,26 @@ class BlockCall(CamelModel):
     trace_address: List[int]
     transaction_hash: Optional[str]
     transaction_position: Optional[int]
-    type: BlockCallType
+    type: TraceType
     error: Optional[str]
 
 
 class Block(Web3Model):
     block_number: int
-    calls: List[BlockCall]
+    traces: List[Trace]
     data: dict
     logs: List[dict]
     receipts: dict
     transaction_hashes: List[str]
     txs_gas_data: Dict[str, dict]
 
-    def get_filtered_calls(self, hash: str) -> List[BlockCall]:
-        return [call for call in self.calls if call.transaction_hash == hash]
+    def get_filtered_traces(self, hash: str) -> List[Trace]:
+        return [trace for trace in self.traces if trace.transaction_hash == hash]
+
+
+class NestedTrace(BaseModel):
+    trace: Trace
+    subtraces: List["NestedTrace"]
+
+
+NestedTrace.update_forward_refs()

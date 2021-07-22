@@ -3,7 +3,7 @@ from typing import List
 
 from web3 import Web3
 
-from mev_inspect.schemas import Block, BlockCall, BlockCallType
+from mev_inspect.schemas import Block, Trace, TraceType
 
 
 cache_directory = "./cache"
@@ -12,7 +12,7 @@ cache_directory = "./cache"
 ## Creates a block object, either from the cache or from the chain itself
 ## Note that you need to pass in the provider, not the web3 wrapped provider object!
 ## This is because only the provider allows you to make json rpc requests
-def createFromBlockNumber(block_number: int, base_provider) -> Block:
+def create_from_block_number(block_number: int, base_provider) -> Block:
     cache_path = _get_cache_path(block_number)
 
     if cache_path.is_file():
@@ -42,8 +42,8 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
     )
 
     ## Trace the whole block, return those calls
-    block_calls_json = w3.parity.trace_block(block_number)
-    block_calls = [BlockCall(**call_json) for call_json in block_calls_json]
+    traces_json = w3.parity.trace_block(block_number)
+    traces = [Trace(**trace_json) for trace_json in traces_json]
 
     ## Get the logs
     block_hash = (block_data.hash).hex()
@@ -64,25 +64,25 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
             "netFeePaid": tx_data["gasPrice"] * tx_receipt["gasUsed"],
         }
 
-    transaction_hashes = get_transaction_hashes(block_calls)
+    transaction_hashes = get_transaction_hashes(traces)
 
     ## Create a new object
     return Block(
         block_number=block_number,
         data=block_data,
         receipts=block_receipts_raw,
-        calls=block_calls,
+        traces=traces,
         logs=block_logs,
         transaction_hashes=transaction_hashes,
         txs_gas_data=txs_gas_data,
     )
 
 
-def get_transaction_hashes(calls: List[BlockCall]) -> List[str]:
+def get_transaction_hashes(calls: List[Trace]) -> List[str]:
     result = []
 
     for call in calls:
-        if call.type != BlockCallType.reward:
+        if call.type != TraceType.reward:
             if (
                 call.transaction_hash is not None
                 and call.transaction_hash not in result

@@ -23,7 +23,7 @@ args = parser.parse_args()
 base_provider = Web3.HTTPProvider(args.rpc)
 
 ## Get block data that we need
-block_data = block.createFromBlockNumber(args.block_number[0], base_provider)
+block_data = block.create_from_block_number(args.block_number[0], base_provider)
 
 ## Build a Uniswap inspector
 uniswap_inspector = UniswapInspector(base_provider)

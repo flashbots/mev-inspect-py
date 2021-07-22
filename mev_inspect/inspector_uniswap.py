@@ -83,10 +83,14 @@ class UniswapInspector:
         for call in calls:
             print("\n", call)
             if (
-                call["action"]["to"] == uniswap_router_address.lower()
-                or call["action"]["to"] == sushiswap_router_address.lower()
-            ) and utils.check_call_for_signature(
-                call, self.uniswap_router_trade_signatures
+                call["type"] == "call"
+                and (
+                    call["action"]["to"] == uniswap_router_address.lower()
+                    or call["action"]["to"] == sushiswap_router_address.lower()
+                )
+                and utils.check_trace_for_signature(
+                    call, self.uniswap_router_trade_signatures
+                )
             ):
                 # print("WIP, here is where there is a call that matches what we are looking for")
                 1 == 1
