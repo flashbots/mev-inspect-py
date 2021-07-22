@@ -1,7 +1,7 @@
 # mev-inspect
 
 ## Running locally
-Setup Docker
+Setup [Docker](https://www.docker.com/products/docker-desktop)
 
 Start the services with Docker Compose
 ```
@@ -16,6 +16,8 @@ To stop the services
 ```
 docker compose down
 ```
+
+Check `docker compose help` for more tools available
 
 ## Executing scripts
 To run a command, prefix it with
