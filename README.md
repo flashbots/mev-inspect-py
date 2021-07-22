@@ -52,6 +52,16 @@ After changes to the app's Dockerfile, rebuild with
 docker compose build
 ```
 
+## Using PGAdmin
+
+1. Go to [localhost:5050](localhost:5050)
+
+2. Login with the PGAdmin username and password in `.env`
+
+3. Add a new engine for mev_inspect with
+    - host: db
+    - user / password: see `.env`
+
 ## Contributing
 Contributing requires installing the pre-commit hooks
 
