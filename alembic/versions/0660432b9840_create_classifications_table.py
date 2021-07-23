@@ -47,7 +47,6 @@ def upgrade():
             "trace_type", sa.Enum(*TRACE_TYPES, name="trace_type"), nullable=False
         ),
         sa.Column("trace_address", sa.String(256), nullable=False),
-        sa.Column("contract_address", sa.String(256), nullable=True),
         sa.Column("protocol", sa.Enum(*PROTOCOL_TYPES, name="protocol"), nullable=True),
         sa.Column("function_name", sa.String(2048), nullable=True),
         sa.Column("function_signature", sa.String(2048), nullable=True),
@@ -61,3 +60,6 @@ def upgrade():
 
 def downgrade():
     op.drop_table("classifications")
+    sa.Enum(name="trace_type").drop(op.get_bind(), checkfirst=False)
+    sa.Enum(name="classification_type").drop(op.get_bind(), checkfirst=False)
+    sa.Enum(name="protocol").drop(op.get_bind(), checkfirst=False)
