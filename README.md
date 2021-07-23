@@ -90,7 +90,7 @@ pip install -r requirements_dev.txt
 pre-commit install
 ```
 
-6. Install pre-commit's dependencies and ensure it's working
+6. Install pre-commit's dependencies and ensure that it's working
 ```
 pre-commit run --all-files
 ```
