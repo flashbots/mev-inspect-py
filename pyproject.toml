@@ -33,6 +33,9 @@ isortcheck = 'scripts.dev_tools:isortcheck'
 mypy = 'scripts.dev_tools:mypy'
 black = 'scripts.dev_tools:black'
 blackcheck = 'scripts.dev_tools:blackcheck'
+start = 'scripts.dev_tools:start'
+start_it = 'scripts.dev_tools:start_it'
+build = 'scripts.dev_tools:build'
 
 [tool.black]
 exclude = '''
