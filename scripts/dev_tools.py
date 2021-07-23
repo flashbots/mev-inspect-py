@@ -1,7 +1,7 @@
 from subprocess import check_call
 
 def lint():
-    check_call(['pylint'])
+    check_call(['pylint', '.'])
 
 def test():
     check_call(['pytest', '--cov=mev_inspect', 'tests'])
@@ -28,4 +28,4 @@ def build():
     check_call(['docker', 'build', '-t', 'mev-inspect', '.'])
 
 def start_it():
-    check_call(['docker', 'run', '-it', 'mev-inspect'])
+    check_call(['docker', 'run', 'mev-inspect'])
