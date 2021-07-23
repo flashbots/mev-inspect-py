@@ -3,5 +3,13 @@ env/
 __pycache__
 .mypy_cache
 
-*.swp
+# vim temp
+*.sw?
+.*.sw?
 
+# pytest cache
+.pytest_cache/
+
+# coverage
+htmlcov
+.coverage*
