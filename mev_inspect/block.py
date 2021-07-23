@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
 from web3 import Web3
 
@@ -50,7 +50,7 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
     block_logs = w3.eth.get_logs({"blockHash": block_hash})
 
     ## Get gas used by individual txs and store them too
-    txs_gas_data = {}
+    txs_gas_data: Dict[str, Dict[str, Any]] = {}
 
     for transaction in block_data["transactions"]:
         tx_hash = (transaction.hash).hex()
