@@ -22,10 +22,14 @@ def blackcheck():
     check_call(['black', '--diff', '--color', '.'])
 
 def start():
-    check_call(['docker', 'run', 'mev-inspect'])
+    check_call(['docker', 'compose', 'up'])
+
+def start_background():
+    check_call(['docker', 'compose', 'up', '-d'])
+
+def stop():
+    check_call(['docker', 'compose', 'down'])
 
 def build():
-    check_call(['docker', 'build', '-t', 'mev-inspect', '.'])
+    check_call(['docker', 'compose', 'build'])
 
-def start_it():
-    check_call(['docker', 'run', 'mev-inspect'])
