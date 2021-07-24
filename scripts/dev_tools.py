@@ -1,4 +1,5 @@
-from subprocess import check_call
+import click
+from subprocess import check_call, run
 
 def lint():
     check_call(['pylint', '.'])
@@ -6,30 +7,23 @@ def lint():
 def test():
     check_call(['pytest', '--cov=mev_inspect', 'tests'])
 
-def isort():
-    check_call(['isort', '.'])
-
-def isortcheck():
-    check_call(['isort', '--diff', '.'])
+@click.command()
+@click.option('-c', required=False, is_flag=True)
+def isort(c: str):
+    '''if c is present run isort in diff mode'''
+    if c:
+        check_call(['isort', '.'])
+    else:
+        check_call(['isort', '--diff', '.'])
 
 def mypy():
     check_call(['mypy', '.'])
 
-def black():
-    check_call(['black', '.'])
-
-def blackcheck():
-    check_call(['black', '--diff', '--color', '.'])
-
-def start():
-    check_call(['docker', 'compose', 'up'])
-
-def start_background():
-    check_call(['docker', 'compose', 'up', '-d'])
-
-def stop():
-    check_call(['docker', 'compose', 'down'])
-
-def build():
-    check_call(['docker', 'compose', 'build'])
-
+@click.command()
+@click.option('-c', required=False, is_flag=True)
+def black(c: str):
+    '''if c is present run black in diff mode'''
+    if c:
+        check_call(['black', '.'])
+    else:
+        check_call(['black', '--diff', '--color', '.'])

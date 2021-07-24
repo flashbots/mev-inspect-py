@@ -9,6 +9,7 @@ python = "^3.8"
 web3 = "^5.21.0"
 pydantic = "^1.8.2"
 hexbytes = "^0.2.1"
+click = "^8.0.1"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.13.0"
@@ -29,14 +30,11 @@ build-backend = "poetry.core.masonry.api"
 lint = 'scripts.dev_tools:lint'
 test = 'scripts.dev_tools:test'
 isort = 'scripts.dev_tools:isort'
-isortcheck = 'scripts.dev_tools:isortcheck'
 mypy = 'scripts.dev_tools:mypy'
 black = 'scripts.dev_tools:black'
-blackcheck = 'scripts.dev_tools:blackcheck'
-start = 'scripts.dev_tools:start'
-start_background = 'scripts.dev_tools:start_background'
-stop = 'scripts.dev_tools:stop'
-build = 'scripts.dev_tools:build'
+start = 'scripts.docker:start'
+stop = 'scripts.docker:stop'
+build = 'scripts.docker:build'
 
 [tool.black]
 exclude = '''
