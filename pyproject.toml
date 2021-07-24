@@ -5,7 +5,7 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 web3 = "^5.21.0"
 pydantic = "^1.8.2"
 hexbytes = "^0.2.1"
@@ -32,9 +32,12 @@ test = 'scripts.dev_tools:test'
 isort = 'scripts.dev_tools:isort'
 mypy = 'scripts.dev_tools:mypy'
 black = 'scripts.dev_tools:black'
+pre_commit = 'scripts.dev_tools:pre_commit'
 start = 'scripts.docker:start'
 stop = 'scripts.docker:stop'
 build = 'scripts.docker:build'
+attach = 'scripts.docker:attach'
+inspect = 'scripts.docker:inspect'
 
 [tool.black]
 exclude = '''
