@@ -1,29 +1,38 @@
+from subprocess import check_call
 import click
-from subprocess import check_call, run
+
 
 def lint():
-    check_call(['pylint', '.'])
+    check_call(["pylint", "."])
+
 
 def test():
-    check_call(['pytest', '--cov=mev_inspect', 'tests'])
+    check_call(["pytest", "--cov=mev_inspect", "tests"])
+
 
 @click.command()
-@click.option('-c', required=False, is_flag=True)
+@click.option("-c", required=False, is_flag=True)
 def isort(c: str):
-    '''if c is present run isort in diff mode'''
+    """if c is present run isort in diff mode"""
     if c:
-        check_call(['isort', '.'])
+        check_call(["isort", "."])
     else:
-        check_call(['isort', '--diff', '.'])
+        check_call(["isort", "--diff", "."])
+
 
 def mypy():
-    check_call(['mypy', '.'])
+    check_call(["mypy", "."])
+
 
 @click.command()
-@click.option('-c', required=False, is_flag=True)
+@click.option("-c", required=False, is_flag=True)
 def black(c: str):
-    '''if c is present run black in diff mode'''
+    """if c is present run black in diff mode"""
     if c:
-        check_call(['black', '.'])
+        check_call(["black", "."])
     else:
-        check_call(['black', '--diff', '--color', '.'])
+        check_call(["black", "--diff", "--color", "."])
+
+
+def pre_commit():
+    check_call(["pre-commit", "run", "--all-files"])
