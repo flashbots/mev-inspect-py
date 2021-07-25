@@ -26,7 +26,7 @@ class Web3Model(BaseModel):
 
 
 class CamelModel(BaseModel):
-    """BaseModel that translates from camelCase to snake_case"""
+    """BaseModel that translates from snake_case to camelCase"""
 
     class Config(Web3Model.Config):
         alias_generator = to_camel

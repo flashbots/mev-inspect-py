@@ -84,6 +84,7 @@ def get_tx_proxies(tx_traces: List[Trace], to_address: Optional[str]):
 
 
 def get_net_gas_used(tx_hash, block):
+    gas_used = 0
     for trace in block.traces:
         if trace.transaction_hash == tx_hash:
             gas_used += int(trace.result["gasUsed"], 16)
