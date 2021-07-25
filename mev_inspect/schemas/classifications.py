@@ -9,6 +9,10 @@ class Classification(BaseModel):
     pass
 
 
+class Liquidation(Classification):
+    pass
+
+
 class UnknownClassification(Classification):
     trace: Trace
     internal_classifications: List[Classification]
