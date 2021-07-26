@@ -1,9 +1,30 @@
 import argparse
+import json
 
 from web3 import Web3
 
 from mev_inspect import block
 from mev_inspect.processor import Processor
+from mev_inspect.schemas.classifications import DecodeSpec, Protocol
+
+
+SUSHISWAP_ROUTER_ADDRESS = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+UNISWAP_V2_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+
+
+DECODE_SPECS = [
+    DecodeSpec(
+        abi_name="UniswapV2Router",
+        protocol=Protocol.uniswap_v2,
+        valid_contract_addresses=[UNISWAP_V2_ROUTER_ADDRESS],
+    ),
+    DecodeSpec(
+        abi_name="UniswapV2Router",
+        protocol=Protocol.sushiswap,
+        valid_contract_addresses=[SUSHISWAP_ROUTER_ADDRESS],
+    ),
+    DecodeSpec(abi_name="UniswapV2Pair"),
+]
 
 
 def inspect_block(base_provider, block_number):
@@ -19,10 +40,23 @@ def inspect_block(base_provider, block_number):
     )
     print(f"Total transactions: {total_transactions}")
 
-    processor = Processor()
+    processor = Processor(DECODE_SPECS)
     classifications = processor.process(block_data)
 
     print(f"Returned {len(classifications)} classifications")
+
+    stats = {}
+
+    for classification in classifications:
+        protocol = classification.protocol
+        signature = classification.function_signature
+
+        protocol_stats = stats.get(protocol, {})
+        signature_count = protocol_stats.get(signature, 0)
+        protocol_stats[signature] = signature_count + 1
+        stats[protocol] = protocol_stats
+
+    print(json.dumps(dict(stats.items()), indent=4))
 
 
 if __name__ == "__main__":
