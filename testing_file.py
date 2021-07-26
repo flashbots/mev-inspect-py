@@ -5,7 +5,7 @@ from web3 import Web3
 
 from mev_inspect import block
 from mev_inspect.processor import Processor
-from mev_inspect.schemas.classifications import DecodeSpec, Protocol
+from mev_inspect.schemas.classifications import Classification, DecodeSpec, Protocol
 
 
 SUSHISWAP_ROUTER_ADDRESS = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
@@ -23,7 +23,20 @@ DECODE_SPECS = [
         protocol=Protocol.sushiswap,
         valid_contract_addresses=[SUSHISWAP_ROUTER_ADDRESS],
     ),
-    DecodeSpec(abi_name="UniswapV2Pair"),
+    DecodeSpec(
+        abi_name="ERC20",
+        classifications={
+            "transferFrom(address,address,uint256)": Classification.transfer,
+            "transfer(address,uint256)": Classification.transfer,
+            "burn(address)": Classification.burn,
+        },
+    ),
+    DecodeSpec(
+        abi_name="UniswapV2Pair",
+        classifications={
+            "swap(uint256,uint256,address,bytes)": Classification.swap,
+        },
+    ),
 ]
 
 
@@ -41,19 +54,22 @@ def inspect_block(base_provider, block_number):
     print(f"Total transactions: {total_transactions}")
 
     processor = Processor(DECODE_SPECS)
-    classifications = processor.process(block_data)
+    classified_traces = processor.process(block_data)
 
-    print(f"Returned {len(classifications)} classifications")
+    print(f"Returned {len(classified_traces)} classified traces")
 
     stats = {}
 
-    for classification in classifications:
-        protocol = classification.protocol
-        signature = classification.function_signature
+    for trace in classified_traces:
+        protocol = trace.protocol
+        classification = trace.classification.value
+        signature = trace.function_signature
 
         protocol_stats = stats.get(protocol, {})
+        class_stats = protocol_stats.get(classification, {})
         signature_count = protocol_stats.get(signature, 0)
-        protocol_stats[signature] = signature_count + 1
+        class_stats[signature] = signature_count + 1
+        protocol_stats[classification] = class_stats
         stats[protocol] = protocol_stats
 
     print(json.dumps(dict(stats.items()), indent=4))

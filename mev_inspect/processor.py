@@ -58,15 +58,20 @@ class Processor:
             call_data = decoder.decode(trace.action["input"])
 
             if call_data is not None:
+                signature = call_data.function_signature
+                classification = spec.classifications.get(
+                    signature, Classification.unknown
+                )
+
                 return ClassifiedTrace(
                     transaction_hash=trace.transaction_hash,
                     block_number=trace.block_number,
                     trace_type=trace.type,
                     trace_address=trace.trace_address,
-                    classification=Classification.unknown,
+                    classification=classification,
                     protocol=spec.protocol,
                     function_name=call_data.function_name,
-                    function_signature=call_data.function_signature,
+                    function_signature=signature,
                     intputs=call_data.inputs,
                 )
 

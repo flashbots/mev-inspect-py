@@ -9,6 +9,8 @@ from .blocks import TraceType
 class Classification(Enum):
     unknown = "unknown"
     swap = "swap"
+    burn = "burn"
+    transfer = "transfer"
 
 
 class Protocol(Enum):
@@ -32,3 +34,4 @@ class DecodeSpec(BaseModel):
     abi_name: str
     protocol: Optional[Protocol] = None
     valid_contract_addresses: Optional[List[str]] = None
+    classifications: Dict[str, Classification] = {}
