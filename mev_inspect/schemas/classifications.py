@@ -25,6 +25,7 @@ class ClassifiedTrace(BaseModel):
     trace_address: List[int]
     classification: Classification
     protocol: Optional[Protocol]
+    abi_name: Optional[str]
     function_name: Optional[str]
     function_signature: Optional[str]
     inputs: Optional[Dict[str, Any]]

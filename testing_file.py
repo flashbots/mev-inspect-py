@@ -41,6 +41,11 @@ DECODE_SPECS = [
 
 
 def inspect_block(base_provider, block_number):
+    print("Using decode specs:")
+
+    for spec in DECODE_SPECS:
+        print(spec.json(indent=4, exclude_unset=True))
+
     block_data = block.create_from_block_number(block_number, base_provider)
     print(f"Total traces: {len(block_data.traces)}")
 
@@ -61,16 +66,16 @@ def inspect_block(base_provider, block_number):
     stats = {}
 
     for trace in classified_traces:
-        protocol = trace.protocol
+        abi_name = trace.abi_name
         classification = trace.classification.value
         signature = trace.function_signature
 
-        protocol_stats = stats.get(protocol, {})
-        class_stats = protocol_stats.get(classification, {})
-        signature_count = protocol_stats.get(signature, 0)
+        abi_name_stats = stats.get(abi_name, {})
+        class_stats = abi_name_stats.get(classification, {})
+        signature_count = abi_name_stats.get(signature, 0)
         class_stats[signature] = signature_count + 1
-        protocol_stats[classification] = class_stats
-        stats[protocol] = protocol_stats
+        abi_name_stats[classification] = class_stats
+        stats[abi_name] = abi_name_stats
 
     print(json.dumps(dict(stats.items()), indent=4))
 
