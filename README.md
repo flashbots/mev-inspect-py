@@ -101,6 +101,7 @@ poetry run build
 ```
 poetry run pre-commit --all-files
 ```
+
 or within docker
 ```
 pre-commit run --all-files
