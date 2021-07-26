@@ -5,7 +5,7 @@ from mev_inspect.decode import ABIDecoder
 from mev_inspect.schemas.blocks import Block, Trace, TraceType
 from mev_inspect.schemas.classifications import (
     Classification,
-    ClassificationType,
+    ClassifiedTrace,
     DecodeSpec,
 )
 
@@ -28,22 +28,22 @@ class Processor:
     def process(
         self,
         block: Block,
-    ) -> List[Classification]:
+    ) -> List[ClassifiedTrace]:
         return [
             self._classify(trace)
             for trace in block.traces
             if trace.type != TraceType.reward
         ]
 
-    def _classify(self, trace: Trace) -> Classification:
+    def _classify(self, trace: Trace) -> ClassifiedTrace:
         if trace.type == TraceType.call:
-            classification = self._classify_call(trace)
-            if classification is not None:
-                return classification
+            classified_trace = self._classify_call(trace)
+            if classified_trace is not None:
+                return classified_trace
 
-        return self._build_unknown_classification(trace)
+        return self._build_unknown_classified_trace(trace)
 
-    def _classify_call(self, trace) -> Optional[Classification]:
+    def _classify_call(self, trace) -> Optional[ClassifiedTrace]:
         to_address = trace.action["to"]
 
         for spec in self._decode_specs:
@@ -58,12 +58,12 @@ class Processor:
             call_data = decoder.decode(trace.action["input"])
 
             if call_data is not None:
-                return Classification(
+                return ClassifiedTrace(
                     transaction_hash=trace.transaction_hash,
                     block_number=trace.block_number,
                     trace_type=trace.type,
                     trace_address=trace.trace_address,
-                    classification_type=ClassificationType.unknown,
+                    classification=Classification.unknown,
                     protocol=spec.protocol,
                     function_name=call_data.function_name,
                     function_signature=call_data.function_signature,
@@ -73,13 +73,13 @@ class Processor:
         return None
 
     @staticmethod
-    def _build_unknown_classification(trace):
-        return Classification(
+    def _build_unknown_classified_trace(trace):
+        return ClassifiedTrace(
             transaction_hash=trace.transaction_hash,
             block_number=trace.block_number,
             trace_type=trace.type,
             trace_address=trace.trace_address,
-            classification_type=ClassificationType.unknown,
+            classification=Classification.unknown,
             protocol=None,
             function_name=None,
             function_signature=None,

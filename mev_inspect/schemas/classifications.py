@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from .blocks import TraceType
 
 
-class ClassificationType(Enum):
+class Classification(Enum):
     unknown = "unknown"
     swap = "swap"
 
@@ -16,12 +16,12 @@ class Protocol(Enum):
     sushiswap = "sushiswap"
 
 
-class Classification(BaseModel):
+class ClassifiedTrace(BaseModel):
     transaction_hash: str
     block_number: int
     trace_type: TraceType
     trace_address: List[int]
-    classification_type: ClassificationType
+    classification: Classification
     protocol: Optional[Protocol]
     function_name: Optional[str]
     function_signature: Optional[str]
