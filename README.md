@@ -28,6 +28,11 @@ Apply the latest migrations against the local DB:
 poetry run exec alembic upgrade head
 ``` 
 
+Run inspect on a block
+```
+poetry run inspect --block-number 11931270 --rpc 'http://111.11.11.111:8545/'
+``` 
+
 To stop the services (if running in the background, otherwise just ctrl+c)
 ```
 poetry run stop
@@ -67,7 +72,7 @@ poetry run stop # shutsdown all services or just ctrl + c if foreground
 poetry run build # rebuilds containers
 poetry run attach # enters the mev-inspect container in interactive mode
 # launches inspection script
-poetry run inspect -script ... -block_number ... -rpc ...
+poetry run inspect --block-number 11931270 --rpc 'http://111.11.11.111:8545/'
 ```
 
 
