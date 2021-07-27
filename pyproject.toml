@@ -39,7 +39,7 @@ start = 'scripts.docker:start'
 stop = 'scripts.docker:stop'
 build = 'scripts.docker:build'
 attach = 'scripts.docker:attach'
-inspect = 'scripts.docker:inspect'
+exec = 'scripts.docker:exec'
 
 [tool.black]
 exclude = '''

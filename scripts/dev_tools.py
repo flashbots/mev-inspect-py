@@ -32,7 +32,3 @@ def black(c: str):
         check_call(["black", "."])
     else:
         check_call(["black", "--diff", "--color", "."])
-
-
-def pre_commit():
-    check_call(["pre-commit", "run", "--all-files"])

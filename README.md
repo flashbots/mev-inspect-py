@@ -11,11 +11,22 @@ By default it starts up:
 
 ## Running locally
 Setup [Docker](https://www.docker.com/products/docker-desktop)
+Setup [Poetry](https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions)
+
+Install dependencies through poetry
+```
+poetry install
+```
 
 Start the services (optionally as background processes)
 ```
 poetry run start [-b]
 ```
+
+Apply the latest migrations against the local DB:
+```
+poetry run exec alembic upgrade head
+``` 
 
 To stop the services (if running in the background, otherwise just ctrl+c)
 ```
@@ -31,22 +42,16 @@ Running additional compose commands are possible through standard `docker
 compose ...` calls.  Check `docker compose help` for more tools available
 
 ## Executing scripts
-Inspection is the only simplified api available through poetry at the moment
-with a more generalized api on the horizon.
-
-Inspect scripts must have `-script`, `-block_number` and `-rpc` arguments.
-Using the uniswap inspect from `./examples`
+Any script can be run from the mev-inspect container like
 ```
-poetry run inspect -script ./examples/uniswap_inspect.py -block_number 11931271 \
-                   -rpc 'http://111.11.11.111:8545'
+poetry run exec <your command here>
 ```
 
-Generalized user defined scripts can still be run through the docker interface as
+For example
 ```
-docker compose exec mev-inspect python testing_file.py \
-    -block_number 11931271 \
-    -rpc 'http://111.11.11.111:8545'
+poetry run exec python examples/uniswap_inspect.py -block_number=123 -rpc='111.111.111'
 ```
+
 ### Poetry Scripts
 ```bash
 # code check
@@ -55,7 +60,7 @@ poetry run test # testing and code coverage with Pytest
 poetry run isort # fixing imports 
 poetry run mypy # type checking 
 poetry run black # style guide 
-poetry run pre-commit # runs Black, PyLint and MyPy
+poetry run pre-commit run --all-files # runs Black, PyLint and MyPy
 # docker management
 poetry run start [-b] # starts all services, optionally in the background
 poetry run stop # shutsdown all services or just ctrl + c if foreground
@@ -83,27 +88,12 @@ poetry run build
     - user / password: see `.env`
 
 ## Contributing
-Development can be done locally or in the docker container.  Use local if
-contributions can be fully tested without invoking the database related
-services.
 
-1. Install dependencies and build python environment
+Pre-commit is used to maintain a consistent style, prevent errors and ensure test coverage. 
+
+Install pre-commit with:
 ```
-poetry install
-```
-or with docker
-```
-poetry run build
-```
-2. Pre-commit is used to maintain a consistent style, prevent errors and ensure
-   test coverage.  Make sure to fix any errors presented via Black, Pylint and
-   MyPy pre-commit hooks
-```
-poetry run pre-commit
+poetry run pre-commit install
 ```
 
-or within docker
-```
-pre-commit run --all-files
-```
-3. Update README if needed
+Update README if needed
