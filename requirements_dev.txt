@@ -1,3 +1,0 @@
-pre-commit==2.13.0
-pylint==2.9.3
-mypy==0.910
