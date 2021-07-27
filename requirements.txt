@@ -1,6 +1,0 @@
-alembic==1.6.5
-argparse==1.4.0
-hexbytes==0.2.1
-psycopg2==2.9.1
-pydantic==1.8.2
-web3==5.20.1
