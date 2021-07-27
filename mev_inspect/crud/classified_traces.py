@@ -6,12 +6,12 @@ from mev_inspect.schemas.classified_traces import ClassifiedTrace
 
 
 def write_classified_traces(
-    db_connection,
+    db_session,
     classified_traces: List[ClassifiedTrace],
 ) -> None:
     models = [
         ClassifiedTraceModel(**json.loads(trace.json())) for trace in classified_traces
     ]
 
-    db_connection.bulk_save_objects(models)
-    db_connection.commit()
+    db_session.bulk_save_objects(models)
+    db_session.commit()
