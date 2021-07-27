@@ -10,6 +10,7 @@ web3 = "^5.21.0"
 pydantic = "^1.8.2"
 hexbytes = "^0.2.1"
 click = "^8.0.1"
+psycopg2 = "^2.9.1"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.13.0"
@@ -21,6 +22,7 @@ pytest = "^6.2.4"
 pytest-sugar = "^0.9.4"
 pytest-cov = "^2.12.1"
 coverage = "^5.5"
+alembic = "^1.6.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
