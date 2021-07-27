@@ -1,4 +1,6 @@
 from subprocess import check_call
+from typing import List
+
 import click
 
 
@@ -26,20 +28,6 @@ def attach():
 
 
 @click.command()
-@click.option("-script", help="inspect script", default="./examples/uniswap_inspect.py")
-@click.option("-block_num", help="block number to inspect", default=11931271)
-@click.option("-rpc", help="rpc address", default="http://111.11.11.111:8545")
-def inspect(script: str, block_num: int, rpc: str):
-    """Runs mev-inspect scripts through docker services"""
-    check_call(
-        [
-            "docker",
-            "compose",
-            "exec",
-            "mev-inspect",
-            "python",
-            script,
-            f"-block_number {block_num}",
-            f"-rpc {rpc}",
-        ]
-    )
+@click.argument("args", nargs=-1)
+def exec(args: List[str]):
+    check_call(["docker", "compose", "exec", "mev-inspect", *args])
