@@ -99,7 +99,7 @@ poetry run build
    test coverage.  Make sure to fix any errors presented via Black, Pylint and
    MyPy pre-commit hooks
 ```
-poetry run pre-commit --all-files
+poetry run pre-commit
 ```
 
 or within docker
