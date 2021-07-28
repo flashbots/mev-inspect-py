@@ -26,10 +26,12 @@ def attach():
 
 
 @click.command()
-@click.option("-script", help="inspect script", default="./examples/uniswap_inspect.py")
-@click.option("-block_num", help="block number to inspect", default=11931271)
-@click.option("-rpc", help="rpc address", default="http://111.11.11.111:8545")
-def inspect(script: str, block_num: int, rpc: str):
+@click.option(
+    "-s", "--script", help="inspect script", default="./examples/uniswap_inspect.py"
+)
+@click.option("-b", "--block-num", help="block number to inspect", default="11931271")
+@click.option("-r", "--rpc", help="rpc address", default="http://111.11.11.111:8545")
+def inspect(script: str, block_num: str, rpc: str):
     """Runs mev-inspect scripts through docker services"""
     check_call(
         [
@@ -39,7 +41,9 @@ def inspect(script: str, block_num: int, rpc: str):
             "mev-inspect",
             "python",
             script,
-            f"-block_number {block_num}",
-            f"-rpc {rpc}",
+            "-block_number",
+            block_num,
+            "-rpc",
+            rpc,
         ]
     )
