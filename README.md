@@ -34,11 +34,11 @@ compose ...` calls.  Check `docker compose help` for more tools available
 Inspection is the only simplified api available through poetry at the moment
 with a more generalized api on the horizon.
 
-Inspect scripts must have `-script`, `-block_number` and `-rpc` arguments.
+Inspect scripts must have `-s/--script`, `-b/--block-number` and `-r/-rpc` arguments.
 Using the uniswap inspect from `./examples`
 ```
-poetry run inspect -script ./examples/uniswap_inspect.py -block_number 11931271 \
-                   -rpc 'http://111.11.11.111:8545'
+poetry run inspect -s ./examples/uniswap_inspect.py -b 11931271 \
+                   -r 'http://111.11.11.111:8545'
 ```
 
 Generalized user defined scripts can still be run through the docker interface as
@@ -62,7 +62,7 @@ poetry run stop # shutsdown all services or just ctrl + c if foreground
 poetry run build # rebuilds containers
 poetry run attach # enters the mev-inspect container in interactive mode
 # launches inspection script
-poetry run inspect -script ... -block_number ... -rpc ...
+poetry run inspect -s <script> -b <block number> -r <rpc>
 ```
 
 
