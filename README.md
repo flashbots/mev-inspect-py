@@ -18,7 +18,7 @@ Install dependencies through poetry
 poetry install
 ```
 
-Start the services (optionally as daemon
+Start the services (optionally as daemon)
 ```
 poetry run start [-d]
 ```
