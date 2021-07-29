@@ -5,10 +5,10 @@ import click
 
 
 @click.command()
-@click.option("-b", required=False, is_flag=True)
-def start(b: str):
-    """if d is present background compose"""
-    if b:
+@click.option("-d", required=False, is_flag=True)
+def start(d: str):
+    """if d is present, run docker compose as daemon"""
+    if d:
         check_call(["docker", "compose", "up", "-d"])
         click.echo("docker running in the background...")
     else:

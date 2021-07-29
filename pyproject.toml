@@ -29,18 +29,18 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-lint = 'scripts.dev_tools:lint'
-test = 'scripts.dev_tools:test'
-isort = 'scripts.dev_tools:isort'
-mypy = 'scripts.dev_tools:mypy'
-black = 'scripts.dev_tools:black'
-pre_commit = 'scripts.dev_tools:pre_commit'
-start = 'scripts.docker:start'
-stop = 'scripts.docker:stop'
-build = 'scripts.docker:build'
-attach = 'scripts.docker:attach'
-exec = 'scripts.docker:exec'
-inspect = 'scripts.inspect:inspect'
+lint = 'scripts.poetry.dev_tools:lint'
+test = 'scripts.poetry.dev_tools:test'
+isort = 'scripts.poetry.dev_tools:isort'
+mypy = 'scripts.poetry.dev_tools:mypy'
+black = 'scripts.poetry.dev_tools:black'
+pre_commit = 'scripts.poetry.dev_tools:pre_commit'
+start = 'scripts.poetry.docker:start'
+stop = 'scripts.poetry.docker:stop'
+build = 'scripts.poetry.docker:build'
+attach = 'scripts.poetry.docker:attach'
+exec = 'scripts.poetry.docker:exec'
+inspect = 'scripts.poetry.inspect:inspect'
 
 [tool.black]
 exclude = '''
