@@ -17,7 +17,7 @@ class TraceClassifier:
         self._decoders_by_abi_name: Dict[str, ABIDecoder] = {}
 
         for spec in self._classifier_specs:
-            abi = get_abi(spec.abi_name)
+            abi = get_abi(spec.abi_name, spec.protocol)
 
             if abi is None:
                 raise ValueError(f"No ABI found for {spec.abi_name}")
