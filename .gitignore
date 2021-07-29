@@ -1,0 +1,15 @@
+# venv and test cache files
+env/
+__pycache__
+.mypy_cache
+
+# vim temp
+*.sw?
+.*.sw?
+
+# pytest cache
+.pytest_cache/
+
+# coverage
+htmlcov
+.coverage*

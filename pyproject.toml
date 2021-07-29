@@ -1,0 +1,72 @@
+[tool.poetry]
+name = "mev_inspect"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+web3 = "^5.21.0"
+pydantic = "^1.8.2"
+hexbytes = "^0.2.1"
+click = "^8.0.1"
+psycopg2 = "^2.9.1"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "^2.13.0"
+pylint = "^2.9.5"
+mypy = "^0.910"
+black = "^21.7b0"
+isort = "^5.9.2"
+pytest = "^6.2.4"
+pytest-sugar = "^0.9.4"
+pytest-cov = "^2.12.1"
+coverage = "^5.5"
+alembic = "^1.6.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+lint = 'scripts.dev_tools:lint'
+test = 'scripts.dev_tools:test'
+isort = 'scripts.dev_tools:isort'
+mypy = 'scripts.dev_tools:mypy'
+black = 'scripts.dev_tools:black'
+pre_commit = 'scripts.dev_tools:pre_commit'
+start = 'scripts.docker:start'
+stop = 'scripts.docker:stop'
+build = 'scripts.docker:build'
+attach = 'scripts.docker:attach'
+exec = 'scripts.docker:exec'
+inspect = 'scripts.inspect:inspect'
+
+[tool.black]
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | tests/.*/setup.py
+)/
+'''
+
+[tool.isort]
+profile = "black"
+atomic = true
+include_trailing_comma = true
+lines_after_imports = 2
+lines_between_types = 1
+use_parentheses = true
+src_paths = ["poetry", "tests"]
+skip_glob = ["*/setup.py"]
+filter_files = true
+known_first_party = "poetry"
