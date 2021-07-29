@@ -18,9 +18,9 @@ Install dependencies through poetry
 poetry install
 ```
 
-Start the services (optionally as background processes)
+Start the services (optionally as daemon)
 ```
-poetry run start [-b]
+poetry run start [-d]
 ```
 
 Apply the latest migrations against the local DB:
@@ -30,7 +30,7 @@ poetry run exec alembic upgrade head
 
 Run inspect on a block
 ```
-poetry run inspect --block-number 11931270 --rpc 'http://111.11.11.111:8545/'
+poetry run inspect -b/--block-number 11931270 -r/--rpc 'http://111.11.11.111:8545/'
 ``` 
 
 To stop the services (if running in the background, otherwise just ctrl+c)
@@ -67,12 +67,12 @@ poetry run mypy # type checking
 poetry run black # style guide 
 poetry run pre-commit run --all-files # runs Black, PyLint and MyPy
 # docker management
-poetry run start [-b] # starts all services, optionally in the background
+poetry run start [-d] # starts all services, optionally as a daemon
 poetry run stop # shutsdown all services or just ctrl + c if foreground
 poetry run build # rebuilds containers
 poetry run attach # enters the mev-inspect container in interactive mode
 # launches inspection script
-poetry run inspect --block-number 11931270 --rpc 'http://111.11.11.111:8545/'
+poetry run inspect -b/--block-number 11931270 -r/--rpc 'http://111.11.11.111:8545/'
 ```
 
 
