@@ -54,8 +54,7 @@ class TraceClassifier:
         for spec in self._classifier_specs:
             if spec.valid_contract_addresses is not None:
                 lower_valid_addresses = {
-                    address.lower()
-                    for address in spec.valid_contract_addresses
+                    address.lower() for address in spec.valid_contract_addresses
                 }
 
                 if action.to not in lower_valid_addresses:

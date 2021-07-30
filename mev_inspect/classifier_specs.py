@@ -63,7 +63,7 @@ UNISWAP_V3_CONTRACT_SPECS = [
     ),
 ]
 
-UNISWAP_V3_POOL_SPEC  = ClassifierSpec(
+UNISWAP_V3_POOL_SPEC = ClassifierSpec(
     abi_name="UniswapV3Pool",
     classifications={
         "swap(address,bool,int256,uint160,bytes)": Classification.swap,

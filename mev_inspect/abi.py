@@ -15,8 +15,9 @@ ABI_DIRECTORY_PATH = THIS_FILE_DIRECTORY / "abis"
 def get_abi(abi_name: str, protocol: Optional[Protocol]) -> Optional[ABI]:
     abi_filename = f"{abi_name}.json"
     abi_path = (
-        ABI_DIRECTORY_PATH / abi_filename if protocol is None
-        else ABI_DIRECTORY_PATH / protocol.value / abi_filename 
+        ABI_DIRECTORY_PATH / abi_filename
+        if protocol is None
+        else ABI_DIRECTORY_PATH / protocol.value / abi_filename
     )
 
     if abi_path.is_file():
