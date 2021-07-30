@@ -1,10 +1,10 @@
 from itertools import groupby
 from typing import Iterable, List
 
-from mev_inspect.schemas import Trace, NestedTrace
+from mev_inspect.schemas.classified_traces import ClassifiedTrace, NestedTrace
 
 
-def as_nested_traces(traces: Iterable[Trace]) -> List[NestedTrace]:
+def as_nested_traces(traces: Iterable[ClassifiedTrace]) -> List[NestedTrace]:
     nested_traces = []
 
     sorted_by_transaction_hash = sorted(traces, key=_get_transaction_hash)
@@ -20,7 +20,7 @@ def _get_transaction_hash(trace) -> str:
     return trace.transaction_hash
 
 
-def _as_nested_traces_by_transaction(traces: Iterable[Trace]) -> List[NestedTrace]:
+def _as_nested_traces_by_transaction(traces: Iterable[ClassifiedTrace]) -> List[NestedTrace]:
     """
     Turns a list of Traces into a a tree of NestedTraces
     using their trace addresses
@@ -35,7 +35,7 @@ def _as_nested_traces_by_transaction(traces: Iterable[Trace]) -> List[NestedTrac
     nested_traces = []
 
     parent = None
-    children: List[Trace] = []
+    children: List[ClassifiedTrace] = []
 
     sorted_traces = sorted(traces, key=lambda t: t.trace_address)
 
@@ -70,7 +70,7 @@ def _as_nested_traces_by_transaction(traces: Iterable[Trace]) -> List[NestedTrac
     return nested_traces
 
 
-def _is_subtrace(trace: Trace, parent: Trace):
+def _is_subtrace(trace: ClassifiedTrace, parent: ClassifiedTrace):
     parent_trace_length = len(parent.trace_address)
 
     if len(trace.trace_address) > parent_trace_length:

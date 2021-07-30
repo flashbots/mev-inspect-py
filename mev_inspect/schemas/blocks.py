@@ -68,9 +68,3 @@ class Block(Web3Model):
         return [trace for trace in self.traces if trace.transaction_hash == hash]
 
 
-class NestedTrace(BaseModel):
-    trace: Trace
-    subtraces: List["NestedTrace"]
-
-
-NestedTrace.update_forward_refs()

@@ -1,7 +1,8 @@
 import unittest
 from typing import List
 
-from mev_inspect.schemas import Trace, TraceType, NestedTrace
+from mev_inspect.schemas import TraceType
+from mev_inspect.schemas.classified_traces import ClassifiedTrace, Classification, NestedTrace
 from mev_inspect.traces import as_nested_traces
 
 
@@ -82,20 +83,13 @@ class TestTraces(unittest.TestCase):
 def build_trace_at_address(
     transaction_hash: str,
     trace_address: List[int],
-) -> Trace:
-    return Trace(
-        # real values
+) -> ClassifiedTrace:
+    return ClassifiedTrace(
         transaction_hash=transaction_hash,
         trace_address=trace_address,
-        # placeholders
-        action={},
-        block_hash="",
         block_number=DEFAULT_BLOCK_NUMBER,
-        result=None,
-        subtraces=0,
-        transaction_position=None,
-        type=TraceType.call,
-        error=None,
+        trace_type=TraceType.call,
+        classification=Classification.unknown,
     )
 
 

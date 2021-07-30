@@ -50,3 +50,11 @@ class ClassifierSpec(BaseModel):
     protocol: Optional[Protocol] = None
     valid_contract_addresses: Optional[List[str]] = None
     classifications: Dict[str, Classification] = {}
+
+
+class NestedTrace(BaseModel):
+    trace: ClassifiedTrace
+    subtraces: List["NestedTrace"]
+
+
+NestedTrace.update_forward_refs()
