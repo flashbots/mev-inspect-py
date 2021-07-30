@@ -63,14 +63,12 @@ UNISWAP_V3_CONTRACT_SPECS = [
     ),
 ]
 
-UNISWAP_V3_GENERAL_SPECS = [
-    ClassifierSpec(
-        abi_name="UniswapV3Pool",
-        classifications={
-            "swap(address,bool,int256,uint160,bytes)": Classification.swap,
-        },
-    ),
-]
+UNISWAP_V3_POOL_SPEC  = ClassifierSpec(
+    abi_name="UniswapV3Pool",
+    classifications={
+        "swap(address,bool,int256,uint160,bytes)": Classification.swap,
+    },
+)
 
 UNISWAPPY_V2_CONTRACT_SPECS = [
     ClassifierSpec(
@@ -85,14 +83,12 @@ UNISWAPPY_V2_CONTRACT_SPECS = [
     ),
 ]
 
-UNISWAPPY_V2_GENERAL_SPECS = [
-    ClassifierSpec(
-        abi_name="UniswapV2Pair",
-        classifications={
-            "swap(uint256,uint256,address,bytes)": Classification.swap,
-        },
-    ),
-]
+UNISWAPPY_V2_PAIR_SPEC = ClassifierSpec(
+    abi_name="UniswapV2Pair",
+    classifications={
+        "swap(uint256,uint256,address,bytes)": Classification.swap,
+    },
+)
 
 ERC20_SPEC = ClassifierSpec(
     abi_name="ERC20",
@@ -104,10 +100,10 @@ ERC20_SPEC = ClassifierSpec(
 )
 
 
-CLASSIFIER_SPECS = (
-    UNISWAP_V3_CONTRACT_SPECS + 
-    UNISWAPPY_V2_CONTRACT_SPECS +
-    [ERC20_SPEC] +
-    UNISWAP_V3_GENERAL_SPECS +
-    UNISWAPPY_V2_GENERAL_SPECS
-)
+CLASSIFIER_SPECS = [
+    *UNISWAP_V3_CONTRACT_SPECS,
+    *UNISWAPPY_V2_CONTRACT_SPECS,
+    ERC20_SPEC,
+    UNISWAP_V3_POOL_SPEC,
+    UNISWAPPY_V2_PAIR_SPEC,
+]
