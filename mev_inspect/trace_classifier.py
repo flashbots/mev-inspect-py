@@ -53,7 +53,12 @@ class TraceClassifier:
 
         for spec in self._classifier_specs:
             if spec.valid_contract_addresses is not None:
-                if action.to not in spec.valid_contract_addresses:
+                lower_valid_addresses = {
+                    address.lower()
+                    for address in spec.valid_contract_addresses
+                }
+
+                if action.to not in lower_valid_addresses:
                     continue
 
             decoder = self._decoders_by_abi_name[spec.abi_name]
