@@ -178,4 +178,67 @@ CURVE_META_POOLS = [
     ),
 ]
 
-CLASSIFIER_SPECS = [*CURVE_BASE_POOLS, *CURVE_META_POOLS]
+CURVE_LIQUIDITY_GAUGES = [
+    ClassifierSpec(
+        abi_name="LiquidityGauge",
+        protocol=Protocol.curve,
+        valid_contract_addresses=[
+            "0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A",  # 3Pool
+            "0x69Fb7c45726cfE2baDeE8317005d3F94bE838840",  # BUSD
+            "0x7ca5b0a2910B33e9759DC7dDB0413949071D7575",  # Compound
+            "0xC5cfaDA84E902aD92DD40194f0883ad49639b023",  # GUSD
+            "0x4c18E409Dc8619bFb6a1cB56D114C3f592E0aE79",  # hBTC
+            "0x2db0E83599a91b508Ac268a6197b8B14F5e72840",  # HUSD
+            "0x64E3C23bfc40722d3B649844055F1D51c1ac041d",  # PAX
+            "0xB1F2cdeC61db658F091671F5f199635aEF202CAC",  # renBTC
+            "0xC2b1DF84112619D190193E48148000e3990Bf627",  # USDK
+            "0xF98450B5602fa59CC66e1379DFfB6FDDc724CfC4",  # USDN
+            "0xBC89cd85491d81C6AD2954E6d0362Ee29fCa8F53",  # USDT
+            "0xFA712EE4788C042e2B7BB55E6cb8ec569C4530c1",  # Y
+        ],
+    ),
+    ClassifierSpec(
+        abi_name="LiquidityGaugeV2",
+        protocol=Protocol.curve,
+        valid_contract_addresses=[
+            "0xd662908ADA2Ea1916B3318327A97eB18aD588b5d",  # AAVE
+            "0x6d10ed2cF043E6fcf51A0e7b4C2Af3Fa06695707",  # ankrETH
+            "0xdFc7AdFa664b08767b735dE28f9E84cd30492aeE",  # bBTC
+            "0x90Bb609649E0451E5aD952683D64BD2d1f245840",  # EURS
+            "0x72e158d38dbd50a483501c24f792bdaaa3e7d55c",  # FRAX
+            "0x11137B10C210b579405c21A07489e28F3c040AB1",  # oBTC
+            "0xF5194c3325202F456c95c1Cf0cA36f8475C1949F",  # IronBank
+            "0xFD4D8a17df4C27c1dD245d153ccf4499e806C87D",  # Link
+            "0xd7d147c6Bb90A718c3De8C0568F9B560C79fa416",  # pBTC
+            "0x462253b8F74B72304c145DB0e4Eebd326B22ca39",  # sAAVE
+            "0x3C0FFFF15EA30C35d7A85B85c0782D6c94e1d238",  # sETH
+            "0x182B723a58739a9c974cFDB385ceaDb237453c28",  # stETH
+            "0x055be5DDB7A925BfEF3417FC157f53CA77cA7222",  # USDP
+            "0x3B7020743Bc2A4ca9EaF9D0722d42E20d6935855",  # UST
+            "0x8101E6760130be2C8Ace79643AB73500571b7162",  # Yv2
+        ],
+    ),
+    ClassifierSpec(
+        abi_name="LiquidityGaugeV3",
+        protocol=Protocol.curve,
+        valid_contract_addresses=[
+            "0x9582C4ADACB3BCE56Fea3e590F05c3ca2fb9C477",  # alUSD
+            "0x824F13f1a2F29cFEEa81154b46C0fc820677A637",  # rETH
+            "0x6955a55416a06839309018A8B0cB72c4DDC11f15",  # TriCrypto
+        ],
+    ),
+    ClassifierSpec(
+        abi_name="LiquidityGaugeReward",
+        protocol=Protocol.curve,
+        valid_contract_addresses=[
+            "0xAEA6c312f4b3E04D752946d329693F7293bC2e6D",  # DUSD
+            "0x5f626c30EC1215f4EdCc9982265E8b1F411D1352",  # MUSD
+            "0x4dC4A289a8E33600D8bD4cf5F6313E43a37adec7",  # RSV
+            "0x705350c4BcD35c9441419DdD5d2f097d7a55410F",  # sBTC
+            "0xA90996896660DEcC6E997655E065b23788857849",  # sUSDv2
+            "0x6828bcF74279eE32f2723eC536c22c51Eed383C6",  # tBTC
+        ],
+    ),
+]
+
+CLASSIFIER_SPECS = [*CURVE_BASE_POOLS, *CURVE_META_POOLS, *CURVE_LIQUIDITY_GAUGES]
