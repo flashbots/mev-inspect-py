@@ -8,10 +8,10 @@ from mev_inspect.crud.classified_traces import (
     delete_classified_traces_for_block,
     write_classified_traces,
 )
-from mev_inspect.db import get_session
-from mev_inspect.classifier_specs import CLASSIFIER_SPECS
-from mev_inspect.trace_classifier import TraceClassifier
 from mev_inspect.arbitrage import get_arbitrages
+from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
+from mev_inspect.classifiers.trace import TraceClassifier
+from mev_inspect.db import get_session
 from mev_inspect.swaps import get_swaps
 
 
@@ -32,7 +32,7 @@ def inspect_block(block_number: int, rpc: str):
     )
     print(f"Total transactions: {total_transactions}")
 
-    trace_clasifier = TraceClassifier(CLASSIFIER_SPECS)
+    trace_clasifier = TraceClassifier(ALL_CLASSIFIER_SPECS)
     classified_traces = trace_clasifier.classify(block_data.traces)
     print(f"Returned {len(classified_traces)} classified traces")
 
