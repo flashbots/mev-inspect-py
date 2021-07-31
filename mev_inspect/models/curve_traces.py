@@ -109,4 +109,73 @@ CURVE_BASE_POOLS = [
     ),
 ]
 
-CLASSIFIER_SPECS = [*CURVE_BASE_POOLS]
+CURVE_META_POOLS = [
+    ClassifierSpec(
+        abi_name="CurveTokenV2",
+        protocol=Protocol.curve,
+        valid_contract_addresses=[
+            "0x3a664Ab939FD8482048609f652f9a0B0677337B9",  # DUSD
+            "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",  # GUSD
+            "0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858",  # HUSD
+            "0x6D65b498cb23deAba52db31c93Da9BFFb340FB8F",  # LinkUSD
+            "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",  # MUSD
+            "0xDE5331AC4B3630f94853Ff322B66407e0D6331E8",  # pBTC
+            "0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35",  # RSV
+            "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",  # tBTC
+            "0x97E2768e8E73511cA874545DC5Ff8067eB19B787",  # USDK
+            "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",  # USDN
+        ],
+    ),
+    ClassifierSpec(
+        abi_name="CurveTokenV3",
+        protocol=Protocol.curve,
+        valid_contract_addresses=[
+            "0x410e3E86ef427e30B9235497143881f717d93c2A",  # bBTC
+            "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",  # oBTC
+            "0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6",  # USDP
+            "0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6",  # UST
+        ],
+    ),
+    ClassifierSpec(
+        abi_name="Deposit",
+        protocol=Protocol.curve,
+        valid_contract_addresses=[
+            "0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756",  # bBTC
+            "0x61E10659fe3aa93d036d099405224E4Ac24996d0",  # DUSD
+            "0x64448B78561690B70E17CBE8029a3e5c1bB7136e",  # GUSD
+            "0x09672362833d8f703D5395ef3252D4Bfa51c15ca",  # HUSD
+            "0x1de7f0866e2c4adAC7b457c58Cc25c8688CDa1f2",  # LinkUSD
+            "0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2",  # MUSD
+            "0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D",  # oBTC
+            "0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C",  # pBTC
+            "0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5",  # RSV
+            "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",  # tBTC
+            "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc",  # USDK
+            "0x094d12e5b541784701FD8d65F11fc0598FBC6332",  # USDN
+            "0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940",  # USDP
+            "0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d",  # UST
+        ],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwap",
+        protocol=Protocol.curve,
+        valid_contract_addresses=[
+            "0x071c661B4DeefB59E2a3DdB20Db036821eeE8F4b",  # bBTC
+            "0x8038C01A0390a8c547446a0b2c18fc9aEFEcc10c",  # DUSD
+            "0x4f062658EaAF2C1ccf8C8e36D6824CDf41167956",  # GUSD
+            "0x3eF6A01A0f81D6046290f3e2A8c5b843e738E604",  # HUSD
+            "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171",  # LinkUSD
+            "0x8474DdbE98F5aA3179B3B3F5942D724aFcdec9f6",  # MUSD
+            "0xd81dA8D904b52208541Bade1bD6595D8a251F8dd",  # oBTC
+            "0x7F55DDe206dbAD629C080068923b36fe9D6bDBeF",  # pBTC
+            "0xC18cC39da8b11dA8c3541C598eE022258F9744da",  # RSV
+            "0xC25099792E9349C7DD09759744ea681C7de2cb66",  # tBTC
+            "0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb",  # USDK
+            "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1",  # USDN
+            "0x42d7025938bEc20B69cBae5A77421082407f053A",  # USDP
+            "0x890f4e345B1dAED0367A877a1612f86A1f86985f",  # UST
+        ],
+    ),
+]
+
+CLASSIFIER_SPECS = [*CURVE_BASE_POOLS, *CURVE_META_POOLS]
