@@ -99,6 +99,13 @@ ERC20_SPEC = ClassifierSpec(
     },
 )
 
+COMPOUND_V2_CETH_SPEC = ClassifierSpec(
+    abi_name="CEther",
+    protocol=Protocol.compound_v2,
+    classifications={
+        "liquidateBorrow(address,address)": Classification.liquidate_borrow_ceth,
+    },
+)
 
 CLASSIFIER_SPECS = [
     *UNISWAP_V3_CONTRACT_SPECS,
@@ -106,4 +113,5 @@ CLASSIFIER_SPECS = [
     ERC20_SPEC,
     UNISWAP_V3_POOL_SPEC,
     UNISWAPPY_V2_PAIR_SPEC,
+    COMPOUND_V2_CETH_SPEC,
 ]

@@ -1,22 +1,42 @@
 import unittest
+from mev_inspect.trace_classifier import TraceClassifier
+from mev_inspect.classifier_specs import CLASSIFIER_SPECS
+from mev_inspect.block import _get_cache_path
+from mev_inspect.strategy_inspectors.compound_v2_ceth import inspect_compound_v2_ceth
 
-# Fails precommit because these inspectors don't exist yet
-# from mev_inspect import inspector_compound
-# from mev_inspect import inspector_aave
-#
-#
-# class TestLiquidations(unittest.TestCase):
-#     def test_compound_liquidation(self):
-#         tx_hash = "0x0ec6d5044a47feb3ceb647bf7ea4ffc87d09244d629eeced82ba17ec66605012"
-#         block_no = 11338848
-#         res = inspector_compound.get_profit(tx_hash, block_no)
-#         # self.assertEqual(res['profit'], 0)
-#
-#     def test_aave_liquidation(self):
-#         tx_hash = "0xc8d2501d28800b1557eb64c5d0e08fd6070c15b6c04c39ca05631f641d19ffb2"
-#         block_no = 10803840
-#         res = inspector_aave.get_profit(tx_hash, block_no)
-#         # self.assertEqual(res['profit'], 0)
+# from mev_inspect.schemas.classified_traces import Classification
+from mev_inspect.schemas.liquidations import (
+    LiquidationCollateralSource,
+    LiquidationType,
+    LiquidationStatus,
+)
+from mev_inspect.schemas import Block
+
+
+class TestCompoundV2Liquidation(unittest.TestCase):
+    def test_compound_v2_ceth_liquidation(self):
+        tx_hash = "0xd09e499f2c2d6a900a974489215f25006a5a3fa401a10b8d67fa99480cbb62fb"
+        block_no = 12900060
+        cache_path = _get_cache_path(block_no)
+        block_data = Block.parse_file(cache_path)
+
+        tx_traces = block_data.get_filtered_traces(tx_hash)
+        trace_clasifier = TraceClassifier(CLASSIFIER_SPECS)
+        classified_traces = trace_clasifier.classify(tx_traces)
+        res = inspect_compound_v2_ceth(classified_traces)
+
+        self.assertEqual(res.tx_hash, "0x0")
+        self.assertEqual(res.borrower, "0x0")
+        self.assertEqual(res.collateral_provided, "0x0")
+        self.assertEqual(res.collateral_provided_amount, 0)
+        self.assertEqual(res.asset_seized, "0x0")
+        self.assertEqual(res.asset_seized_amount, 0)
+        self.assertEqual(res.profit_in_eth, 0)
+        self.assertEqual(res.tokenflow_estimate_in_eth, 0)
+        self.assertEqual(res.tokenflow_diff, 0)
+        self.assertEqual(res.status, LiquidationStatus.seized)
+        self.assertEqual(res.type, LiquidationType.compound_v2_ceth_liquidation)
+        self.assertEqual(res.collateral_source, LiquidationCollateralSource.other)
 
 
 if __name__ == "__main__":
