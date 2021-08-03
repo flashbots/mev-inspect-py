@@ -11,6 +11,7 @@ class Classification(Enum):
     swap = "swap"
     burn = "burn"
     transfer = "transfer"
+    liquidate = "liquidate"
 
 
 class Protocol(Enum):

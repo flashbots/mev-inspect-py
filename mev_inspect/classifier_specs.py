@@ -101,7 +101,7 @@ ERC20_SPEC = ClassifierSpec(
 
 AAVE_SPEC = ClassifierSpec(
     abi_name="AaveLendingPool",
-    protocol= Protocol.aave
+    protocol= Protocol.aave,
     classifications={
         "liquidationCall(address,address,address,uint256,bool)": Classification.liquidate,
     },
