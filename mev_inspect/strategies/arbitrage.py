@@ -1,3 +1,4 @@
+import json
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
@@ -58,7 +59,7 @@ def _get_arbitrages_for_transaction(
     traces: List[ClassifiedTrace],
 ) -> List[Arbitrage]:
     swaps = _get_swaps(traces)
-    print(swaps)
+    print(json.dumps([swap.dict() for swap in swaps], indent=4))
     return []
 
 
@@ -89,42 +90,48 @@ def _build_swap(
     child_traces: List[ClassifiedTrace],
 ) -> Optional[Swap]:
     if trace.abi_name == "UniswapV2Pair":
-        pool_address = trace.to_address
-        transfers_to_pool = [
-            transfer
-            for transfer in prior_transfers
-            if transfer.to_address == pool_address
-        ]
-
-        # expecting a prior transfer to the pool
-        if len(transfers_to_pool) == 0:
-            return None
-
-        most_recent_transfer_to_pool = transfers_to_pool[-1]
-        all_pool_internal_transfers = [
-            _as_transfer(child)
-            for child in child_traces
-            if child.classification == Classification.transfer
-        ]
-
-        # expecting exactly one transfer inside the pool
-        if len(all_pool_internal_transfers) != 1:
-            return None
-
-        pool_internal_transfer = all_pool_internal_transfers[0]
-
-        return Swap(
-            transaction_hash=trace.transaction_hash,
-            pool_address=pool_address,
-            from_address=most_recent_transfer_to_pool.from_address,
-            to_address=pool_internal_transfer.to_address,
-            token_in_address=most_recent_transfer_to_pool.token_address,
-            token_in_amount=most_recent_transfer_to_pool.amount,
-            token_out_address=pool_internal_transfer.token_address,
-            token_out_amount=pool_internal_transfer.amount,
-        )
+        return _parse_uniswap_v2_swap(trace, prior_transfers, child_traces)
 
     return None
+
+
+def _parse_uniswap_v2_swap(
+    trace: ClassifiedTrace,
+    prior_transfers: List[Transfer],
+    child_traces: List[ClassifiedTrace],
+) -> Optional[Swap]:
+    pool_address = trace.to_address
+    transfers_to_pool = [
+        transfer for transfer in prior_transfers if transfer.to_address == pool_address
+    ]
+
+    # expecting a prior transfer to the pool
+    if len(transfers_to_pool) == 0:
+        return None
+
+    most_recent_transfer_to_pool = transfers_to_pool[-1]
+    all_pool_internal_transfers = [
+        _as_transfer(child)
+        for child in child_traces
+        if child.classification == Classification.transfer
+    ]
+
+    # expecting exactly one transfer inside the pool
+    if len(all_pool_internal_transfers) != 1:
+        return None
+
+    pool_internal_transfer = all_pool_internal_transfers[0]
+
+    return Swap(
+        transaction_hash=trace.transaction_hash,
+        pool_address=pool_address,
+        from_address=most_recent_transfer_to_pool.from_address,
+        to_address=pool_internal_transfer.to_address,
+        token_in_address=most_recent_transfer_to_pool.token_address,
+        token_in_amount=most_recent_transfer_to_pool.amount,
+        token_out_address=pool_internal_transfer.token_address,
+        token_out_amount=pool_internal_transfer.amount,
+    )
 
 
 def _get_child_traces(
@@ -170,6 +177,6 @@ def _as_transfer(trace: ClassifiedTrace) -> Transfer:
         return Transfer(
             amount=trace.inputs["amount"],
             to_address=trace.inputs["recipient"],
-            from_address=trace.from_address,
+            from_address=trace.inputs.get("sender", trace.from_address),
             token_address=trace.to_address,
         )
