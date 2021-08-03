@@ -26,6 +26,7 @@ class LiquidationInspector(StrategyInspector):
 		# For each trace
 		for i in range(1, len(traces)):
 			trace = traces[i]
+			next = traces[i+1]
 
 			# Liquidation condition
 			if trace.classification == Classification.liquidate:
@@ -34,8 +35,8 @@ class LiquidationInspector(StrategyInspector):
 				# The inputs will differ by DEX, this is AAVE
 
 				for i in trace.inputs:
-					if( i["name"] == '_purchaseAmount'):
-						value = trace.inputs[i]
+					if(i["name"] == '_purchaseAmount'):
+						liquidation_amount = trace.inputs[i]
 					elif (i["name"] == '_collateral'):
 						collateral_type = trace.inputs[i]
 					elif (i["name"] == '_reserve'):
@@ -46,10 +47,14 @@ class LiquidationInspector(StrategyInspector):
 				liquidator = trace.from_address
 
 				# Find a transfer before liquidation with a to_address corresponding to the liquidator
-				for trace in traces[:i]:
-					if (trace.classification == Classification.transfer & trace.to_address == liquidator):
-						profit = 
+				for tx in traces:
+					if (tx.classification == Classification.transfer & tx.to_address == liquidator):
 						#Calculate profit
+						amount_sent = tx.value
+						amount_received = next.value
+						profit = amount_received - amount_sent
+						# Add gas used*price and coinbase check
+
 
 
 				# Tag liquidation
