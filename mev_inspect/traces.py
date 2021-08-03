@@ -20,7 +20,9 @@ def _get_transaction_hash(trace) -> str:
     return trace.transaction_hash
 
 
-def _as_nested_traces_by_transaction(traces: Iterable[ClassifiedTrace]) -> List[NestedTrace]:
+def _as_nested_traces_by_transaction(
+    traces: Iterable[ClassifiedTrace],
+) -> List[NestedTrace]:
     """
     Turns a list of Traces into a a tree of NestedTraces
     using their trace addresses
@@ -45,7 +47,7 @@ def _as_nested_traces_by_transaction(traces: Iterable[ClassifiedTrace]) -> List[
             children = []
             continue
 
-        elif not _is_subtrace(trace, parent):
+        elif not is_subtrace(trace, parent):
             nested_traces.append(
                 NestedTrace(
                     trace=parent,
@@ -70,7 +72,10 @@ def _as_nested_traces_by_transaction(traces: Iterable[ClassifiedTrace]) -> List[
     return nested_traces
 
 
-def _is_subtrace(trace: ClassifiedTrace, parent: ClassifiedTrace):
+def is_subtrace(trace: ClassifiedTrace, parent: ClassifiedTrace):
+    if trace.transaction_hash != parent.transaction_hash:
+        return False
+
     parent_trace_length = len(parent.trace_address)
 
     if len(trace.trace_address) > parent_trace_length:
