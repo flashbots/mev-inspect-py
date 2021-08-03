@@ -4,7 +4,10 @@ import click
 from web3 import Web3
 
 from mev_inspect import block
-from mev_inspect.crud.classified_traces import write_classified_traces
+from mev_inspect.crud.classified_traces import (
+    delete_classified_traces_for_block,
+    write_classified_traces,
+)
 from mev_inspect.db import get_session
 from mev_inspect.classifier_specs import CLASSIFIER_SPECS
 from mev_inspect.trace_classifier import TraceClassifier
@@ -32,6 +35,7 @@ def inspect_block(block_number: int, rpc: str):
     print(f"Returned {len(classified_traces)} classified traces")
 
     db_session = get_session()
+    delete_classified_traces_for_block(db_session, block_number)
     write_classified_traces(db_session, classified_traces)
     db_session.close()
 
