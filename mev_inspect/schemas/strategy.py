@@ -16,4 +16,4 @@ class Liquidation(Strategy):
     collateral_type: str
     collateral_amount: int
     collateral_source: str
-    underlying: str
+    reserve: str

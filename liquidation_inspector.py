@@ -44,8 +44,8 @@ def liquidations(traces: List[ClassifiedTrace]):
 					collateral_type = trace.inputs[i]
 					print(f"\tType: {collateral_type}")
 				elif (i == '_reserve'):
-					underlying = trace.inputs[i]
-					print(f"\tUnderlying: {underlying}")
+					reserve = trace.inputs[i]
+					print(f"\tUnderlying: {reserve}")
 				elif(i == '_user'):
 					liquidated_usr = trace.inputs[i]
 					print(f"\tLiquidated: {liquidated_usr}")
@@ -57,18 +57,14 @@ def liquidations(traces: List[ClassifiedTrace]):
 					amount_received = tx.inputs['amount']
 					print(f"Transfer to liquidator {liquidator}: \nAmount in received token: {tx.inputs['amount']} \nTransaction: {tx.transaction_hash}")
 
-				#Calculate profit
-				else:
-					# Add gas used*price and coinbase check
 			# Tag liquidation
 			result.append(Liquidation(strategy=StrategyType.liquidation,
 									  traces=[trace, next],
 									  protocols=[trace.protocol],
 									  collateral_type=collateral_type,
 									  collateral_amount=liquidation_amount,
-									  underlying=underlying,
-									  collateral_source="",
-									  profit=profit))
+									  reserve=reserve,
+									  collateral_source="",))
 	return result
 
 rpc = 'http://162.55.96.141:8546/'
