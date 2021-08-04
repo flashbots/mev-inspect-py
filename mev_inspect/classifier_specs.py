@@ -99,19 +99,27 @@ ERC20_SPEC = ClassifierSpec(
     },
 )
 
-AAVE_SPEC = ClassifierSpec(
-    abi_name="AaveLendingPool",
-    protocol= Protocol.aave,
-    classifications={
-        "liquidationCall(address,address,address,uint256,bool)": Classification.liquidate,
-    },
-)
+AAVE_CONTRACT_SPECS = [
+    ClassifierSpec(
+        abi_name="AaveLendingPool",
+        protocol= Protocol.aave,
+        classifications={
+            "liquidationCall(address,address,address,uint256,bool)": Classification.liquidate,},
+    ),
+    ClassifierSpec(
+        abi_name="AaveLendingPoolAddressProvider",
+        protocol= Protocol.aave,
+        valid_contract_addresses=['0x24a42fD28C976A61Df5D00D0599C34c4f90748c8'],
+    ),
+    ]
+
+
 
 
 CLASSIFIER_SPECS = [
     *UNISWAP_V3_CONTRACT_SPECS,
     *UNISWAPPY_V2_CONTRACT_SPECS,
-    AAVE_SPEC,
+    *AAVE_CONTRACT_SPECS,
     ERC20_SPEC,
     UNISWAP_V3_POOL_SPEC,
     UNISWAPPY_V2_PAIR_SPEC,

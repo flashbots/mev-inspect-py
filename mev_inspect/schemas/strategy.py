@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from enum import Enum
 from pydantic import BaseModel
 from .classified_traces import ClassifiedTrace, Protocol
@@ -10,13 +10,10 @@ class StrategyType(Enum):
 class Strategy(BaseModel):
 	strategy: StrategyType
 	traces: List[ClassifiedTrace]
-	protocols:	List[Protocol]
+	protocols: List[Protocol]
 
 class Liquidation(Strategy):
     collateral_type: str
     collateral_amount: int
     collateral_source: str
-    profit: int
-
-class Arbitrage(Strategy):
-#	strategy: Literal[StrategyType.arbitrage]
+    underlying: str
