@@ -118,7 +118,7 @@ def _parse_uniswap_v3_swap(
         child_transfers, to_address=recipient_address, from_address=pool_address
     )
 
-    if len(transfers_to_pool) == 1:
+    if len(transfers_to_pool) == 0:
         return None
 
     if len(transfers_from_pool_to_recipient) != 1:
