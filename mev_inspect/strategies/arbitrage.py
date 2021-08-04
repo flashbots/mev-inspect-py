@@ -106,7 +106,11 @@ def _parse_uniswap_v3_swap(
         return None
 
     pool_address = trace.to_address
-    recipient_address = trace.inputs["recipient"]
+    recipient_address = (
+        trace.inputs["recipient"]
+        if trace.inputs is not None and "recipient" in trace.inputs
+        else trace.from_address
+    )
 
     child_transfers = _remove_inner_transfers(
         [
@@ -152,13 +156,36 @@ def _parse_uniswap_v2_swap(
     prior_traces: List[ClassifiedTrace],
     child_traces: List[ClassifiedTrace],
 ) -> Optional[Swap]:
+
     pool_address = trace.to_address
-    transfers_to_pool = [
+    recipient_address = (
+        trace.inputs["to"]
+        if trace.inputs is not None and "to" in trace.inputs
+        else trace.from_address
+    )
+
+    prior_transfers = [
         _as_transfer(prior_trace)
         for prior_trace in prior_traces
+        if prior_trace.classification == Classification.transfer
+    ]
+
+    child_transfers = [
+        _as_transfer(child)
+        for child in child_traces
+        if child.classification == Classification.transfer
+    ]
+
+    transfers_to_pool = [
+        transfer for transfer in prior_transfers if transfer.to_address == pool_address
+    ]
+
+    transfers_from_pool_to_recipient = [
+        transfer
+        for transfer in child_transfers
         if (
-            prior_trace.classification == Classification.transfer
-            and prior_trace.to_address == pool_address
+            transfer.to_address == recipient_address
+            and transfer.from_address == pool_address
         )
     ]
 
@@ -166,29 +193,23 @@ def _parse_uniswap_v2_swap(
     if len(transfers_to_pool) == 0:
         return None
 
-    most_recent_transfer_to_pool = transfers_to_pool[-1]
-    all_pool_internal_transfers = [
-        _as_transfer(child)
-        for child in child_traces
-        if child.classification == Classification.transfer
-    ]
-
     # expecting exactly one transfer inside the pool
-    if len(all_pool_internal_transfers) != 1:
+    if len(transfers_from_pool_to_recipient) != 1:
         return None
 
-    pool_internal_transfer = all_pool_internal_transfers[0]
+    transfer_in = transfers_to_pool[-1]
+    transfer_out = transfers_from_pool_to_recipient[0]
 
     return Swap(
         abi_name="UniswapV2Pair",
         transaction_hash=trace.transaction_hash,
         pool_address=pool_address,
-        from_address=most_recent_transfer_to_pool.from_address,
-        to_address=pool_internal_transfer.to_address,
-        token_in_address=most_recent_transfer_to_pool.token_address,
-        token_in_amount=most_recent_transfer_to_pool.amount,
-        token_out_address=pool_internal_transfer.token_address,
-        token_out_amount=pool_internal_transfer.amount,
+        from_address=transfer_in.from_address,
+        to_address=transfer_out.to_address,
+        token_in_address=transfer_in.token_address,
+        token_in_amount=transfer_in.amount,
+        token_out_address=transfer_out.token_address,
+        token_out_amount=transfer_out.amount,
     )
 
 
