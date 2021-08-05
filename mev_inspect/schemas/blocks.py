@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import validator
 
 from mev_inspect.utils import hex_to_int
 from .utils import CamelModel, Web3Model
@@ -66,11 +66,3 @@ class Block(Web3Model):
 
     def get_filtered_traces(self, hash: str) -> List[Trace]:
         return [trace for trace in self.traces if trace.transaction_hash == hash]
-
-
-class NestedTrace(BaseModel):
-    trace: Trace
-    subtraces: List["NestedTrace"]
-
-
-NestedTrace.update_forward_refs()
