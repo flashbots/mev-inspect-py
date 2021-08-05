@@ -99,10 +99,21 @@ ERC20_SPEC = ClassifierSpec(
     },
 )
 
+WETH_SPEC = ClassifierSpec(
+    abi_name="WETH9",
+    protocol=Protocol.weth,
+    valid_contract_addresses=["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
+    classifications={
+        "transferFrom(address,address,uint256)": Classification.transfer,
+        "transfer(address,uint256)": Classification.transfer,
+    },
+)
+
 
 CLASSIFIER_SPECS = [
     *UNISWAP_V3_CONTRACT_SPECS,
     *UNISWAPPY_V2_CONTRACT_SPECS,
+    WETH_SPEC,
     ERC20_SPEC,
     UNISWAP_V3_POOL_SPEC,
     UNISWAPPY_V2_PAIR_SPEC,
