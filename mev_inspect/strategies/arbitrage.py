@@ -7,10 +7,6 @@ from mev_inspect.schemas.swaps import Swap
 from mev_inspect.swaps import get_swaps
 
 
-UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
-UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
-
-
 def get_arbitrages(traces: List[ClassifiedTrace]) -> List[Arbitrage]:
     get_transaction_hash = lambda t: t.transaction_hash
     traces_by_transaction = groupby(
