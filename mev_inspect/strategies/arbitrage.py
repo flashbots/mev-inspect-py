@@ -28,11 +28,7 @@ def _get_arbitrages_for_transaction(
     traces: List[ClassifiedTrace],
 ) -> List[Arbitrage]:
     swaps = get_swaps(traces)
-
-    if len(swaps) > 1:
-        return _get_arbitrages_from_swaps(swaps)
-
-    return []
+    return _get_arbitrages_from_swaps(swaps)
 
 
 def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
@@ -57,39 +53,28 @@ def _get_arbitrage_starting_with_swap(
     other_swaps: List[Swap],
 ) -> Optional[Arbitrage]:
     swap_path = [start_swap]
-
-    current_address = start_swap.to_address
-    current_token = start_swap.token_out_address
+    current_swap: Swap = start_swap
 
     while True:
-        swaps_from_current_address = []
+        next_swap = _get_swap_from_address(
+            current_swap.to_address,
+            current_swap.token_out_address,
+            other_swaps,
+        )
 
-        for swap in other_swaps:
-            if (
-                swap.pool_address == current_address
-                and swap.token_in_address == current_token
-            ):
-                swaps_from_current_address.append(swap)
-
-        if len(swaps_from_current_address) == 0:
+        if next_swap is None:
             return None
 
-        if len(swaps_from_current_address) > 1:
-            raise RuntimeError("todo")
-
-        latest_swap = swaps_from_current_address[0]
-        swap_path.append(latest_swap)
-
-        current_address = latest_swap.to_address
-        current_token = latest_swap.token_out_address
+        swap_path.append(next_swap)
+        current_swap = next_swap
 
         if (
-            current_address == start_swap.from_address
-            and current_token == start_swap.token_in_address
+            current_swap.to_address == start_swap.from_address
+            and current_swap.token_out_address == start_swap.token_in_address
         ):
 
             start_amount = start_swap.token_in_amount
-            end_amount = latest_swap.token_out_amount
+            end_amount = current_swap.token_out_amount
             profit_amount = end_amount - start_amount
 
             return Arbitrage(
@@ -100,5 +85,15 @@ def _get_arbitrage_starting_with_swap(
                 end_amount=end_amount,
                 profit_amount=profit_amount,
             )
+
+    return None
+
+
+def _get_swap_from_address(
+    address: str, token_address: str, swaps: List[Swap]
+) -> Optional[Swap]:
+    for swap in swaps:
+        if swap.pool_address == address and swap.token_in_address == token_address:
+            return swap
 
     return None
