@@ -7,6 +7,7 @@ from mev_inspect.schemas.classified_traces import (
 )
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.traces import is_child_trace_address
 
 
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
@@ -283,7 +284,7 @@ def _remove_inner_transfers(transfers: List[Transfer]) -> List[Transfer]:
 
     for transfer in sorted_transfers:
         if not any(
-            _is_subtrace(parent_address, transfer.trace_address)
+            is_child_trace_address(transfer.trace_address, parent_address)
             for parent_address in transfer_trace_addresses
         ):
             updated_transfers.append(transfer)
@@ -291,13 +292,6 @@ def _remove_inner_transfers(transfers: List[Transfer]) -> List[Transfer]:
         transfer_trace_addresses.append(transfer.trace_address)
 
     return updated_transfers
-
-
-def _is_subtrace(parent_trace_address, child_trace_address) -> bool:
-    return (
-        len(child_trace_address) > len(parent_trace_address)
-        and child_trace_address[: len(parent_trace_address)] == parent_trace_address
-    )
 
 
 def _filter_transfers(
