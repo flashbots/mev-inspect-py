@@ -2,33 +2,24 @@ from itertools import groupby
 from typing import List, Optional
 
 from mev_inspect.schemas.arbitrage import Arbitrage
-from mev_inspect.schemas.classified_traces import ClassifiedTrace
 from mev_inspect.schemas.swaps import Swap
-from mev_inspect.swaps import get_swaps
 
 
-def get_arbitrages(traces: List[ClassifiedTrace]) -> List[Arbitrage]:
-    get_transaction_hash = lambda t: t.transaction_hash
-    traces_by_transaction = groupby(
-        sorted(traces, key=get_transaction_hash),
+def get_arbitrages(swaps: List[Swap]) -> List[Arbitrage]:
+    get_transaction_hash = lambda swap: swap.transaction_hash
+    swaps_by_transaction = groupby(
+        sorted(swaps, key=get_transaction_hash),
         key=get_transaction_hash,
     )
 
     all_arbitrages = []
 
-    for _, transaction_traces in traces_by_transaction:
-        all_arbitrages += _get_arbitrages_for_transaction(
-            list(transaction_traces),
+    for _, transaction_swaps in swaps_by_transaction:
+        all_arbitrages += _get_arbitrages_from_swaps(
+            list(transaction_swaps),
         )
 
     return all_arbitrages
-
-
-def _get_arbitrages_for_transaction(
-    traces: List[ClassifiedTrace],
-) -> List[Arbitrage]:
-    swaps = get_swaps(traces)
-    return _get_arbitrages_from_swaps(swaps)
 
 
 def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:

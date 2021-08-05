@@ -1,3 +1,4 @@
+from itertools import groupby
 from typing import List, Optional
 
 from mev_inspect.schemas.classified_traces import (
@@ -18,6 +19,21 @@ UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
 
 
 def get_swaps(traces: List[ClassifiedTrace]) -> List[Swap]:
+    get_transaction_hash = lambda t: t.transaction_hash
+    traces_by_transaction = groupby(
+        sorted(traces, key=get_transaction_hash),
+        key=get_transaction_hash,
+    )
+
+    swaps = []
+
+    for _, transaction_traces in traces_by_transaction:
+        swaps += _get_swaps_for_transaction(list(transaction_traces))
+
+    return swaps
+
+
+def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
     ordered_traces = list(sorted(traces, key=lambda t: t.trace_address))
 
     swaps: List[Swap] = []
@@ -73,6 +89,7 @@ def _parse_swap(
     return Swap(
         abi_name=trace.abi_name,
         transaction_hash=trace.transaction_hash,
+        block_number=trace.block_number,
         trace_address=trace.trace_address,
         pool_address=pool_address,
         from_address=transfer_in.from_address,
