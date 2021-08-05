@@ -1,48 +1,16 @@
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel
-
+from mev_inspect.schemas.arbitrage import Arbitrage
 from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
     Classification,
-    Protocol,
 )
+from mev_inspect.schemas.swaps import Swap
+from mev_inspect.schemas.transfers import Transfer
 
 
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
 UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
-
-
-class Transfer(BaseModel):
-    transaction_hash: str
-    trace_address: List[int]
-    from_address: str
-    to_address: str
-    amount: int
-    token_address: str
-
-
-class Swap(BaseModel):
-    abi_name: str
-    transaction_hash: str
-    trace_address: List[int]
-    protocol: Optional[Protocol]
-    pool_address: str
-    from_address: str
-    to_address: str
-    token_in_address: str
-    token_in_amount: int
-    token_out_address: str
-    token_out_amount: int
-
-
-class Arbitrage(BaseModel):
-    swaps: List[Swap]
-    account_address: str
-    profit_token_address: str
-    start_amount: int
-    end_amount: int
-    profit_amount: int
 
 
 def get_arbitrages(traces: List[ClassifiedTrace]) -> List[Arbitrage]:
@@ -158,7 +126,7 @@ def _get_swaps(traces: List[ClassifiedTrace]) -> List[Swap]:
 
     for trace in ordered_traces:
         if trace.classification == Classification.transfer:
-            prior_transfers.append(_as_transfer(trace))
+            prior_transfers.append(Transfer.from_trace(trace))
 
         elif trace.classification == Classification.swap:
             child_transfers = _get_child_transfers(trace.trace_address, traces)
@@ -275,7 +243,7 @@ def _get_child_transfers(
 
     for child_trace in _get_child_traces(parent_trace_address, traces):
         if child_trace.classification == Classification.transfer:
-            child_transfers.append(_as_transfer(child_trace))
+            child_transfers.append(Transfer.from_trace(child_trace))
 
     return child_transfers
 
@@ -349,28 +317,3 @@ def _filter_transfers(
         filtered_transfers.append(transfer)
 
     return filtered_transfers
-
-
-def _as_transfer(trace: ClassifiedTrace) -> Transfer:
-    # todo - this should be enforced at the data level
-    if trace.inputs is None:
-        raise ValueError("Invalid transfer")
-
-    if trace.protocol == Protocol.weth:
-        return Transfer(
-            transaction_hash=trace.transaction_hash,
-            trace_address=trace.trace_address,
-            amount=trace.inputs["wad"],
-            to_address=trace.inputs["dst"],
-            from_address=trace.from_address,
-            token_address=trace.to_address,
-        )
-    else:
-        return Transfer(
-            transaction_hash=trace.transaction_hash,
-            trace_address=trace.trace_address,
-            amount=trace.inputs["amount"],
-            to_address=trace.inputs["recipient"],
-            from_address=trace.inputs.get("sender", trace.from_address),
-            token_address=trace.to_address,
-        )
