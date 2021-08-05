@@ -13,3 +13,6 @@ __pycache__
 # coverage
 htmlcov
 .coverage*
+
+# don't commit cache
+cache
