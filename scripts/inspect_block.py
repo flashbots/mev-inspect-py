@@ -4,6 +4,10 @@ import click
 from web3 import Web3
 
 from mev_inspect import block
+from mev_inspect.crud.arbitrages import (
+    delete_arbitrages_for_block,
+    write_arbitrages,
+)
 from mev_inspect.crud.classified_traces import (
     delete_classified_traces_for_block,
     write_classified_traces,
@@ -12,7 +16,7 @@ from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
 from mev_inspect.db import get_session
 from mev_inspect.classifier_specs import CLASSIFIER_SPECS
 from mev_inspect.trace_classifier import TraceClassifier
-from mev_inspect.arbitrage import get_arbitrages
+from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.swaps import get_swaps
 
 
@@ -48,10 +52,13 @@ def inspect_block(block_number: int, rpc: str):
     delete_swaps_for_block(db_session, block_number)
     write_swaps(db_session, swaps)
 
-    db_session.close()
-
     arbitrages = get_arbitrages(swaps)
     print(f"Found {len(arbitrages)} arbitrages")
+
+    delete_arbitrages_for_block(db_session, block_number)
+    write_arbitrages(db_session, arbitrages)
+
+    db_session.close()
 
     stats = get_stats(classified_traces)
     print(json.dumps(stats, indent=4))
