@@ -8,6 +8,7 @@ from mev_inspect.schemas.classified_traces import Protocol
 class Swap(BaseModel):
     abi_name: str
     transaction_hash: str
+    block_number: int
     trace_address: List[int]
     protocol: Optional[Protocol]
     pool_address: str
