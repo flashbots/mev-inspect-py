@@ -10,7 +10,12 @@ import click
 @click.option(
     "-r", "--rpc", help="rpc endpoint, this needs to have parity style traces"
 )
-def inspect(block_number: str, rpc: str):
+@click.option(
+    "--cache/--no-cache",
+    help="whether to read / write to the cache",
+    default=True,
+)
+def inspect(block_number: str, rpc: str, cache: bool):
     check_call(
         [
             "docker",
@@ -22,17 +27,21 @@ def inspect(block_number: str, rpc: str):
             "inspect-block",
             block_number,
             rpc,
+            "--cache" if cache else "--no-cache",
         ]
     )
 
 
 @click.command()
-@click.option("--after-block", type=str, help="look at blocks after this number")
-@click.option("--before-block", type=str, help="look at blocks before this number")
+@click.argument("after_block", type=str)
+@click.argument("before_block", type=str)
+@click.argument("rpc")
 @click.option(
-    "-r", "--rpc", help="rpc endpoint, this needs to have parity style traces"
+    "--cache/--no-cache",
+    help="whether to read / write to the cache",
+    default=True,
 )
-def inspect_many(after_block: str, before_block: str, rpc: str):
+def inspect_many(after_block: str, before_block: str, rpc: str, cache: bool):
     check_call(
         [
             "docker",
@@ -45,5 +54,6 @@ def inspect_many(after_block: str, before_block: str, rpc: str):
             after_block,
             before_block,
             rpc,
+            "--cache" if cache else "--no-cache",
         ]
     )

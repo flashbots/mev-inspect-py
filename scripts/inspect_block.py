@@ -28,29 +28,41 @@ def cli():
 @cli.command()
 @click.argument("block_number", type=int)
 @click.argument("rpc")
-def inspect_block(block_number: int, rpc: str):
+@click.option("--cache/--no-cache", default=True)
+def inspect_block(block_number: int, rpc: str, cache: bool):
     base_provider = Web3.HTTPProvider(rpc)
-    _inspect_block(base_provider, block_number)
+
+    if not cache:
+        click.echo("Skipping cache")
+
+    _inspect_block(base_provider, block_number, should_cache=cache)
 
 
 @cli.command()
 @click.argument("after_block", type=int)
 @click.argument("before_block", type=int)
 @click.argument("rpc")
-def inspect_many_blocks(after_block: int, before_block: int, rpc: str):
+@click.option("--cache/--no-cache", default=True)
+def inspect_many_blocks(after_block: int, before_block: int, rpc: str, cache: bool):
     base_provider = Web3.HTTPProvider(rpc)
+
+    if not cache:
+        click.echo("Skipping cache")
+
     for block_number in range(after_block + 1, before_block):
         _inspect_block(
             base_provider,
             block_number,
             should_print_stats=False,
             should_write_classified_traces=False,
+            should_cache=cache,
         )
 
 
 def _inspect_block(
     base_provider,
     block_number: int,
+    should_cache: bool,
     should_print_stats: bool = True,
     should_write_classified_traces: bool = True,
     should_write_swaps: bool = True,
@@ -63,7 +75,10 @@ def _inspect_block(
     click.echo(block_message)
     click.echo(dashes)
 
-    block_data = block.create_from_block_number(block_number, base_provider)
+    block_data = block.create_from_block_number(
+        block_number, base_provider, should_cache
+    )
+
     click.echo(f"Total traces: {len(block_data.traces)}")
 
     total_transactions = len(
