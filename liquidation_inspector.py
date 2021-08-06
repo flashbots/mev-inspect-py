@@ -1,10 +1,4 @@
-import json
-from typing import Optional
-
-from web3 import Web3
-
-from typing import List, Optional
-
+# Internal imports
 from mev_inspect import utils
 from mev_inspect.config import load_config
 from mev_inspect.schemas.blocks import NestedTrace, TraceType
@@ -14,7 +8,23 @@ from mev_inspect.classifier_specs import CLASSIFIER_SPECS
 from mev_inspect.trace_classifier import TraceClassifier
 from mev_inspect import block
 
+# External Libraries
+import json
+from typing import Optional
+from web3 import Web3
+from typing import List, Optional
+
+# TODO: adjust profit to new model
+#		unit test
+#		coinbase check / collateral source
+#
+#
+# Block inspect
 # poetry run inspect -b 12498502 -r 'http://162.55.96.141:8546/'
+#
+#
+#
+
 all_traces = []
 result = []
 addrs = ['0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3']
