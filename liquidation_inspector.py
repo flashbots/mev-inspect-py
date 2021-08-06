@@ -32,8 +32,8 @@ def liquidations(traces: List[ClassifiedTrace]):
 			all_traces.append(trace)
 			liquidator = trace.from_address
 			if liquidator not in addrs: addrs.append(liquidator)
-			print(f"Liquidation found: {liquidator}")
-			print(f"Hash: {trace.transaction_hash}")
+			print(f"\nLiquidation found: \n\t{liquidator}")
+			print(f"\nHash: \n\t{trace.transaction_hash}\n")
 
 			# Found liquidation, now parse inputs for data
 			for i in trace.inputs:
@@ -58,38 +58,37 @@ def liquidations(traces: List[ClassifiedTrace]):
 											protocols=[trace.protocol],)
 						  )
 
-		# Check for transfer from liquidator
+		# Check for transfer from a registered liquidator
 		elif (
 			  trace.classification  ==  Classification.transfer and
 			  'sender' in trace.inputs and
-			  trace.inputs['sender'] in addrs and
-			  trace.inputs['amount'] not in transfers
-				):
+			  trace.inputs['sender'] in addrs
+			 ):
 
 			liquidator = next(addrs[i] for i in range(len(addrs)) if trace.inputs['sender'] == addrs[i])
 			transfers.append(trace)
 
 			print(f"""
 				  \nTransfer from liquidator {liquidator}:
-				  \nAmount in received token: {trace.inputs['amount']} to
-				  \n{trace.inputs['recipient']}
-				  \nTransaction: {trace.transaction_hash}
+				  \n\tAmount in received token: {trace.inputs['amount']} to
+				  \n\t{trace.inputs['recipient']}
+				  \n\tTransaction: {trace.transaction_hash}\n
 				  """)
 
-		# Check for transfer to liquidator
+		# Check for transfer to a registered liquidator
 		elif (
 			  trace.classification == Classification.transfer and
 			  trace.inputs['recipient'] in addrs
-			    ):
+			 ):
 
 			liquidator = next(addrs[i] for i in range(len(addrs)) if trace.inputs['recipient'] == addrs[i])
 			transfers.append(trace)
 
 			print(f"""
 				  \nTransfer to liquidator {liquidator}:
-				  \nAmount in received token: {trace.inputs['amount']} from
-				  \n{trace.from_address}
-				  \nTransaction: {trace.transaction_hash}
+				  \n\tAmount in received token: {trace.inputs['amount']} from
+				  \n\t{trace.from_address}
+				  \n\tTransaction: {trace.transaction_hash}\n
 				  """)
 
 	return result
