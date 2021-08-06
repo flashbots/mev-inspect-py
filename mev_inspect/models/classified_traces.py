@@ -1,4 +1,4 @@
-from sqlalchemy import Column, JSON, Numeric, String
+from sqlalchemy import Column, JSON, Numeric, String, ARRAY, Integer
 
 from .base import Base
 
@@ -10,7 +10,7 @@ class ClassifiedTraceModel(Base):
     block_number = Column(Numeric, nullable=False)
     classification = Column(String, nullable=False)
     trace_type = Column(String, nullable=False)
-    trace_address = Column(String, nullable=False)
+    trace_address = Column(ARRAY(Integer), nullable=False)
     protocol = Column(String, nullable=True)
     abi_name = Column(String, nullable=True)
     function_name = Column(String, nullable=True)
