@@ -49,15 +49,16 @@ def write_arbitrages(
                 }
             )
 
-    db_session.bulk_save_objects(arbitrage_models)
-    db_session.execute(
-        """
-        INSERT INTO arbitrage_swaps
-        (arbitrage_id, swap_transaction_hash, swap_trace_address)
-        VALUES
-        (:arbitrage_id, :swap_transaction_hash, :swap_trace_address)
-        """,
-        params=swap_arbitrage_ids,
-    )
+    if len(arbitrage_models) > 0:
+        db_session.bulk_save_objects(arbitrage_models)
+        db_session.execute(
+            """
+            INSERT INTO arbitrage_swaps
+            (arbitrage_id, swap_transaction_hash, swap_trace_address)
+            VALUES
+            (:arbitrage_id, :swap_transaction_hash, :swap_trace_address)
+            """,
+            params=swap_arbitrage_ids,
+        )
 
-    db_session.commit()
+        db_session.commit()
