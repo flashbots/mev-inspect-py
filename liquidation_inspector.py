@@ -15,24 +15,25 @@ from mev_inspect.trace_classifier import TraceClassifier
 from mev_inspect import block
 
 # poetry run inspect -b 12498502 -r 'http://162.55.96.141:8546/'
+all_traces = []
 result = []
-
 # Inspect list of classified traces and identify liquidation
 def liquidations(traces: List[ClassifiedTrace]):
 	event = []
 	# For each trace
-	for i in range(1, len(traces)):
-		trace = traces[i]
+	for k in range(1, len(traces)):
+		trace = traces[k]
 		try:
-			next = traces[i+1]
+			next = traces[k+1]
 		except IndexError:
 			break
 		# Liquidation condition
 		if trace.classification == Classification.liquidate:
 		# Collateral data from the liquidation.
 		# The inputs will differ by DEX, this is AAVE
+			all_traces.append(trace)
 			liquidator = trace.from_address
-			prev = traces[i-1]
+			prev = traces[k-1]
 			#print(f"Previous: {prev.classification} from {prev.from_address} to {prev.to_address}")
 			print(f"Liquidation found: {liquidator}")
 			print(f"Hash: {trace.transaction_hash}")
@@ -42,27 +43,38 @@ def liquidations(traces: List[ClassifiedTrace]):
 					print(f"\tAmount: {liquidation_amount}")
 				elif (i == '_collateral'):
 					collateral_type = trace.inputs[i]
-					print(f"\tType: {collateral_type}")
+					print(f"\tCollateral Address: {collateral_type}")
 				elif (i == '_reserve'):
 					reserve = trace.inputs[i]
-					print(f"\tUnderlying: {reserve}")
+					print(f"\tReserve Address: {reserve}")
 				elif(i == '_user'):
 					liquidated_usr = trace.inputs[i]
-					print(f"\tLiquidated: {liquidated_usr}")
+					print(f"\tLiquidated Account Address: {liquidated_usr}")
 				# Define the address of the liquidator
 
 				# Find a transfer before liquidation with a to_address corresponding to the liquidator
-			for tx in traces:
-				if ((tx.classification==Classification.transfer) and (tx.inputs['recipient'] == liquidator)):
+			for tx in traces[0:int(k)]:
+				if ((tx.classification==Classification.transfer) and ('sender' in tx.inputs) and (tx.inputs['sender'] == liquidator)):
+					amount_sent = tx.inputs['amount']
+					all_traces.append(tx)
+					print(f"Transfer from liquidator {liquidator}: \nAmount in received token: {tx.inputs['amount']} to \n{tx.inputs['recipient']} \nTransaction: {tx.transaction_hash}")
+				elif ((tx.classification==Classification.transfer) and (tx.inputs['recipient']==liquidator)):
 					amount_received = tx.inputs['amount']
-					print(f"Transfer to liquidator {liquidator}: \nAmount in received token: {tx.inputs['amount']} \nTransaction: {tx.transaction_hash}")
+					all_traces.append(tx)
+					print(f"Transfer to liquidator {liquidator}: \nAmount in received token: {tx.inputs['amount']} from \n{tx.from_address} \nTransaction: {tx.transaction_hash}")
 
+			try:
+				profit = amount_received - amount_sent
+			except UnboundLocalError:
+				print("No match ;[")
+				profit = 0
 			# Tag liquidation
 			result.append(Liquidation(strategy=StrategyType.liquidation,
-									  traces=[trace, next],
+									  traces=all_traces,
 									  protocols=[trace.protocol],
 									  collateral_type=collateral_type,
 									  collateral_amount=liquidation_amount,
+									  profit=profit,
 									  reserve=reserve,
 									  collateral_source="",))
 	return result

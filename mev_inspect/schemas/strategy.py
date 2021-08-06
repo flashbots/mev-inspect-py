@@ -17,3 +17,4 @@ class Liquidation(Strategy):
     collateral_amount: int
     collateral_source: str
     reserve: str
+    profit: float
