@@ -1,38 +1,9 @@
 from typing import List
 
-from mev_inspect.schemas.blocks import TraceType
-from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
+from mev_inspect.schemas.classified_traces import ClassifiedTrace
 from mev_inspect.traces import is_child_trace_address, get_child_traces
 
-
-def make_unknown_classified_trace(
-    block_number,
-    transaction_hash,
-    trace_address,
-):
-    return ClassifiedTrace(
-        transaction_hash=transaction_hash,
-        block_number=block_number,
-        trace_type=TraceType.call,
-        trace_address=trace_address,
-        classification=Classification.unknown,
-    )
-
-
-def make_traces(
-    block_number,
-    transaction_hash,
-    trace_addresses,
-) -> List[ClassifiedTrace]:
-
-    return [
-        make_unknown_classified_trace(
-            block_number,
-            transaction_hash,
-            trace_address,
-        )
-        for trace_address in trace_addresses
-    ]
+from .helpers import make_many_unknown_traces
 
 
 def test_is_child_trace_address():
@@ -68,13 +39,13 @@ def test_get_child_traces(get_transaction_hashes):
 
     second_hash_trace_addresses = [[], [0], [1], [1, 0], [2]]
 
-    traces += make_traces(
+    traces += make_many_unknown_traces(
         block_number,
         first_hash,
         first_hash_trace_addresses,
     )
 
-    traces += make_traces(
+    traces += make_many_unknown_traces(
         block_number,
         second_hash,
         second_hash_trace_addresses,
