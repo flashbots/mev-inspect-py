@@ -98,6 +98,22 @@ def test_get_child_traces(get_transaction_hashes):
         first_hash_trace_addresses[1:],
     )
 
+    assert has_expected_child_traces(
+        first_hash,
+        [0],
+        traces,
+        [
+            [0, 0],
+        ],
+    )
+
+    assert has_expected_child_traces(
+        second_hash,
+        [2],
+        traces,
+        [],
+    )
+
 
 def has_expected_child_traces(
     transaction_hash: str,
