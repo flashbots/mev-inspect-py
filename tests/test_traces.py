@@ -1,19 +1,8 @@
-from hashlib import sha3_256
 from typing import List
-
-import pytest
 
 from mev_inspect.schemas.blocks import TraceType
 from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
 from mev_inspect.traces import is_child_trace_address, get_child_traces
-
-
-@pytest.fixture(name="get_transaction_hashes")
-def fixture_get_transaction_hashes():
-    def _get_transaction_hashes(n: int):
-        return [sha3_256(str(i).encode("utf-8")).hexdigest() for i in range(n)]
-
-    return _get_transaction_hashes
 
 
 def make_unknown_classified_trace(

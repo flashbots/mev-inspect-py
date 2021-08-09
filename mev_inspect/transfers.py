@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
 from mev_inspect.schemas.transfers import Transfer
@@ -40,17 +40,23 @@ def filter_transfers(
 
 def remove_inner_transfers(transfers: List[Transfer]) -> List[Transfer]:
     updated_transfers = []
-    transfer_trace_addresses: List[List[int]] = []
+    transfer_addresses_by_transaction: Dict[str, List[List[int]]] = {}
 
     sorted_transfers = sorted(transfers, key=lambda t: t.trace_address)
 
     for transfer in sorted_transfers:
+        existing_addresses = transfer_addresses_by_transaction.get(
+            transfer.transaction_hash, []
+        )
+
         if not any(
             is_child_trace_address(transfer.trace_address, parent_address)
-            for parent_address in transfer_trace_addresses
+            for parent_address in existing_addresses
         ):
             updated_transfers.append(transfer)
 
-        transfer_trace_addresses.append(transfer.trace_address)
+        transfer_addresses_by_transaction[
+            transfer.transaction_hash
+        ] = existing_addresses + [transfer.trace_address]
 
     return updated_transfers
