@@ -16,6 +16,7 @@ def is_child_trace_address(
 
 
 def get_child_traces(
+    transaction_hash: str,
     parent_trace_address: List[int],
     traces: List[ClassifiedTrace],
 ) -> List[ClassifiedTrace]:
@@ -23,7 +24,7 @@ def get_child_traces(
     child_traces = []
 
     for trace in ordered_traces:
-        if is_child_trace_address(
+        if trace.transaction_hash == transaction_hash and is_child_trace_address(
             trace.trace_address,
             parent_trace_address,
         ):

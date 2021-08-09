@@ -6,12 +6,13 @@ from mev_inspect.traces import is_child_trace_address, get_child_traces
 
 
 def get_child_transfers(
+    transaction_hash: str,
     parent_trace_address: List[int],
     traces: List[ClassifiedTrace],
 ) -> List[Transfer]:
     child_transfers = []
 
-    for child_trace in get_child_traces(parent_trace_address, traces):
+    for child_trace in get_child_traces(transaction_hash, parent_trace_address, traces):
         if child_trace.classification == Classification.transfer:
             child_transfers.append(Transfer.from_trace(child_trace))
 
