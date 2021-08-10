@@ -69,30 +69,104 @@ CURVE_BASE_POOLS = [
         ],
     ),
     ClassifierSpec(
-        abi_name="StableSwap",
+        abi_name="StableSwap3Pool",
         protocol=Protocol.curve,
-        valid_contract_addresses=[
-            "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7",  # 3Pool
-            "0xDeBF20617708857ebe4F679508E7b7863a8A8EeE",  # AAVE
-            "0xA96A65c051bF88B4095Ee1f2451C2A9d43F53Ae2",  # ankrETH
-            "0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27",  # BUSD
-            "0xA2B47E3D5c44877cca798226B7B8118F9BFb7A56",  # Compound
-            "0x0Ce6a5fF5217e38315f87032CF90686C96627CAA",  # EURS
-            "0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F",  # hBTC
-            "0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF",  # IronBank
-            "0xf178c0b5bb7e7abf4e12a4838c7b7c5ba2c623c0",  # Link
-            "0x06364f10B501e868329afBc005b3492902d6C763",  # PAX
-            "0x93054188d876f558f4a66B2EF1d97d16eDf0895B",  # renBTC
-            "0xF9440930043eb3997fc70e1339dBb11F341de7A8",  # rETH
-            "0xEB16Ae0052ed37f479f7fe63849198Df1765a733",  # sAAVE
-            "0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714",  # sBTC
-            "0xc5424B857f758E906013F3555Dad202e4bdB4567",  # sETH
-            "0xDC24316b9AE028F1497c275EB9192a3Ea0f67022",  # stETH
-            "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD",  # sUSD
-            "0x52EA46506B9CC5Ef470C5bf89f17Dc28bB35D85C",  # USDT
-            "0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51",  # Y
-            "0x8925D9d9B4569D737a48499DeF3f67BaA5a144b9",  # Yv2
-        ],
+        valid_contract_addresses=["0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapAAVE",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xDeBF20617708857ebe4F679508E7b7863a8A8EeE"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapankrETH",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xA96A65c051bF88B4095Ee1f2451C2A9d43F53Ae2"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapBUSD",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapCompound",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xA2B47E3D5c44877cca798226B7B8118F9BFb7A56"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapEURS",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x0Ce6a5fF5217e38315f87032CF90686C96627CAA"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwaphBTC",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapIronBank",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x2dded6Da1BF5DBdF597C45fcFaa3194e53EcfeAF"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapLink",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xf178c0b5bb7e7abf4e12a4838c7b7c5ba2c623c0"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapPAX",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x06364f10B501e868329afBc005b3492902d6C763"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwaprenBTC",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x93054188d876f558f4a66B2EF1d97d16eDf0895B"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwaprETH",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xF9440930043eb3997fc70e1339dBb11F341de7A8"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapsAAVE",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xEB16Ae0052ed37f479f7fe63849198Df1765a733"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapsBTC",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x7fC77b5c7614E1533320Ea6DDc2Eb61fa00A9714"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapsETH",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xc5424B857f758E906013F3555Dad202e4bdB4567"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapstETH",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xDC24316b9AE028F1497c275EB9192a3Ea0f67022"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapsUSD",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xA5407eAE9Ba41422680e2e00537571bcC53efBfD"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapUSDT",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x52EA46506B9CC5Ef470C5bf89f17Dc28bB35D85C"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapY",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x45F783CCE6B7FF23B2ab2D70e416cdb7D6055f51"],
+    ),
+    ClassifierSpec(
+        abi_name="StableSwapYv2",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x8925D9d9B4569D737a48499DeF3f67BaA5a144b9"],
     ),
     ClassifierSpec(
         abi_name="Deposit",

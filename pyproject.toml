@@ -16,13 +16,13 @@ psycopg2 = "^2.9.1"
 pre-commit = "^2.13.0"
 pylint = "^2.9.5"
 mypy = "^0.910"
-black = "^21.7b0"
 isort = "^5.9.2"
 pytest = "^6.2.4"
 pytest-sugar = "^0.9.4"
 pytest-cov = "^2.12.1"
 coverage = "^5.5"
 alembic = "^1.6.5"
+black = "^21.7b0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -46,7 +46,11 @@ inspect = 'scripts.poetry.inspect:inspect'
 exclude = '''
 /(
     \.eggs
+  | \.coverage
+  | \.env
   | \.git
+  | \.github
+  | \.pytest_cache
   | \.hg
   | \.mypy_cache
   | \.tox
@@ -54,8 +58,11 @@ exclude = '''
   | _build
   | buck-out
   | build
+  | cache
   | dist
+  | mev_inspect/abis
   | tests/.*/setup.py
+  | tool
 )/
 '''
 
