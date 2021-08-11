@@ -233,24 +233,74 @@ CURVE_META_POOLS = [
         ],
     ),
     ClassifierSpec(
-        abi_name="Deposit",
+        abi_name="DepositbBTC",
         protocol=Protocol.curve,
-        valid_contract_addresses=[
-            "0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756",  # bBTC
-            "0x61E10659fe3aa93d036d099405224E4Ac24996d0",  # DUSD
-            "0x64448B78561690B70E17CBE8029a3e5c1bB7136e",  # GUSD
-            "0x09672362833d8f703D5395ef3252D4Bfa51c15ca",  # HUSD
-            "0x1de7f0866e2c4adAC7b457c58Cc25c8688CDa1f2",  # LinkUSD
-            "0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2",  # MUSD
-            "0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D",  # oBTC
-            "0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C",  # pBTC
-            "0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5",  # RSV
-            "0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c",  # tBTC
-            "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc",  # USDK
-            "0x094d12e5b541784701FD8d65F11fc0598FBC6332",  # USDN
-            "0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940",  # USDP
-            "0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d",  # UST
-        ],
+        valid_contract_addresses=["0xC45b2EEe6e09cA176Ca3bB5f7eEe7C47bF93c756"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositDUSD",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x61E10659fe3aa93d036d099405224E4Ac24996d0"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositGUSD",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x64448B78561690B70E17CBE8029a3e5c1bB7136e"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositHUSD",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x09672362833d8f703D5395ef3252D4Bfa51c15ca"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositLinkUSD",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x1de7f0866e2c4adAC7b457c58Cc25c8688CDa1f2"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositMUSD",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x803A2B40c5a9BB2B86DD630B274Fa2A9202874C2"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositoBTC",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xd5BCf53e2C81e1991570f33Fa881c49EEa570C8D"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositpBTC",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x11F419AdAbbFF8d595E7d5b223eee3863Bb3902C"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositRSV",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xBE175115BF33E12348ff77CcfEE4726866A0Fbd5"],
+    ),
+    ClassifierSpec(
+        abi_name="DeposittBTC",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositUSDK",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xF1f85a74AD6c64315F85af52d3d46bF715236ADc"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositUSDN",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x094d12e5b541784701FD8d65F11fc0598FBC6332"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositUSDP",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositUST",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xB0a0716841F2Fc03fbA72A891B8Bb13584F52F2d"],
     ),
     ClassifierSpec(
         abi_name="StableSwap",
