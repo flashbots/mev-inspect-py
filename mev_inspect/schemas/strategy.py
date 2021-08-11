@@ -9,7 +9,6 @@ class StrategyType(Enum):
 
 class Strategy(BaseModel):
 	strategy: StrategyType
-	traces: List[ClassifiedTrace]
 	protocols: List[Protocol]
 
 class Liquidation(Strategy):
@@ -20,3 +19,4 @@ class Liquidation(Strategy):
 
 class LiquidationData(Liquidation):
     profit: float
+	traces: List[ClassifiedTrace]
