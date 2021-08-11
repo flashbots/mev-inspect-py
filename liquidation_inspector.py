@@ -18,20 +18,13 @@ from typing import List, Optional
 # TODO: adjust profit to new model
 #        unit test
 #        coinbase check / collateral source
-#
-#
-# Block inspect
-# poetry run inspect -b 12498502 -r 'http://162.55.96.141:8546/'
-#
-#
-#
 
 liquidations = []
 result = []
-final = []
 
 # Protocol contract address must be in included, below is AaveLendingPoolCoreV1
 addrs = ['0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3']
+# Used to remove double-counted 'from' transfers
 from_doubles = []
 transfers_to = []
 transfers_from = []
@@ -72,10 +65,10 @@ def find_liquidations(traces: List[ClassifiedTrace]):
                                             collateral_source="",
                                             reserve=reserve,
                                             strategy=StrategyType.liquidation,
-                                            protocols=trace.protocol,)
+                                            protocols=[trace.protocol],)
                           )
 
-        # Check for transfer from a registered liquidator
+        # Check for transfer from a liquidator
         elif (
               trace.classification  ==  Classification.transfer and
               'sender' in trace.inputs and
@@ -83,18 +76,19 @@ def find_liquidations(traces: List[ClassifiedTrace]):
               trace.transaction_hash not in from_doubles
              ):
 
-            liquidator = next(addrs[i] for i in range(len(addrs)) if trace.inputs['sender'] == addrs[i])
-            transfers_from.append(["from", liquidator, trace.transaction_hash, trace.inputs['amount']])
-            from_doubles.append(trace.transaction_hash)
+             #Add the transfer
+             liquidator = next(addrs[i] for i in range(len(addrs)) if trace.inputs['sender'] == addrs[i])
+             transfers_from.append(["from", liquidator, trace.transaction_hash, trace.inputs['amount']])
+             from_doubles.append(trace.transaction_hash)
 
-        # Check for transfer to a registered liquidator
+        # Check for transfer to a liquidator
         elif (
               trace.classification == Classification.transfer and
               trace.inputs['recipient'] in addrs
              ):
-
-            liquidator = next(addrs[i] for i in range(len(addrs)) if trace.inputs['recipient'] == addrs[i])
-            transfers_to.append(["to", liquidator, trace.transaction_hash, trace.inputs['amount']])
+             #Add the transfer
+             liquidator = next(addrs[i] for i in range(len(addrs)) if trace.inputs['recipient'] == addrs[i])
+             transfers_to.append(["to", liquidator, trace.transaction_hash, trace.inputs['amount']])
 
     for count, trace in enumerate(liquidations):
         tx = trace.transaction_hash
@@ -102,18 +96,10 @@ def find_liquidations(traces: List[ClassifiedTrace]):
         #profit = transfers[count][2] - transfers[count+1][2]
 
 
-    profits = []
+
     #for count, trace in enumerate(transfers_to):
         #profits.append({"liquidator" : transfers_to[count][1],
                         #"transaction" : transfers_to[count][2],
                         #"profit" : transfers_to[count][3] - transfers_from[count][3]})
 
     return result
-
-rpc = 'http://162.55.96.141:8546/'
-block_number = 12972264
-base_provider = Web3.HTTPProvider(rpc)
-block_data = block.create_from_block_number(block_number, base_provider)
-trace_clasifier = TraceClassifier(CLASSIFIER_SPECS)
-classified_traces = trace_clasifier.classify(block_data.traces)
-fin = print(find_liquidations(classified_traces))

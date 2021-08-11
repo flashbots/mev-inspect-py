@@ -4,12 +4,12 @@ from pydantic import BaseModel
 from .classified_traces import ClassifiedTrace, Protocol
 
 class StrategyType(Enum):
-	arbitrage = "arbitrage"
-	liquidation = "liquidation"
+    arbitrage = "arbitrage"
+    liquidation = "liquidation"
 
 class Strategy(BaseModel):
-	strategy: StrategyType
-	protocols: List[Protocol]
+    strategy: StrategyType
+    protocols: List[Protocol]
 
 class Liquidation(Strategy):
     collateral_type: str
@@ -19,4 +19,4 @@ class Liquidation(Strategy):
 
 class LiquidationData(Liquidation):
     profit: float
-	traces: List[ClassifiedTrace]
+    traces: List[ClassifiedTrace]

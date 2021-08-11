@@ -111,9 +111,7 @@ AAVE_CONTRACT_SPECS = [
         protocol= Protocol.aave,
         valid_contract_addresses=['0x24a42fD28C976A61Df5D00D0599C34c4f90748c8'],
     ),
-    ]
-
-
+]
 
 
 CLASSIFIER_SPECS = [

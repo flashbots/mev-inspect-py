@@ -19,6 +19,7 @@ class Protocol(Enum):
     uniswap_v3 = "uniswap_v3"
     sushiswap = "sushiswap"
     aave = "aave"
+    balancer = "balancer"
 
 
 class ClassifiedTrace(BaseModel):
