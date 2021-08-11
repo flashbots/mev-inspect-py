@@ -169,17 +169,39 @@ CURVE_BASE_POOLS = [
         valid_contract_addresses=["0x8925D9d9B4569D737a48499DeF3f67BaA5a144b9"],
     ),
     ClassifierSpec(
-        abi_name="Deposit",
+        abi_name="DepositBUSD",
         protocol=Protocol.curve,
-        valid_contract_addresses=[
-            "0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB",  # BUSD
-            "0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06",  # Compound
-            "0xA50cCc70b6a011CffDdf45057E39679379187287",  # PAX
-            "0xFCBa3E75865d2d561BE8D220616520c171F12851",  # sUSD
-            "0x331aF2E331bd619DefAa5DAc6c038f53FCF9F785",  # TriCrypto
-            "0xac795D2c97e60DF6a99ff1c814727302fD747a80",  # USDT
-            "0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3",  # Y
-        ],
+        valid_contract_addresses=["0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositCompound",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xeB21209ae4C2c9FF2a86ACA31E123764A3B6Bc06"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositPAX",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xA50cCc70b6a011CffDdf45057E39679379187287"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositsUSD",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xFCBa3E75865d2d561BE8D220616520c171F12851"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositTriCrypto",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0x331aF2E331bd619DefAa5DAc6c038f53FCF9F785"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositUSDT",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xac795D2c97e60DF6a99ff1c814727302fD747a80"],
+    ),
+    ClassifierSpec(
+        abi_name="DepositY",
+        protocol=Protocol.curve,
+        valid_contract_addresses=["0xbBC81d23Ea2c3ec7e56D39296F0cbB648873a5d3"],
     ),
 ]
 
