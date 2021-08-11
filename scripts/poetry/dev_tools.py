@@ -26,9 +26,9 @@ def mypy():
 
 @click.command()
 @click.option("-c", required=False, is_flag=True)
-def black(c: str):
+def black(c: str = None):
     """if c is present run black in diff mode"""
     if c:
-        check_call(["black", "."])
-    else:
         check_call(["black", "--diff", "--color", "."])
+    else:
+        check_call(["black", "."])
