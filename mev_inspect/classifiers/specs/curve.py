@@ -79,7 +79,7 @@ CURVE_BASE_POOLS = [
         valid_contract_addresses=["0xDeBF20617708857ebe4F679508E7b7863a8A8EeE"],
     ),
     ClassifierSpec(
-        abi_name="StableSwapankrETH",
+        abi_name="StableSwapAETH",
         protocol=Protocol.curve,
         valid_contract_addresses=["0xA96A65c051bF88B4095Ee1f2451C2A9d43F53Ae2"],
     ),
