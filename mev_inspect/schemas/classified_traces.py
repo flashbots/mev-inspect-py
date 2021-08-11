@@ -11,12 +11,14 @@ class Classification(Enum):
     swap = "swap"
     burn = "burn"
     transfer = "transfer"
+    liquidate = "liquidate"
 
 
 class Protocol(Enum):
     uniswap_v2 = "uniswap_v2"
     uniswap_v3 = "uniswap_v3"
     sushiswap = "sushiswap"
+    aave = "aave"
 
 
 class ClassifiedTrace(BaseModel):
