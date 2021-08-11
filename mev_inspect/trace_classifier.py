@@ -17,11 +17,9 @@ class TraceClassifier:
         self._decoders_by_abi_name: Dict[str, ABIDecoder] = {}
 
         for spec in self._classifier_specs:
-            #import pdb; pdb.set_trace()
             abi = get_abi(spec.abi_name, spec.protocol)
 
             if abi is None:
-                import pdb; pdb.set_trace()
                 raise ValueError(f"No ABI found for {spec.abi_name}")
 
             decoder = ABIDecoder(abi)
