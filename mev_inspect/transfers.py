@@ -38,7 +38,7 @@ def filter_transfers(
     return filtered_transfers
 
 
-def remove_inner_transfers(transfers: List[Transfer]) -> List[Transfer]:
+def remove_child_transfers_of_transfers(transfers: List[Transfer]) -> List[Transfer]:
     updated_transfers = []
     transfer_addresses_by_transaction: Dict[str, List[List[int]]] = {}
 

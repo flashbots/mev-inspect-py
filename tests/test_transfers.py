@@ -1,8 +1,8 @@
 from mev_inspect.schemas.transfers import Transfer
-from mev_inspect.transfers import remove_inner_transfers
+from mev_inspect.transfers import remove_child_transfers_of_transfers
 
 
-def test_remove_inner_transfers(get_transaction_hashes, get_addresses):
+def test_remove_child_transfers_of_transfers(get_transaction_hashes, get_addresses):
     [transaction_hash, other_transaction_hash] = get_transaction_hashes(2)
 
     [
@@ -61,7 +61,7 @@ def test_remove_inner_transfers(get_transaction_hashes, get_addresses):
         separate_transaction_transfer,
     ]
 
-    removed_transfers = remove_inner_transfers(transfers)
+    removed_transfers = remove_child_transfers_of_transfers(transfers)
     assert _equal_ignoring_order(removed_transfers, expected_transfers)
 
 

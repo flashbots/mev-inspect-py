@@ -10,7 +10,7 @@ from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.transfers import (
     get_child_transfers,
     filter_transfers,
-    remove_inner_transfers,
+    remove_child_transfers_of_transfers,
 )
 
 
@@ -52,8 +52,8 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
 
             swap = _parse_swap(
                 trace,
-                remove_inner_transfers(prior_transfers),
-                remove_inner_transfers(child_transfers),
+                remove_child_transfers_of_transfers(prior_transfers),
+                remove_child_transfers_of_transfers(child_transfers),
             )
 
             if swap is not None:
