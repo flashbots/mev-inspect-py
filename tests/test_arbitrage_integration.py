@@ -20,3 +20,7 @@ def test_arbitrage_real_block():
     arbitrage = arbitrages[0]
 
     assert len(arbitrage.swaps) == 3
+    assert (
+        arbitrage.profit_token_address == "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+    )
+    assert arbitrage.profit_amount == 53560707941943273628
