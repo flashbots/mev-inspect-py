@@ -1,12 +1,8 @@
-import json
-import os
 import unittest
 
 from mev_inspect import tokenflow
-from mev_inspect.schemas.blocks import Block
 
-THIS_FILE_DIRECTORY = os.path.dirname(__file__)
-TEST_BLOCKS_DIRECTORY = os.path.join(THIS_FILE_DIRECTORY, "blocks")
+from .utils import load_test_block
 
 
 class TestTokenFlow(unittest.TestCase):
@@ -35,14 +31,6 @@ class TestTokenFlow(unittest.TestCase):
         res = tokenflow.run_tokenflow(tx_hash, block)
         self.assertEqual(res["ether_flows"], [3636400213125714803, 3559576672903063566])
         self.assertEqual(res["dollar_flows"], [0, 0])
-
-
-def load_test_block(block_number):
-    block_path = f"{TEST_BLOCKS_DIRECTORY}/{block_number}.json"
-
-    with open(block_path, "r") as block_file:
-        block_json = json.load(block_file)
-        return Block(**block_json)
 
 
 if __name__ == "__main__":

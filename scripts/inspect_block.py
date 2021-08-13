@@ -11,6 +11,8 @@ from mev_inspect.crud.classified_traces import (
 from mev_inspect.db import get_session
 from mev_inspect.classifier_specs import CLASSIFIER_SPECS
 from mev_inspect.trace_classifier import TraceClassifier
+from mev_inspect.arbitrage import get_arbitrages
+from mev_inspect.swaps import get_swaps
 
 
 @click.command()
@@ -38,6 +40,12 @@ def inspect_block(block_number: int, rpc: str):
     delete_classified_traces_for_block(db_session, block_number)
     write_classified_traces(db_session, classified_traces)
     db_session.close()
+
+    swaps = get_swaps(classified_traces)
+    print(f"Found {len(swaps)} swaps")
+
+    arbitrages = get_arbitrages(swaps)
+    print(f"Found {len(arbitrages)} arbitrages")
 
     stats = get_stats(classified_traces)
     print(json.dumps(stats, indent=4))
