@@ -283,19 +283,13 @@ CURVE_META_POOLS = [
         valid_contract_addresses=["0xaa82ca713D94bBA7A89CEAB55314F9EfFEdDc78c"],
     ),
     ClassifierSpec(
-        abi_name="DepositUSDK",
+        abi_name="DepositUSD",
         protocol=Protocol.curve,
-        valid_contract_addresses=["0xF1f85a74AD6c64315F85af52d3d46bF715236ADc"],
-    ),
-    ClassifierSpec(
-        abi_name="DepositUSDN",
-        protocol=Protocol.curve,
-        valid_contract_addresses=["0x094d12e5b541784701FD8d65F11fc0598FBC6332"],
-    ),
-    ClassifierSpec(
-        abi_name="DepositUSDP",
-        protocol=Protocol.curve,
-        valid_contract_addresses=["0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940"],
+        valid_contract_addresses=[
+            "0xF1f85a74AD6c64315F85af52d3d46bF715236ADc",
+            "0x094d12e5b541784701FD8d65F11fc0598FBC6332"
+            "0x3c8cAee4E09296800f8D29A68Fa3837e2dae4940",
+        ],
     ),
     ClassifierSpec(
         abi_name="DepositUST",
