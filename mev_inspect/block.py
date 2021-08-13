@@ -51,7 +51,7 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
 
     ## Get gas used by individual txs and store them too
     txs_gas_data: Dict[str, Dict[str, Any]] = {}
-
+    """
     for transaction in block_data["transactions"]:
         tx_hash = (transaction.hash).hex()
         tx_data = w3.eth.get_transaction(tx_hash)
@@ -63,7 +63,7 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
             "gasPrice": tx_data["gasPrice"],
             "netFeePaid": tx_data["gasPrice"] * tx_receipt["gasUsed"],
         }
-
+    """
     transaction_hashes = get_transaction_hashes(traces)
 
     ## Create a new object
