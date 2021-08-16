@@ -123,16 +123,19 @@ def get_stats(classified_traces) -> dict:
     stats: dict = {}
 
     for trace in classified_traces:
+        protocol = str(trace.protocol)
         abi_name = trace.abi_name
         classification = trace.classification.value
         signature = trace.function_signature
 
-        abi_name_stats = stats.get(abi_name, {})
+        protocol_stats = stats.get(protocol, {})
+        abi_name_stats = protocol_stats.get(abi_name, {})
         class_stats = abi_name_stats.get(classification, {})
         signature_count = class_stats.get(signature, 0)
         class_stats[signature] = signature_count + 1
         abi_name_stats[classification] = class_stats
-        stats[abi_name] = abi_name_stats
+        protocol_stats[abi_name] = abi_name_stats
+        stats[protocol] = protocol_stats
 
     return stats
 
