@@ -4,24 +4,82 @@ import click
 from web3 import Web3
 
 from mev_inspect import block
+from mev_inspect.crud.arbitrages import (
+    delete_arbitrages_for_block,
+    write_arbitrages,
+)
 from mev_inspect.crud.classified_traces import (
     delete_classified_traces_for_block,
     write_classified_traces,
 )
+from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
 from mev_inspect.db import get_session
 from mev_inspect.classifier_specs import CLASSIFIER_SPECS
 from mev_inspect.trace_classifier import TraceClassifier
-from mev_inspect.arbitrage import get_arbitrages
+from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.swaps import get_swaps
 
 
-@click.command()
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
 @click.argument("block_number", type=int)
 @click.argument("rpc")
-def inspect_block(block_number: int, rpc: str):
+@click.option("--cache/--no-cache", default=True)
+def inspect_block(block_number: int, rpc: str, cache: bool):
     base_provider = Web3.HTTPProvider(rpc)
-    block_data = block.create_from_block_number(block_number, base_provider)
-    print(f"Total traces: {len(block_data.traces)}")
+
+    if not cache:
+        click.echo("Skipping cache")
+
+    _inspect_block(base_provider, block_number, should_cache=cache)
+
+
+@cli.command()
+@click.argument("after_block", type=int)
+@click.argument("before_block", type=int)
+@click.argument("rpc")
+@click.option("--cache/--no-cache", default=True)
+def inspect_many_blocks(after_block: int, before_block: int, rpc: str, cache: bool):
+    base_provider = Web3.HTTPProvider(rpc)
+
+    if not cache:
+        click.echo("Skipping cache")
+
+    for block_number in range(after_block + 1, before_block):
+        _inspect_block(
+            base_provider,
+            block_number,
+            should_print_stats=False,
+            should_write_classified_traces=False,
+            should_cache=cache,
+        )
+
+
+def _inspect_block(
+    base_provider,
+    block_number: int,
+    should_cache: bool,
+    should_print_stats: bool = True,
+    should_write_classified_traces: bool = True,
+    should_write_swaps: bool = True,
+    should_write_arbitrages: bool = True,
+):
+
+    block_message = f"Running for {block_number}"
+    dashes = "-" * len(block_message)
+    click.echo(dashes)
+    click.echo(block_message)
+    click.echo(dashes)
+
+    block_data = block.create_from_block_number(
+        block_number, base_provider, should_cache
+    )
+
+    click.echo(f"Total traces: {len(block_data.traces)}")
 
     total_transactions = len(
         set(
@@ -30,25 +88,35 @@ def inspect_block(block_number: int, rpc: str):
             if t.transaction_hash is not None
         )
     )
-    print(f"Total transactions: {total_transactions}")
+    click.echo(f"Total transactions: {total_transactions}")
 
     trace_clasifier = TraceClassifier(CLASSIFIER_SPECS)
     classified_traces = trace_clasifier.classify(block_data.traces)
-    print(f"Returned {len(classified_traces)} classified traces")
+    click.echo(f"Returned {len(classified_traces)} classified traces")
 
     db_session = get_session()
-    delete_classified_traces_for_block(db_session, block_number)
-    write_classified_traces(db_session, classified_traces)
-    db_session.close()
+
+    if should_write_classified_traces:
+        delete_classified_traces_for_block(db_session, block_number)
+        write_classified_traces(db_session, classified_traces)
 
     swaps = get_swaps(classified_traces)
-    print(f"Found {len(swaps)} swaps")
+    click.echo(f"Found {len(swaps)} swaps")
+
+    if should_write_swaps:
+        delete_swaps_for_block(db_session, block_number)
+        write_swaps(db_session, swaps)
 
     arbitrages = get_arbitrages(swaps)
-    print(f"Found {len(arbitrages)} arbitrages")
+    click.echo(f"Found {len(arbitrages)} arbitrages")
 
-    stats = get_stats(classified_traces)
-    print(json.dumps(stats, indent=4))
+    if should_write_arbitrages:
+        delete_arbitrages_for_block(db_session, block_number)
+        write_arbitrages(db_session, arbitrages)
+
+    if should_print_stats:
+        stats = get_stats(classified_traces)
+        click.echo(json.dumps(stats, indent=4))
 
 
 def get_stats(classified_traces) -> dict:
@@ -70,4 +138,4 @@ def get_stats(classified_traces) -> dict:
 
 
 if __name__ == "__main__":
-    inspect_block()
+    cli()

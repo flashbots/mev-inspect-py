@@ -2,6 +2,7 @@ from typing import Dict, Optional
 
 from hexbytes import HexBytes
 from eth_abi import decode_abi
+from eth_abi.exceptions import InsufficientDataBytes, NonEmptyPaddingBytes
 
 from mev_inspect.schemas.abi import ABI, ABIFunctionDescription
 from mev_inspect.schemas.call_data import CallData
@@ -27,7 +28,10 @@ class ABIDecoder:
         names = [input.name for input in func.inputs]
         types = [input.type for input in func.inputs]
 
-        decoded = decode_abi(types, params)
+        try:
+            decoded = decode_abi(types, params)
+        except (InsufficientDataBytes, NonEmptyPaddingBytes):
+            return None
 
         return CallData(
             function_name=func.name,

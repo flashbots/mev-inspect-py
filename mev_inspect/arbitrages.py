@@ -1,7 +1,7 @@
 from itertools import groupby
 from typing import List, Optional
 
-from mev_inspect.schemas.arbitrage import Arbitrage
+from mev_inspect.schemas.arbitrages import Arbitrage
 from mev_inspect.schemas.swaps import Swap
 
 
@@ -70,6 +70,8 @@ def _get_arbitrage_starting_with_swap(
 
             return Arbitrage(
                 swaps=swap_path,
+                block_number=start_swap.block_number,
+                transaction_hash=start_swap.transaction_hash,
                 account_address=start_swap.from_address,
                 profit_token_address=start_swap.token_in_address,
                 start_amount=start_amount,
