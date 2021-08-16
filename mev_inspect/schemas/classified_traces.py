@@ -21,6 +21,7 @@ class Protocol(Enum):
     aave = "aave"
     weth = "weth"
     curve = "curve"
+    zerox = "0x"
 
 
 class ClassifiedTrace(BaseModel):
