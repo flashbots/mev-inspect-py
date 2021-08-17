@@ -347,14 +347,12 @@ CURVE_META_POOLS = [
         valid_contract_addresses=["0xC25099792E9349C7DD09759744ea681C7de2cb66"],
     ),
     ClassifierSpec(
-        abi_name="StableSwapUSDK",
+        abi_name="StableSwapUSD",
         protocol=Protocol.curve,
-        valid_contract_addresses=["0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb"],
-    ),
-    ClassifierSpec(
-        abi_name="StableSwapUSDN",
-        protocol=Protocol.curve,
-        valid_contract_addresses=["0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1"],
+        valid_contract_addresses=[
+            "0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb",
+            "0x0f9cb53Ebe405d49A0bbdBD291A65Ff571bC83e1",
+        ],
     ),
     ClassifierSpec(
         abi_name="StableSwapUSDP",
