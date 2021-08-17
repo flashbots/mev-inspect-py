@@ -18,3 +18,4 @@ class Swap(BaseModel):
     token_in_amount: int
     token_out_address: str
     token_out_amount: int
+    error: Optional[str]
