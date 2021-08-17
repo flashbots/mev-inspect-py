@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
+    ClassifiedCallData,
     Classification,
 )
 from mev_inspect.schemas.swaps import Swap
@@ -63,7 +64,7 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
 
 
 def _parse_swap(
-    trace: ClassifiedTrace,
+    trace,
     prior_transfers: List[Transfer],
     child_transfers: List[Transfer],
 ) -> Optional[Swap]:
@@ -107,7 +108,7 @@ def _parse_swap(
     )
 
 
-def _get_recipient_address(trace: ClassifiedTrace) -> Optional[str]:
+def _get_recipient_address(trace: ClassifiedCallData) -> Optional[str]:
     if trace.abi_name == UNISWAP_V3_POOL_ABI_NAME:
         return (
             trace.inputs["recipient"]

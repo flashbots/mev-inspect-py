@@ -29,17 +29,6 @@ class ClassifiedTrace(BaseModel):
     trace_type: TraceType
     trace_address: List[int]
     classification: Classification
-    protocol: Optional[Protocol]
-    abi_name: Optional[str]
-    function_name: Optional[str]
-    function_signature: Optional[str]
-    inputs: Optional[Dict[str, Any]]
-    to_address: Optional[str]
-    from_address: Optional[str]
-    gas: Optional[int]
-    value: Optional[int]
-    gas_used: Optional[int]
-    error: Optional[str]
 
     class Config:
         json_encoders = {
@@ -47,6 +36,22 @@ class ClassifiedTrace(BaseModel):
             # this is used for bytes value inputs
             bytes: lambda b: b.hex(),
         }
+
+
+class ClassifiedCall(ClassifiedTrace):
+    to_address: str
+    from_address: str
+    gas: int
+    value: int
+    gas_used: Optional[int]
+
+
+class ClassifiedCallData(ClassifiedCall):
+    protocol: Optional[Protocol]
+    function_name: str
+    function_signature: str
+    inputs: Dict[str, Any]
+    abi_name: str
 
 
 class ClassifierSpec(BaseModel):
