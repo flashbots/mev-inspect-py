@@ -1,5 +1,19 @@
 # Contributor guide
 
+|Protocol|Status|
+|---	|---	|
+| Uniswap v2 	| ✅ 	|
+| Uniswap v2 forks (sushiswap etc) 	| ✅ 	|
+| Uniswap v3 	| ✅ 	|
+| Curve 	| ⛏️ 	|
+| Aave 	| ✅ 	|
+| Compound v1 	| ⛏️ 	|
+| Compound v2 	| ✅ 	|
+| Compound forks (cream, rari fuse etc) 	| ⛏️ 	|
+| Synthetix 	| ⛏️ 	|
+| Balancer 	| ⛏️ 	|
+
+
 ### Requirements
 
 * [Install](https://docs.docker.com/compose/install/) docker compose
@@ -117,7 +131,6 @@ Additional fields we're potentially interested in (aside from inspector specific
     * Profit outputted by the token flow function
 * tokenflow_diff
     * Difference between profit estimated by our inspectors and pure token flow analysis
-
 
 
 ### Creating an inspector from scratch
