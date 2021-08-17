@@ -1,6 +1,6 @@
+from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
 from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.arbitrage import get_arbitrages
 from mev_inspect.swaps import get_swaps
 
 from .utils import load_test_block

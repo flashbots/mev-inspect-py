@@ -12,7 +12,13 @@ cache_directory = "./cache"
 ## Creates a block object, either from the cache or from the chain itself
 ## Note that you need to pass in the provider, not the web3 wrapped provider object!
 ## This is because only the provider allows you to make json rpc requests
-def create_from_block_number(block_number: int, base_provider) -> Block:
+def create_from_block_number(
+    block_number: int, base_provider, should_cache: bool
+) -> Block:
+    if not should_cache:
+        w3 = Web3(base_provider)
+        return fetch_block(w3, base_provider, block_number)
+
     cache_path = _get_cache_path(block_number)
 
     if cache_path.is_file():
