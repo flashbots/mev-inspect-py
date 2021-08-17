@@ -107,6 +107,26 @@ AAVE_SPEC = ClassifierSpec(
     },
 )
 
+COMPOUND_V2_CETH_SPEC = ClassifierSpec(
+    abi_name="CEther",
+    protocol=Protocol.compound_v2,
+    valid_contract_addresses=["0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5"],
+    classifications={
+        "liquidateBorrow(address,address)": Classification.liquidate,
+        "seize(address,address,uint)": Classification.seize,
+    },
+)
+
+COMPOUND_V2_CDAI_SPEC = ClassifierSpec(
+    abi_name="CToken",
+    protocol=Protocol.compound_v2,
+    valid_contract_addresses=["0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643"],
+    classifications={
+        "liquidateBorrow(address,uint256,address)": Classification.liquidate,
+        "seize(address,address,uint)": Classification.seize,
+    },
+)
+
 WETH_SPEC = ClassifierSpec(
     abi_name="WETH9",
     protocol=Protocol.weth,
@@ -126,4 +146,5 @@ CLASSIFIER_SPECS = [
     ERC20_SPEC,
     UNISWAP_V3_POOL_SPEC,
     UNISWAPPY_V2_PAIR_SPEC,
+    COMPOUND_V2_CETH_SPEC,
 ]

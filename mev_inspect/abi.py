@@ -26,3 +26,19 @@ def get_abi(abi_name: str, protocol: Optional[Protocol]) -> Optional[ABI]:
             return parse_obj_as(ABI, abi_json)
 
     return None
+
+
+# raw abi, for instantiating contract for queries (as opposed to classification)
+def get_raw_abi(abi_name: str, protocol: Optional[Protocol]) -> str:
+    abi_filename = f"{abi_name}.json"
+    abi_path = (
+        ABI_DIRECTORY_PATH / abi_filename
+        if protocol is None
+        else ABI_DIRECTORY_PATH / protocol.value / abi_filename
+    )
+
+    if abi_path.is_file():
+        with abi_path.open() as abi_file:
+            return abi_file.read()
+
+    return ""

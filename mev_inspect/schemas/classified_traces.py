@@ -12,6 +12,7 @@ class Classification(Enum):
     burn = "burn"
     transfer = "transfer"
     liquidate = "liquidate"
+    seize = "seize"  # liquidate => attempt liquidation, seize => successful collateral transfer upon liquidation, following COMP naming
 
 
 class Protocol(Enum):
@@ -19,6 +20,7 @@ class Protocol(Enum):
     uniswap_v3 = "uniswap_v3"
     sushiswap = "sushiswap"
     aave = "aave"
+    compound_v2 = "compound_v2"
     weth = "weth"
 
 

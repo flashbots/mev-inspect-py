@@ -1,7 +1,7 @@
 import unittest
 
 from mev_inspect import tokenflow
-
+from mev_inspect.schemas.tokenflow import Tokenflow, TokenflowSpecifc
 from .utils import load_test_block
 
 
@@ -12,8 +12,18 @@ class TestTokenFlow(unittest.TestCase):
 
         block = load_test_block(block_no)
         res = tokenflow.run_tokenflow(tx_hash, block)
-        self.assertEqual(res["ether_flows"], [3547869861992962562, 3499859860420296704])
-        self.assertEqual(res["dollar_flows"], [0, 0])
+        self.assertEqual(
+            res,
+            Tokenflow(
+                ether_inflow=3547869861992962562,
+                ether_outflow=3499859860420296704,
+                dollar_inflow=0,
+                dollar_outflow=0,
+                tx_hash=tx_hash,
+            ),
+        )
+        # self.assertEqual(res["ether_flows"], [3547869861992962562, 3499859860420296704])
+        # self.assertEqual(res["dollar_flows"], [0, 0])
 
     def test_arb_with_stable_flow(self):
         tx_hash = "0x496836e0bd1520388e36c79d587a31d4b3306e4f25352164178ca0667c7f9c29"
@@ -21,16 +31,36 @@ class TestTokenFlow(unittest.TestCase):
 
         block = load_test_block(block_no)
         res = tokenflow.run_tokenflow(tx_hash, block)
-        self.assertEqual(res["ether_flows"], [597044987302243493, 562445964778930176])
-        self.assertEqual(res["dollar_flows"], [871839781, 871839781])
+        self.assertEqual(
+            res,
+            Tokenflow(
+                ether_inflow=597044987302243493,
+                ether_outflow=562445964778930176,
+                dollar_inflow=871839781,
+                dollar_outflow=871839781,
+                tx_hash=tx_hash,
+            ),
+        )
+        # self.assertEqual(res["ether_flows"], [597044987302243493, 562445964778930176])
+        # self.assertEqual(res["dollar_flows"], [871839781, 871839781])
 
     def test_complex_cross_arb(self):
         tx_hash = "0x5ab21bfba50ad3993528c2828c63e311aafe93b40ee934790e545e150cb6ca73"
         block_no = 11931272
         block = load_test_block(block_no)
         res = tokenflow.run_tokenflow(tx_hash, block)
-        self.assertEqual(res["ether_flows"], [3636400213125714803, 3559576672903063566])
-        self.assertEqual(res["dollar_flows"], [0, 0])
+        self.assertEqual(
+            res,
+            Tokenflow(
+                ether_inflow=3636400213125714803,
+                ether_outflow=3559576672903063566,
+                dollar_inflow=0,
+                dollar_outflow=0,
+                tx_hash=tx_hash,
+            ),
+        )
+        # self.assertEqual(res["ether_flows"], [3636400213125714803, 3559576672903063566])
+        # self.assertEqual(res["dollar_flows"], [0, 0])
 
 
 if __name__ == "__main__":

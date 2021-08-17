@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from mev_inspect.config import load_config
 from mev_inspect.schemas import Block, Trace, TraceType
+from mev_inspect.schemas.tokenflow import Tokenflow, TokenflowSpecifc
 
 config = load_config()
 
@@ -157,8 +158,6 @@ def get_dollar_flows(tx_traces, addresses_to_check):
     dollar_outflow = 0
     for trace in tx_traces:
         if trace.type == TraceType.call and is_stablecoin_address(trace.action["to"]):
-            _ = int(trace.action["value"], 16)  # converting from 0x prefix to decimal
-
             # USD_GET1 & USD_GET2 (to account for both 'transfer' and 'transferFrom' methods)
             # USD_GIVE1 & USD_GIVE2
 
@@ -185,7 +184,70 @@ def get_dollar_flows(tx_traces, addresses_to_check):
     return [dollar_inflow, dollar_outflow]
 
 
-def run_tokenflow(tx_hash: str, block: Block):
+def get_specifc_token_flows(tx_traces, addresses_to_check, token_address):
+    token_inflow = 0
+    token_outflow = 0
+    for trace in tx_traces:
+        if trace.type == TraceType.call and trace.action["to"] == token_address:
+            # transfer(address to,uint256 value) with args
+            print(len(trace.action["input"]))
+            print(trace.action["input"])
+            if len(trace.action["input"]) == 138:
+                if trace.action["input"][2:10] == "a9059cbb":
+                    transfer_to = "0x" + trace.action["input"][34:74]
+                    transfer_value = int("0x" + trace.action["input"][74:138], 16)
+                    if transfer_to in addresses_to_check:
+                        print(
+                            "inflow from:",
+                            trace["from"],
+                            "to: ",
+                            transfer_to,
+                            "value:",
+                            transfer_value,
+                        )
+                        token_inflow = token_inflow + transfer_value
+                        token_inflow = token_inflow + transfer_value
+                    elif trace.action["from"] in addresses_to_check:
+                        print(
+                            "outflow from:",
+                            trace["from"],
+                            "to: ",
+                            transfer_to,
+                            "value:",
+                            transfer_value,
+                        )
+                        token_outflow = token_outflow + transfer_value
+
+            # transferFrom(address from,address to,uint256 value )
+            if len(trace.action["input"]) == 202:
+                if trace.action["input"][2:10] == "23b872dd":
+                    transfer_from = "0x" + trace.action["input"][34:74]
+                    transfer_to = "0x" + trace.action["input"][98:138]
+                    transfer_value = int("0x" + trace.action["input"][138:202], 16)
+                    if transfer_to in addresses_to_check:
+                        print(
+                            "inflow from:",
+                            trace["from"],
+                            "to: ",
+                            transfer_to,
+                            "value:",
+                            transfer_value,
+                        )
+                        token_inflow = token_inflow + transfer_value
+                    elif transfer_from in addresses_to_check:
+                        print(
+                            "outflow from:",
+                            trace["from"],
+                            "to: ",
+                            transfer_to,
+                            "value:",
+                            transfer_value,
+                        )
+                        token_outflow = token_outflow + transfer_value
+    return [token_inflow, token_outflow]
+
+
+def run_tokenflow(tx_hash: str, block: Block) -> Tokenflow:
     tx_traces = block.get_filtered_traces(tx_hash)
     to_address = get_tx_to_address(tx_hash, block)
 
@@ -209,10 +271,15 @@ def run_tokenflow(tx_hash: str, block: Block):
 
     ether_flows = get_ether_flows(tx_traces, addresses_to_check)
     dollar_flows = get_dollar_flows(tx_traces, addresses_to_check)
-    # print(addresses_to_check)
-    # print('net eth flow', ether_flows[0] - ether_flows[1])
-    # print('net dollar flow', dollar_flows )
-    return {"ether_flows": ether_flows, "dollar_flows": dollar_flows}
+    tokenflow_result = Tokenflow(
+        tx_hash=tx_hash,
+        ether_inflow=ether_flows[0],
+        ether_outflow=ether_flows[1],
+        dollar_inflow=dollar_flows[0],
+        dollar_outflow=dollar_flows[1],
+    )
+
+    return tokenflow_result
 
 
 # note: not the gas set by user, only gas consumed upon execution

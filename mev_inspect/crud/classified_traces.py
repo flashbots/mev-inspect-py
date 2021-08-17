@@ -6,11 +6,13 @@ from mev_inspect.schemas.classified_traces import ClassifiedTrace
 
 
 def delete_classified_traces_for_block(
-    db_session, block_number: int,
+    db_session,
+    block_number: int,
 ) -> None:
-    (db_session.query(ClassifiedTraceModel)
-       .filter(ClassifiedTraceModel.block_number == block_number)
-       .delete()
+    (
+        db_session.query(ClassifiedTraceModel)
+        .filter(ClassifiedTraceModel.block_number == block_number)
+        .delete()
     )
 
     db_session.commit()

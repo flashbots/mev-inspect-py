@@ -55,6 +55,19 @@ class Trace(CamelModel):
     error: Optional[str]
 
 
+class Transaction(Web3Model):
+    from_address: str
+    to_address: str
+    value: int
+    tx_hash: str
+    tx_index: int
+    tx_input: str
+    tx_gas_used: int
+    tx_gas_price: int
+    tx_net_fees_paid: int
+    block_number: int
+
+
 class Block(Web3Model):
     block_number: int
     traces: List[Trace]

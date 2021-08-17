@@ -102,3 +102,5 @@ poetry run pre-commit install
 ```
 
 Update README if needed
+
+[Full contributor guide with sample inspector](./GUIDE.MD)
