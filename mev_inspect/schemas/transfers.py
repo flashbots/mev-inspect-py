@@ -2,7 +2,10 @@ from typing import List
 
 from pydantic import BaseModel
 
-from .classified_traces import Classification, ClassifiedTrace, Protocol
+from .classified_traces import (
+    Classification,
+    Protocol,
+)
 
 
 class Transfer(BaseModel):
@@ -14,7 +17,7 @@ class Transfer(BaseModel):
     token_address: str
 
     @classmethod
-    def from_trace(cls, trace: ClassifiedTrace) -> "Transfer":
+    def from_trace(cls, trace) -> "Transfer":
         if trace.classification != Classification.transfer or trace.inputs is None:
             raise ValueError("Invalid transfer")
 

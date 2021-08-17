@@ -18,6 +18,7 @@ from mev_inspect.classifier_specs import CLASSIFIER_SPECS
 from mev_inspect.trace_classifier import TraceClassifier
 from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.swaps import get_swaps
+from mev_inspect.schemas.classified_traces import ClassifiedCallData
 
 
 @click.group()
@@ -123,19 +124,20 @@ def get_stats(classified_traces) -> dict:
     stats: dict = {}
 
     for trace in classified_traces:
-        protocol = str(trace.protocol)
-        abi_name = trace.abi_name
-        classification = trace.classification.value
-        signature = trace.function_signature
+        if isinstance(trace, ClassifiedCallData):
+            protocol = str(trace.protocol)
+            abi_name = trace.abi_name
+            classification = trace.classification.value
+            signature = trace.function_signature
 
-        protocol_stats = stats.get(protocol, {})
-        abi_name_stats = protocol_stats.get(abi_name, {})
-        class_stats = abi_name_stats.get(classification, {})
-        signature_count = class_stats.get(signature, 0)
-        class_stats[signature] = signature_count + 1
-        abi_name_stats[classification] = class_stats
-        protocol_stats[abi_name] = abi_name_stats
-        stats[protocol] = protocol_stats
+            protocol_stats = stats.get(protocol, {})
+            abi_name_stats = protocol_stats.get(abi_name, {})
+            class_stats = abi_name_stats.get(classification, {})
+            signature_count = class_stats.get(signature, 0)
+            class_stats[signature] = signature_count + 1
+            abi_name_stats[classification] = class_stats
+            protocol_stats[abi_name] = abi_name_stats
+            stats[protocol] = protocol_stats
 
     return stats
 
