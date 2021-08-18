@@ -64,7 +64,7 @@ class ClassifiedTraceStrict(BaseModel):
         }
 
 
-class ClassifiedCall(ClassifiedTrace):
+class ClassifiedCall(ClassifiedTraceStrict):
     to_address: str
     from_address: str
     gas: int
