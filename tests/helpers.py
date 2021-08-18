@@ -4,7 +4,6 @@ from mev_inspect.schemas.blocks import TraceType
 from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
-    ClassifiedCallData,
 )
 
 
@@ -17,7 +16,7 @@ def make_transfer_trace(
     token_address: str,
     amount: int,
 ):
-    return ClassifiedCallData(
+    return ClassifiedTrace(
         transaction_hash=transaction_hash,
         block_number=block_number,
         trace_type=TraceType.call,
@@ -42,7 +41,7 @@ def make_swap_trace(
     recipient_address: str,
     recipient_input_key: str,
 ):
-    return ClassifiedCallData(
+    return ClassifiedTrace(
         transaction_hash=transaction_hash,
         block_number=block_number,
         trace_type=TraceType.call,

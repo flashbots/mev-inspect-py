@@ -29,6 +29,32 @@ class ClassifiedTrace(BaseModel):
     trace_type: TraceType
     trace_address: List[int]
     classification: Classification
+    protocol: Optional[Protocol]
+    abi_name: Optional[str]
+    function_name: Optional[str]
+    function_signature: Optional[str]
+    inputs: Optional[Dict[str, Any]]
+    to_address: Optional[str]
+    from_address: Optional[str]
+    gas: Optional[int]
+    value: Optional[int]
+    gas_used: Optional[int]
+    error: Optional[str]
+
+    class Config:
+        json_encoders = {
+            # a little lazy but fine for now
+            # this is used for bytes value inputs
+            bytes: lambda b: b.hex(),
+        }
+
+
+class ClassifiedTraceStrict(BaseModel):
+    transaction_hash: str
+    block_number: int
+    trace_type: TraceType
+    trace_address: List[int]
+    classification: Classification
 
     class Config:
         json_encoders = {
