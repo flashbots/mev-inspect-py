@@ -20,6 +20,7 @@ class Protocol(Enum):
     sushiswap = "sushiswap"
     aave = "aave"
     weth = "weth"
+    curve = "curve"
 
 
 class ClassifiedTrace(BaseModel):

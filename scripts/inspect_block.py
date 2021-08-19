@@ -12,11 +12,12 @@ from mev_inspect.crud.classified_traces import (
     delete_classified_traces_for_block,
     write_classified_traces,
 )
+
+from mev_inspect.arbitrages import get_arbitrages
+from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
+from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
 from mev_inspect.db import get_session
-from mev_inspect.classifier_specs import CLASSIFIER_SPECS
-from mev_inspect.trace_classifier import TraceClassifier
-from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.swaps import get_swaps
 
 
@@ -90,7 +91,7 @@ def _inspect_block(
     )
     click.echo(f"Total transactions: {total_transactions}")
 
-    trace_clasifier = TraceClassifier(CLASSIFIER_SPECS)
+    trace_clasifier = TraceClassifier(ALL_CLASSIFIER_SPECS)
     classified_traces = trace_clasifier.classify(block_data.traces)
     click.echo(f"Returned {len(classified_traces)} classified traces")
 
