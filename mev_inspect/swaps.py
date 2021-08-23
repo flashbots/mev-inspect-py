@@ -103,6 +103,7 @@ def _parse_swap(
         token_in_amount=transfer_in.amount,
         token_out_address=transfer_out.token_address,
         token_out_amount=transfer_out.amount,
+        error=trace.error,
     )
 
 

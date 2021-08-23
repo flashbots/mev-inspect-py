@@ -18,3 +18,4 @@ class SwapModel(Base):
     token_in_amount = Column(Numeric, nullable=False)
     token_out_address = Column(String, nullable=False)
     token_out_amount = Column(Numeric, nullable=False)
+    error = Column(String, nullable=True)
