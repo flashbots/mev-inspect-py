@@ -59,6 +59,7 @@ class Trace(CamelModel):
 
 class Block(Web3Model):
     block_number: int
+    miner: str
     traces: List[Trace]
     receipts: List[Receipt]
 
