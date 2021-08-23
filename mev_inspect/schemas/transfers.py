@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, TypeVar
 
 from pydantic import BaseModel
 
@@ -11,6 +11,10 @@ class Transfer(BaseModel):
     from_address: str
     to_address: str
     amount: int
+
+
+# To preserve the specific Transfer type
+TransferGeneric = TypeVar("TransferGeneric", bound="Transfer")
 
 
 class EthTransfer(Transfer):

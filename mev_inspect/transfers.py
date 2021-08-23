@@ -1,7 +1,7 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
-from mev_inspect.schemas.transfers import ERC20Transfer, EthTransfer, Transfer
+from mev_inspect.schemas.transfers import ERC20Transfer, EthTransfer, TransferGeneric
 from mev_inspect.traces import is_child_trace_address, get_child_traces
 
 
@@ -40,10 +40,10 @@ def get_child_transfers(
 
 
 def filter_transfers(
-    transfers: List[Transfer],
+    transfers: Sequence[TransferGeneric],
     to_address: Optional[str] = None,
     from_address: Optional[str] = None,
-) -> List[Transfer]:
+) -> List[TransferGeneric]:
     filtered_transfers = []
 
     for transfer in transfers:
