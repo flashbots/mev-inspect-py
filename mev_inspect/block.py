@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 from web3 import Web3
 
 from mev_inspect.schemas import Block, Trace, TraceType
+from mev_inspect.schemas.receipts import Receipt
 
 
 cache_directory = "./cache"
@@ -46,6 +47,9 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
     block_receipts_raw = base_provider.make_request(
         "eth_getBlockReceipts", [block_number]
     )
+    receipts: List[Receipt] = [
+        Receipt(**receipt) for receipt in block_receipts_raw["result"]
+    ]
 
     ## Trace the whole block, return those calls
     traces_json = w3.parity.trace_block(block_number)
@@ -63,7 +67,7 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
     return Block(
         block_number=block_number,
         data=block_data,
-        receipts=block_receipts_raw,
+        receipts=receipts,
         traces=traces,
         logs=block_logs,
         transaction_hashes=transaction_hashes,
