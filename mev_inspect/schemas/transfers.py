@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from .classified_traces import Classification, ClassifiedTrace, Protocol
 
 
-class Transfer(BaseModel):
+class ERC20Transfer(BaseModel):
     transaction_hash: str
     trace_address: List[int]
     from_address: str
@@ -14,7 +14,7 @@ class Transfer(BaseModel):
     token_address: str
 
     @classmethod
-    def from_trace(cls, trace: ClassifiedTrace) -> "Transfer":
+    def from_trace(cls, trace: ClassifiedTrace) -> "ERC20Transfer":
         if trace.classification != Classification.transfer or trace.inputs is None:
             raise ValueError("Invalid transfer")
 

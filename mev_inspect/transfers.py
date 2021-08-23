@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 
 from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
-from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.transfers import ERC20Transfer
 from mev_inspect.traces import is_child_trace_address, get_child_traces
 
 
@@ -9,21 +9,21 @@ def get_child_transfers(
     transaction_hash: str,
     parent_trace_address: List[int],
     traces: List[ClassifiedTrace],
-) -> List[Transfer]:
+) -> List[ERC20Transfer]:
     child_transfers = []
 
     for child_trace in get_child_traces(transaction_hash, parent_trace_address, traces):
         if child_trace.classification == Classification.transfer:
-            child_transfers.append(Transfer.from_trace(child_trace))
+            child_transfers.append(ERC20Transfer.from_trace(child_trace))
 
     return child_transfers
 
 
 def filter_transfers(
-    transfers: List[Transfer],
+    transfers: List[ERC20Transfer],
     to_address: Optional[str] = None,
     from_address: Optional[str] = None,
-) -> List[Transfer]:
+) -> List[ERC20Transfer]:
     filtered_transfers = []
 
     for transfer in transfers:
@@ -38,7 +38,9 @@ def filter_transfers(
     return filtered_transfers
 
 
-def remove_child_transfers_of_transfers(transfers: List[Transfer]) -> List[Transfer]:
+def remove_child_transfers_of_transfers(
+    transfers: List[ERC20Transfer],
+) -> List[ERC20Transfer]:
     updated_transfers = []
     transfer_addresses_by_transaction: Dict[str, List[List[int]]] = {}
 

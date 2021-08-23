@@ -6,7 +6,7 @@ from mev_inspect.schemas.classified_traces import (
     Classification,
 )
 from mev_inspect.schemas.swaps import Swap
-from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.transfers import ERC20Transfer
 from mev_inspect.transfers import (
     get_child_transfers,
     filter_transfers,
@@ -37,11 +37,11 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
     ordered_traces = list(sorted(traces, key=lambda t: t.trace_address))
 
     swaps: List[Swap] = []
-    prior_transfers: List[Transfer] = []
+    prior_transfers: List[ERC20Transfer] = []
 
     for trace in ordered_traces:
         if trace.classification == Classification.transfer:
-            prior_transfers.append(Transfer.from_trace(trace))
+            prior_transfers.append(ERC20Transfer.from_trace(trace))
 
         elif trace.classification == Classification.swap:
             child_transfers = get_child_transfers(
@@ -64,8 +64,8 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
 
 def _parse_swap(
     trace: ClassifiedTrace,
-    prior_transfers: List[Transfer],
-    child_transfers: List[Transfer],
+    prior_transfers: List[ERC20Transfer],
+    child_transfers: List[ERC20Transfer],
 ) -> Optional[Swap]:
     pool_address = trace.to_address
     recipient_address = _get_recipient_address(trace)
