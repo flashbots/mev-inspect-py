@@ -17,6 +17,8 @@ services:
       - .env
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
 
 volumes:
   mev-inspect-db-data:
