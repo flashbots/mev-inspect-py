@@ -1,5 +1,5 @@
 from itertools import groupby
-from typing import List
+from typing import Iterator, List, Tuple
 
 from mev_inspect.schemas.classified_traces import ClassifiedTrace
 
@@ -36,6 +36,10 @@ def get_child_traces(
 
 def get_traces_by_transaction_hash(
     traces: List[ClassifiedTrace],
-) -> groupby[str, ClassifiedTrace]:
+) -> Iterator[Tuple[str, List[ClassifiedTrace]]]:
     get_transaction_hash = lambda trace: trace.transaction_hash
-    return groupby(sorted(traces, key=get_transaction_hash), key=get_transaction_hash)
+    for transaction_hash, transaction_traces in groupby(
+        sorted(traces, key=get_transaction_hash),
+        key=get_transaction_hash,
+    ):
+        yield transaction_hash, list(transaction_traces)

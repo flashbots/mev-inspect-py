@@ -15,10 +15,11 @@ def get_miner_payments(
     miner_payments = []
 
     for transaction_hash, transaciton_traces in get_traces_by_transaction_hash(traces):
-        eth_transfers = get_eth_transfers(list(transaciton_traces))
+        eth_transfers = get_eth_transfers(transaciton_traces)
         miner_eth_transfers = filter_transfers(
             eth_transfers, to_address=miner_address.lower()
         )
+
         total_eth_transfer_payment = sum(
             transfer.amount for transfer in miner_eth_transfers
         )
