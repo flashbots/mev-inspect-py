@@ -1,8 +1,28 @@
 from typing import Dict, List, Optional
 
 from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
-from mev_inspect.schemas.transfers import ERC20Transfer
+from mev_inspect.schemas.transfers import ERC20Transfer, EthTransfer, Transfer
 from mev_inspect.traces import is_child_trace_address, get_child_traces
+
+
+def get_eth_transfers(traces: List[ClassifiedTrace]) -> List[EthTransfer]:
+    transfers = []
+
+    for trace in traces:
+        if trace.value is not None and trace.value > 0:
+            transfers.append(EthTransfer.from_trace(trace))
+
+    return transfers
+
+
+def get_transfers(traces: List[ClassifiedTrace]) -> List[ERC20Transfer]:
+    transfers = []
+
+    for trace in traces:
+        if trace.classification == Classification.transfer:
+            transfers.append(ERC20Transfer.from_trace(trace))
+
+    return transfers
 
 
 def get_child_transfers(
@@ -20,10 +40,10 @@ def get_child_transfers(
 
 
 def filter_transfers(
-    transfers: List[ERC20Transfer],
+    transfers: List[Transfer],
     to_address: Optional[str] = None,
     from_address: Optional[str] = None,
-) -> List[ERC20Transfer]:
+) -> List[Transfer]:
     filtered_transfers = []
 
     for transfer in transfers:

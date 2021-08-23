@@ -5,12 +5,27 @@ from pydantic import BaseModel
 from .classified_traces import Classification, ClassifiedTrace, Protocol
 
 
-class ERC20Transfer(BaseModel):
+class Transfer(BaseModel):
     transaction_hash: str
     trace_address: List[int]
     from_address: str
     to_address: str
     amount: int
+
+
+class EthTransfer(Transfer):
+    @classmethod
+    def from_trace(cls, trace: ClassifiedTrace) -> "EthTransfer":
+        return cls(
+            transaction_hash=trace.transaction_hash,
+            trace_address=trace.trace_address,
+            amount=trace.value,
+            to_address=trace.to_address,
+            from_address=trace.from_address,
+        )
+
+
+class ERC20Transfer(Transfer):
     token_address: str
 
     @classmethod
