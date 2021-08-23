@@ -9,18 +9,18 @@ import click
 def start(d: str):
     """if d is present, run docker compose as daemon"""
     if d:
-        check_call(["docker", "compose", "up", "-d"])
+        check_call(["docker-compose", "up", "-d"])
         click.echo("docker running in the background...")
     else:
-        check_call(["docker", "compose", "up"])
+        check_call(["docker-compose", "up"])
 
 
 def stop():
-    check_call(["docker", "compose", "down"])
+    check_call(["docker-compose", "down"])
 
 
 def build():
-    check_call(["docker", "compose", "build"])
+    check_call(["docker-compose", "build"])
 
 
 def attach():
@@ -30,4 +30,4 @@ def attach():
 @click.command()
 @click.argument("args", nargs=-1)
 def exec(args: List[str]):
-    check_call(["docker", "compose", "exec", "mev-inspect", *args])
+    check_call(["docker-compose", "exec", "mev-inspect", *args])
