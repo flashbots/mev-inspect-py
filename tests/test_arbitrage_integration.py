@@ -7,14 +7,15 @@ from .utils import load_test_block
 
 
 def test_arbitrage_real_block():
-    block = load_test_block(12914994)
+    block = load_test_block(12914944)
 
     trace_clasifier = TraceClassifier(ALL_CLASSIFIER_SPECS)
     classified_traces = trace_clasifier.classify(block.traces)
 
     swaps = get_swaps(classified_traces)
-    arbitrages = get_arbitrages(swaps)
+    assert len(swaps) == 51
 
+    arbitrages = get_arbitrages(list(swaps))
     assert len(arbitrages) == 1
 
     arbitrage = arbitrages[0]

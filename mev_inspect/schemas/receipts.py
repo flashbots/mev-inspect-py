@@ -12,6 +12,7 @@ class Receipt(CamelModel):
     gas_used: int
     effective_gas_price: int
     cumulative_gas_used: int
+    to: str
 
     @validator(
         "block_number",
