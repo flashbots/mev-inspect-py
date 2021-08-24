@@ -21,6 +21,7 @@ class Protocol(Enum):
     sushiswap = "sushiswap"
     aave = "aave"
     compound_v2 = "compound_v2"
+    cream = "cream"
     weth = "weth"
 
 

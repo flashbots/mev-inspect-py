@@ -1,7 +1,7 @@
 import unittest
 
 from mev_inspect import tokenflow
-from mev_inspect.schemas.tokenflow import Tokenflow, TokenflowSpecifc
+from mev_inspect.schemas.tokenflow import Tokenflow
 from .utils import load_test_block
 
 

@@ -1,22 +1,20 @@
-from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
+from typing import Optional
+from web3 import Web3
+from mev_inspect.schemas.classified_traces import ClassifiedTrace
 from mev_inspect.schemas.liquidations import (
     Liquidation,
     LiquidationType,
     LiquidationStatus,
     LiquidationCollateralSource,
 )
-from mev_inspect.block import _get_cache_path
-from mev_inspect.schemas import Block
 from mev_inspect.schemas.blocks import Transaction
-from mev_inspect.trace_classifier import TraceClassifier
-from mev_inspect.classifier_specs import CLASSIFIER_SPECS, Protocol
-from mev_inspect.tokenflow import get_dollar_flows, get_tx_proxies
+from mev_inspect.classifier_specs import Protocol
+
+# from mev_inspect.tokenflow import get_dollar_flows, get_tx_proxies
+from mev_inspect.historical_price import get_erc20_token_decimals
 from mev_inspect.abi import get_raw_abi
-from web3 import Web3
-from typing import Optional
 
 w3 = Web3(Web3.HTTPProvider(""))
-
 
 comp_v2_comptroller_address = "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"
 c_ether = "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5"
@@ -65,23 +63,29 @@ def find_collateral_source(
     return source
 
 
-# TODO: check tx status and assign accordingly
-# i.e if a tx checks if the opportunity is still available ("liquidateBorrowAllowed")
-# or if it calls the COMP oracle for price data ("getUnderlyingPrice(address")
-# def is_pre_flight():
-#     pass
-
-# for cToken - differnt file?
-# TODO: fetch historic price (in ETH) of any given token at the block height the tx occured
-# to calculate the profit in ETH accurately, regardless of what token the profit was held in
-# def get_historic_token_price():
-#     pass
+def get_underlying_ctoken_exchange_rate(
+    c_token_address: str, block_number: int
+) -> float:
+    comp_v2_ctoken_abi = get_raw_abi("CToken", Protocol.compound_v2)
+    ctoken_instance = w3.eth.contract(address=c_token_address, abi=comp_v2_ctoken_abi)
+    raw_exchange_rate = ctoken_instance.functions.exchangeRateCurrent().call(
+        block_identifier=block_number
+    )
+    # format based on decimals in ctoken and the underlying token
+    # see "Interpreting Exchange Rates" https://compound.finance/docs#protocol-math
+    underlying_token_address = get_all_comp_markets()[c_token_address.lower()]
+    decimals_in_underlying = get_erc20_token_decimals(
+        Web3.toChecksumAddress(underlying_token_address)
+    )
+    decimals_in_ctoken = get_erc20_token_decimals(c_token_address)
+    return raw_exchange_rate / (
+        10 ** (18 + decimals_in_underlying - decimals_in_ctoken)
+    )
 
 
 def inspect_compound_v2_ceth(
     tx: Transaction, classified_traces: list[ClassifiedTrace]
 ) -> Liquidation:
-    # TODO: complete this logic after seized return type
     # flow:
     # 1. decide if it's a pre-flight check tx or an actual liquidation
     # 2. parse `liquidateBorrow` and `seize` sub traces to determine actual amounts
@@ -96,7 +100,7 @@ def inspect_compound_v2_ceth(
             source = find_collateral_source(
                 classified_traces, tx, classified_trace.to_address
             )
-            borrower = classified_trace.inputs["inputs"]
+            borrower = classified_trace.inputs["borrower"]
             c_token_collateral = classified_trace.inputs["cTokenCollateral"]
             liquidation = Liquidation(
                 tx_hash=tx.tx_hash,

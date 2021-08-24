@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from mev_inspect.config import load_config
 from mev_inspect.schemas import Block, Trace, TraceType
-from mev_inspect.schemas.tokenflow import Tokenflow, TokenflowSpecifc
+from mev_inspect.schemas.tokenflow import Tokenflow
 
 config = load_config()
 
