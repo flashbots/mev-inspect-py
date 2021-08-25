@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import validator
 
@@ -60,11 +60,7 @@ class Trace(CamelModel):
 class Block(Web3Model):
     block_number: int
     traces: List[Trace]
-    data: dict
-    logs: List[dict]
     receipts: List[Receipt]
-    transaction_hashes: List[str]
-    txs_gas_data: Dict[str, dict]
 
     def get_filtered_traces(self, hash: str) -> List[Trace]:
         return [trace for trace in self.traces if trace.transaction_hash == hash]
