@@ -73,10 +73,11 @@ def _inspect_block(
     base_provider,
     block_number: int,
     should_cache: bool,
-    should_print_stats: bool = False,
+    should_print_stats: bool = True,
     should_write_classified_traces: bool = True,
     should_write_swaps: bool = True,
     should_write_arbitrages: bool = True,
+    should_print_miner_payments: bool = False,
 ):
 
     block_data = block.create_from_block_number(
@@ -104,12 +105,6 @@ def _inspect_block(
         delete_classified_traces_for_block(db_session, block_number)
         write_classified_traces(db_session, classified_traces)
 
-    miner_payments = get_miner_payments(
-        block_data.miner, classified_traces, block_data.receipts
-    )
-    click.echo("Miner payments:")
-    click.echo(json.dumps([p.dict() for p in miner_payments], indent=4))
-
     swaps = get_swaps(classified_traces)
     click.echo(f"Found {len(swaps)} swaps")
 
@@ -127,6 +122,13 @@ def _inspect_block(
     if should_print_stats:
         stats = get_stats(classified_traces)
         click.echo(json.dumps(stats, indent=4))
+
+    miner_payments = get_miner_payments(
+        block_data.miner, classified_traces, block_data.receipts
+    )
+
+    if should_print_miner_payments:
+        click.echo(json.dumps([p.dict() for p in miner_payments], indent=4))
 
 
 def get_stats(classified_traces) -> dict:
