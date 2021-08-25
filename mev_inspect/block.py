@@ -35,11 +35,13 @@ def create_from_block_number(
 
 
 def fetch_block(w3, base_provider, block_number: int) -> Block:
-    block_json = w3.eth.get_block(block_number, True)
+    block_json = w3.eth.get_block(block_number)
     receipts_json = base_provider.make_request("eth_getBlockReceipts", [block_number])
     traces_json = w3.parity.trace_block(block_number)
 
-    receipts: List[Receipt] = [Receipt(**receipt) for receipt in receipts_json["result"]]
+    receipts: List[Receipt] = [
+        Receipt(**receipt) for receipt in receipts_json["result"]
+    ]
     traces = [Trace(**trace_json) for trace_json in traces_json]
 
     return Block(

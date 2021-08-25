@@ -24,16 +24,20 @@ def get_miner_payments(
             eth_transfers, to_address=miner_address.lower()
         )
 
-        total_eth_transfer_payment = sum(
+        wei_transfered_to_miner = sum(
             transfer.amount for transfer in miner_eth_transfers
         )
 
-        if total_eth_transfer_payment > 0:
-            miner_payments.append(
-                MinerPayment(
-                    transaction_hash=receipt.transaction_hash,
-                    total_eth_transfer_payment=total_eth_transfer_payment,
-                )
+        miner_payments.append(
+            MinerPayment(
+                miner_address=miner_address,
+                block_number=receipt.block_number,
+                transaction_hash=receipt.transaction_hash,
+                transaction_index=receipt.transaction_index,
+                effective_gas_price=receipt.effective_gas_price,
+                gas_used=receipt.gas_used,
+                wei_transfered_to_miner=wei_transfered_to_miner,
             )
+        )
 
     return miner_payments
