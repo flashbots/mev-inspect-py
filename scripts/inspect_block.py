@@ -104,7 +104,9 @@ def _inspect_block(
         delete_classified_traces_for_block(db_session, block_number)
         write_classified_traces(db_session, classified_traces)
 
-    miner_payments = get_miner_payments(block_data.miner, classified_traces)
+    miner_payments = get_miner_payments(
+        block_data.miner, classified_traces, block_data.receipts
+    )
     click.echo("Miner payments:")
     click.echo(json.dumps([p.dict() for p in miner_payments], indent=4))
 
