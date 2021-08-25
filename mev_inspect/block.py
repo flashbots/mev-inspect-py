@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import List
 
 from web3 import Web3
 
@@ -10,9 +10,6 @@ from mev_inspect.schemas.receipts import Receipt
 cache_directory = "./cache"
 
 
-## Creates a block object, either from the cache or from the chain itself
-## Note that you need to pass in the provider, not the web3 wrapped provider object!
-## This is because only the provider allows you to make json rpc requests
 def create_from_block_number(
     block_number: int, base_provider, should_cache: bool
 ) -> Block:
@@ -38,40 +35,18 @@ def create_from_block_number(
 
 
 def fetch_block(w3, base_provider, block_number: int) -> Block:
-    ## Get block data
-    block_data = w3.eth.get_block(block_number, True)
-
-    ## Get the block receipts
-    ## TODO: evaluate whether or not this is sufficient or if gas used needs to be converted to a proper big number.
-    ## In inspect-ts it needed to be converted
-    block_receipts_raw = base_provider.make_request(
-        "eth_getBlockReceipts", [block_number]
-    )
-    receipts: List[Receipt] = [
-        Receipt(**receipt) for receipt in block_receipts_raw["result"]
-    ]
-
-    ## Trace the whole block, return those calls
+    receipts_json = base_provider.make_request("eth_getBlockReceipts", [block_number])
     traces_json = w3.parity.trace_block(block_number)
+
+    receipts: List[Receipt] = [
+        Receipt(**receipt) for receipt in receipts_json["result"]
+    ]
     traces = [Trace(**trace_json) for trace_json in traces_json]
 
-    ## Get the logs
-    block_hash = (block_data.hash).hex()
-    block_logs = w3.eth.get_logs({"blockHash": block_hash})
-
-    ## Get gas used by individual txs and store them too
-    txs_gas_data: Dict[str, Dict[str, Any]] = {}
-    transaction_hashes = get_transaction_hashes(traces)
-
-    ## Create a new object
     return Block(
         block_number=block_number,
-        data=block_data,
         receipts=receipts,
         traces=traces,
-        logs=block_logs,
-        transaction_hashes=transaction_hashes,
-        txs_gas_data=txs_gas_data,
     )
 
 
