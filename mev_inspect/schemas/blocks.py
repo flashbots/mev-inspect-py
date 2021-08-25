@@ -4,6 +4,8 @@ from typing import Dict, List, Optional
 from pydantic import validator
 
 from mev_inspect.utils import hex_to_int
+
+from .receipts import Receipt
 from .utils import CamelModel, Web3Model
 
 
@@ -60,7 +62,7 @@ class Block(Web3Model):
     traces: List[Trace]
     data: dict
     logs: List[dict]
-    receipts: dict
+    receipts: List[Receipt]
     transaction_hashes: List[str]
     txs_gas_data: Dict[str, dict]
 

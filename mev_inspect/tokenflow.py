@@ -62,9 +62,9 @@ def is_known_router_address(address):
 
 # we're interested in the to address to run token flow on it as well
 def get_tx_to_address(tx_hash, block) -> Optional[str]:
-    for receipt in block.receipts["result"]:
-        if receipt["transactionHash"] == tx_hash:
-            return receipt["to"]
+    for receipt in block.receipts:
+        if receipt.transaction_hash == tx_hash:
+            return receipt.to
 
     return None
 
