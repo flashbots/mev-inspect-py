@@ -966,10 +966,14 @@ python-versions = "*"
 [[package]]
 name = "virtualenv"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "20.7.1"
 =======
 version = "20.7.2"
 >>>>>>> Call data type implementation
+=======
+version = "20.7.2"
+>>>>>>> 24b99806e2b755bfef3ebaeee5df3846b8d75da9
 description = "Virtual Python Environment builder"
 category = "dev"
 optional = false
@@ -989,10 +993,14 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [[package]]
 name = "web3"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "5.22.0"
 =======
 version = "5.23.0"
 >>>>>>> Call data type implementation
+=======
+version = "5.23.0"
+>>>>>>> 24b99806e2b755bfef3ebaeee5df3846b8d75da9
 description = "Web3.py"
 category = "main"
 optional = false
@@ -1851,6 +1859,7 @@ varint = [
 ]
 virtualenv = [
 <<<<<<< HEAD
+<<<<<<< HEAD
     {file = "virtualenv-20.7.1-py2.py3-none-any.whl", hash = "sha256:73863dc3be1efe6ee638e77495c0c195a6384ae7b15c561f3ceb2698ae7267c1"},
     {file = "virtualenv-20.7.1.tar.gz", hash = "sha256:57bcb59c5898818bd555b1e0cfcf668bd6204bc2b53ad0e70a52413bd790f9e4"},
 ]
@@ -1858,13 +1867,18 @@ web3 = [
     {file = "web3-5.22.0-py3-none-any.whl", hash = "sha256:1dbbb8d0a6d433e3a6d7e36bada29cf45c4670b044e7b59e4e3d86d7e529d7ee"},
     {file = "web3-5.22.0.tar.gz", hash = "sha256:aea1b148c0bf95c0439a48cc6f97ebb183fb29716aea9f8b8f2894378959a2e0"},
 =======
+=======
+>>>>>>> 24b99806e2b755bfef3ebaeee5df3846b8d75da9
     {file = "virtualenv-20.7.2-py2.py3-none-any.whl", hash = "sha256:e4670891b3a03eb071748c569a87cceaefbf643c5bac46d996c5a45c34aa0f06"},
     {file = "virtualenv-20.7.2.tar.gz", hash = "sha256:9ef4e8ee4710826e98ff3075c9a4739e2cb1040de6a2a8d35db0055840dc96a0"},
 ]
 web3 = [
     {file = "web3-5.23.0-py3-none-any.whl", hash = "sha256:79dc246ef0d5227f926aa09aad649f86579055129c0a8b92bb35c5727920184c"},
     {file = "web3-5.23.0.tar.gz", hash = "sha256:c617e16a8b27eb606bd9bb9e457ddefef71609bcc671983f184fee9ce9361a35"},
+<<<<<<< HEAD
 >>>>>>> Call data type implementation
+=======
+>>>>>>> 24b99806e2b755bfef3ebaeee5df3846b8d75da9
 ]
 websockets = [
     {file = "websockets-9.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:d144b350045c53c8ff09aa1cfa955012dd32f00c7e0862c199edcabb1a8b32da"},
