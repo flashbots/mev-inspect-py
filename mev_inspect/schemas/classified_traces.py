@@ -55,6 +55,7 @@ class ClassifiedTraceStrict(BaseModel):
     trace_type: TraceType
     trace_address: List[int]
     classification: Classification
+    error: Optional[str]
 
     class Config:
         json_encoders = {
