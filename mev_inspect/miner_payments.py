@@ -11,7 +11,10 @@ from mev_inspect.transfers import (
 
 
 def get_miner_payments(
-    miner_address: str, traces: List[ClassifiedTrace], receipts: List[Receipt]
+    miner_address: str,
+    base_fee_per_gas: int,
+    traces: List[ClassifiedTrace],
+    receipts: List[Receipt],
 ) -> List[MinerPayment]:
     miner_payments = []
 
@@ -38,6 +41,7 @@ def get_miner_payments(
                 transaction_index=receipt.transaction_index,
                 gas_price=receipt.effective_gas_price,
                 gas_price_with_coinbase_transfer=gas_price_with_coinbase_transfer,
+                base_fee_per_gas=base_fee_per_gas,
                 gas_used=receipt.gas_used,
                 coinbase_transfer=coinbase_transfer,
             )

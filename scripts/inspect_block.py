@@ -3,7 +3,7 @@ import json
 import click
 from web3 import Web3
 
-from mev_inspect import block
+from mev_inspect.block import create_from_block_number
 from mev_inspect.crud.arbitrages import (
     delete_arbitrages_for_block,
     write_arbitrages,
@@ -83,23 +83,17 @@ def _inspect_block(
     should_write_arbitrages: bool = True,
     should_print_miner_payments: bool = True,
 ):
-    block_data = block.create_from_block_number(
-        base_provider, w3, block_number, should_cache
-    )
+    block = create_from_block_number(base_provider, w3, block_number, should_cache)
 
-    click.echo(f"Total traces: {len(block_data.traces)}")
+    click.echo(f"Total traces: {len(block.traces)}")
 
     total_transactions = len(
-        set(
-            t.transaction_hash
-            for t in block_data.traces
-            if t.transaction_hash is not None
-        )
+        set(t.transaction_hash for t in block.traces if t.transaction_hash is not None)
     )
     click.echo(f"Total transactions: {total_transactions}")
 
     trace_clasifier = TraceClassifier(ALL_CLASSIFIER_SPECS)
-    classified_traces = trace_clasifier.classify(block_data.traces)
+    classified_traces = trace_clasifier.classify(block.traces)
     click.echo(f"Returned {len(classified_traces)} classified traces")
 
     db_session = get_session()
@@ -127,7 +121,7 @@ def _inspect_block(
         click.echo(json.dumps(stats, indent=4))
 
     miner_payments = get_miner_payments(
-        block_data.miner, classified_traces, block_data.receipts
+        block.miner, block.base_fee_per_gas, classified_traces, block.receipts
     )
 
     if should_print_miner_payments:

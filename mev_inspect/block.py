@@ -3,6 +3,7 @@ from typing import List
 
 from web3 import Web3
 
+from mev_inspect.fees import fetch_base_fee_per_gas
 from mev_inspect.schemas import Block, Trace, TraceType
 from mev_inspect.schemas.receipts import Receipt
 
@@ -41,10 +42,12 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
         Receipt(**receipt) for receipt in receipts_json["result"]
     ]
     traces = [Trace(**trace_json) for trace_json in traces_json]
+    base_fee_per_gas = fetch_base_fee_per_gas(w3, block_number)
 
     return Block(
         block_number=block_number,
         miner=block_json["miner"],
+        base_fee_per_gas=base_fee_per_gas,
         traces=traces,
         receipts=receipts,
     )

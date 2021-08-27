@@ -7,6 +7,7 @@ class MinerPayment(BaseModel):
     transaction_index: int
     miner_address: str
     coinbase_transfer: int
+    base_fee_per_gas: int
     gas_price: int
     gas_price_with_coinbase_transfer: int
     gas_used: int
