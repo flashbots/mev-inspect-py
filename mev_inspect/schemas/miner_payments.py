@@ -6,6 +6,7 @@ class MinerPayment(BaseModel):
     transaction_hash: str
     transaction_index: int
     miner_address: str
-    wei_transfered_to_miner: int
-    effective_gas_price: int
+    coinbase_transfer: int
+    gas_price: int
+    gas_price_with_coinbase_transfer: int
     gas_used: int

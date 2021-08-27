@@ -24,9 +24,11 @@ def get_miner_payments(
             eth_transfers, to_address=miner_address.lower()
         )
 
-        wei_transfered_to_miner = sum(
-            transfer.amount for transfer in miner_eth_transfers
-        )
+        coinbase_transfer = sum(transfer.amount for transfer in miner_eth_transfers)
+
+        gas_cost = receipt.effective_gas_price * receipt.gas_used
+        total_gas_cost = gas_cost + coinbase_transfer
+        gas_price_with_coinbase_transfer = total_gas_cost / receipt.gas_used
 
         miner_payments.append(
             MinerPayment(
@@ -34,9 +36,10 @@ def get_miner_payments(
                 block_number=receipt.block_number,
                 transaction_hash=receipt.transaction_hash,
                 transaction_index=receipt.transaction_index,
-                effective_gas_price=receipt.effective_gas_price,
+                gas_price=receipt.effective_gas_price,
+                gas_price_with_coinbase_transfer=gas_price_with_coinbase_transfer,
                 gas_used=receipt.gas_used,
-                wei_transfered_to_miner=wei_transfered_to_miner,
+                coinbase_transfer=coinbase_transfer,
             )
         )
 
