@@ -28,7 +28,7 @@ class Protocol(Enum):
     curve = "curve"
 
 
-# -------- Trace Models ------------------------------------------------------------------------------
+# -------- Traces ------------------------------------------------------------------------------
 
 
 class ClassifiedTrace(Trace):
@@ -52,13 +52,13 @@ class ClassifiedTrace(Trace):
     abi_name: Optional[str]
 
 
-class Call(ClassifiedTrace):
+class CallTrace(ClassifiedTrace):
 
     to_address: str
     from_address: str
 
 
-class ClassifiedCall(Call):
+class ClassifiedCallTrace(CallTrace):
 
     inputs: Dict[str, Any]
     abi_name: str
