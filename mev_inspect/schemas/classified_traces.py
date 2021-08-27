@@ -38,9 +38,6 @@ class ClassifiedTrace(Trace):
     trace_address: List[int]
     classification: Classification
     error: Optional[str]
-    block_hash: Optional[str]
-    subtraces: Optional[int]
-    action: Optional[dict]
     to_address: Optional[str]
     from_address: Optional[str]
     gas: Optional[int]
@@ -64,22 +61,17 @@ class Call(ClassifiedTrace):
 
     to_address: str
     from_address: str
-    inputs: Dict[str, Any]
 
 
 class ClassifiedCall(ClassifiedTrace):
+
+    inputs: Dict[str, Any]
+    abi_name: str
+
     gas: Optional[int]
     gas_used: Optional[int]
     function_name: Optional[str]
     function_signature: Optional[str]
-    abi_name: str
-
-    class Config:
-        json_encoders = {
-            # a little lazy but fine for now
-            # this is used for bytes value inputs
-            bytes: lambda b: b.hex(),
-        }
 
 
 # -------- Swaps ------------------------------------------------------------------------------
