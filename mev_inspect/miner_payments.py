@@ -31,7 +31,9 @@ def get_miner_payments(
 
         gas_cost = receipt.effective_gas_price * receipt.gas_used
         total_gas_cost = gas_cost + coinbase_transfer
-        gas_price_with_coinbase_transfer = total_gas_cost / receipt.gas_used
+        gas_price_with_coinbase_transfer = (
+            total_gas_cost / receipt.gas_used if receipt.gas_used != 0 else 0
+        )
 
         miner_payments.append(
             MinerPayment(
