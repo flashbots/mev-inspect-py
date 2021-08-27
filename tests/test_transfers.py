@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from mev_inspect.schemas.transfers import ERC20Transfer
+=======
+from mev_inspect.schemas.classified_traces import Transfer
+>>>>>>> Swamps, transfers, tests imp
 from mev_inspect.transfers import remove_child_transfers_of_transfers
 
 

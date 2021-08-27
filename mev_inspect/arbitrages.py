@@ -1,8 +1,7 @@
 from itertools import groupby
 from typing import List, Optional
 
-from mev_inspect.schemas.arbitrages import Arbitrage
-from mev_inspect.schemas.swaps import Swap
+from mev_inspect.schemas.classified_traces import Swap, Arbitrage
 
 
 def get_arbitrages(swaps: List[Swap]) -> List[Arbitrage]:

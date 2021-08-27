@@ -1,7 +1,15 @@
 from typing import Dict, List, Optional, Sequence
 
+<<<<<<< HEAD
 from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
 from mev_inspect.schemas.transfers import ERC20Transfer, EthTransfer, TransferGeneric
+=======
+from mev_inspect.schemas.classified_traces import (
+    Classification,
+    ClassifiedTrace,
+    Transfer,
+)
+>>>>>>> Swamps, transfers, tests imp
 from mev_inspect.traces import is_child_trace_address, get_child_traces
 
 

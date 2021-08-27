@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from .swaps import Swap
+from .classified_traces import Swap
 
 
 class Arbitrage(BaseModel):
