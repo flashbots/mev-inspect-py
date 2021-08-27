@@ -58,7 +58,7 @@ class Call(ClassifiedTrace):
     from_address: str
 
 
-class ClassifiedCall(ClassifiedTrace):
+class ClassifiedCall(Call):
 
     inputs: Dict[str, Any]
     abi_name: str
