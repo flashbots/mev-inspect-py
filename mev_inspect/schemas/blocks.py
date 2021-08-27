@@ -46,6 +46,9 @@ class TraceType(Enum):
 
 class Trace(CamelModel):
     block_number: int
+    block_hash: Optional[str]
+    subtraces: Optional[int]
+    action: Optional[dict]
     result: Optional[dict]
     trace_address: List[int]
     transaction_hash: Optional[str]
