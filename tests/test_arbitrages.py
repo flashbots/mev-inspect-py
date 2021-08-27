@@ -1,5 +1,5 @@
 from mev_inspect.arbitrages import get_arbitrages
-from mev_inspect.schemas.swaps import Swap
+from mev_inspect.schemas.classified_traces import Swap
 from mev_inspect.swaps import (
     UNISWAP_V2_PAIR_ABI_NAME,
     UNISWAP_V3_POOL_ABI_NAME,

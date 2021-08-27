@@ -1,4 +1,4 @@
-from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.classified_traces import Transfer
 from mev_inspect.transfers import remove_child_transfers_of_transfers
 
 

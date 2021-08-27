@@ -4,9 +4,10 @@ from typing import List, Optional
 from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
     Classification,
+    Swap,
+    Transfer,
 )
-from mev_inspect.schemas.swaps import Swap
-from mev_inspect.schemas.transfers import Transfer
+
 from mev_inspect.transfers import (
     get_child_transfers,
     filter_transfers,

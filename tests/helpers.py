@@ -1,7 +1,12 @@
 from typing import List
 
 from mev_inspect.schemas.blocks import TraceType
-from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
+from mev_inspect.schemas.classified_traces import (
+    Classification,
+    ClassifiedTrace,
+    Call,
+    ClassifiedCall,
+)
 
 
 def make_transfer_trace(
@@ -13,10 +18,10 @@ def make_transfer_trace(
     token_address: str,
     amount: int,
 ):
-    return ClassifiedTrace(
+    return Call(
         transaction_hash=transaction_hash,
         block_number=block_number,
-        trace_type=TraceType.call,
+        type=TraceType.call,
         trace_address=trace_address,
         classification=Classification.transfer,
         from_address=from_address,
@@ -38,10 +43,10 @@ def make_swap_trace(
     recipient_address: str,
     recipient_input_key: str,
 ):
-    return ClassifiedTrace(
+    return ClassifiedCall(
         transaction_hash=transaction_hash,
         block_number=block_number,
-        trace_type=TraceType.call,
+        type=TraceType.call,
         trace_address=trace_address,
         classification=Classification.swap,
         from_address=from_address,
@@ -59,7 +64,7 @@ def make_unknown_trace(
     return ClassifiedTrace(
         transaction_hash=transaction_hash,
         block_number=block_number,
-        trace_type=TraceType.call,
+        type=TraceType.call,
         trace_address=trace_address,
         classification=Classification.unknown,
     )
