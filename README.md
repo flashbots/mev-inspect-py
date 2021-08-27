@@ -5,7 +5,7 @@ A [WIP] Ethereum MEV Inspector in Python managed by Poetry
 mev-inspect's local setup is built on [Docker Compose](https://docs.docker.com/compose/)
 
 By default it starts up:
-- `mev-insepct` - a container with the code in this repo used for running scripts
+- `mev-inspect` - a container with the code in this repo used for running scripts
 - `db` - a postgres database instance
 - `pgadmin` - a postgres DB UI for querying and more (avaiable at localhost:5050)
 
