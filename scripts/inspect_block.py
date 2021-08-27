@@ -33,11 +33,12 @@ def cli():
 @click.option("--cache/--no-cache", default=True)
 def inspect_block(block_number: int, rpc: str, cache: bool):
     base_provider = Web3.HTTPProvider(rpc)
+    w3 = Web3(base_provider)
 
     if not cache:
         click.echo("Skipping cache")
 
-    _inspect_block(base_provider, block_number, should_cache=cache)
+    _inspect_block(base_provider, w3, block_number, should_cache=cache)
 
 
 @cli.command()
@@ -47,6 +48,7 @@ def inspect_block(block_number: int, rpc: str, cache: bool):
 @click.option("--cache/--no-cache", default=True)
 def inspect_many_blocks(after_block: int, before_block: int, rpc: str, cache: bool):
     base_provider = Web3.HTTPProvider(rpc)
+    w3 = Web3(base_provider)
 
     if not cache:
         click.echo("Skipping cache")
@@ -62,6 +64,7 @@ def inspect_many_blocks(after_block: int, before_block: int, rpc: str, cache: bo
 
         _inspect_block(
             base_provider,
+            w3,
             block_number,
             should_print_stats=False,
             should_write_classified_traces=False,
@@ -71,17 +74,17 @@ def inspect_many_blocks(after_block: int, before_block: int, rpc: str, cache: bo
 
 def _inspect_block(
     base_provider,
+    w3: Web3,
     block_number: int,
     should_cache: bool,
     should_print_stats: bool = True,
     should_write_classified_traces: bool = True,
     should_write_swaps: bool = True,
     should_write_arbitrages: bool = True,
-    should_print_miner_payments: bool = False,
+    should_print_miner_payments: bool = True,
 ):
-
     block_data = block.create_from_block_number(
-        block_number, base_provider, should_cache
+        base_provider, w3, block_number, should_cache
     )
 
     click.echo(f"Total traces: {len(block_data.traces)}")

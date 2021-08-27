@@ -11,10 +11,9 @@ cache_directory = "./cache"
 
 
 def create_from_block_number(
-    block_number: int, base_provider, should_cache: bool
+    base_provider, w3: Web3, block_number: int, should_cache: bool
 ) -> Block:
     if not should_cache:
-        w3 = Web3(base_provider)
         return fetch_block(w3, base_provider, block_number)
 
     cache_path = _get_cache_path(block_number)
@@ -26,7 +25,6 @@ def create_from_block_number(
     else:
         print(f"Cache for block {block_number} did not exist, getting data")
 
-        w3 = Web3(base_provider)
         block = fetch_block(w3, base_provider, block_number)
 
         cache_block(cache_path, block)
