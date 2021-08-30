@@ -3,8 +3,8 @@ from sqlalchemy import Column, Numeric, String
 from .base import Base
 
 
-class SwapModel(Base):
-    __tablename__ = "swaps"
+class MinerPaymentModel(Base):
+    __tablename__ = "miner_payments"
 
     block_number = Column(Numeric, nullable=False)
     transaction_hash = Column(String, primary_key=True)
