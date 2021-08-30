@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, TypeVar
 
 from pydantic import BaseModel
 
@@ -11,10 +11,29 @@ class Transfer(BaseModel):
     from_address: str
     to_address: str
     amount: int
+
+
+# To preserve the specific Transfer type
+TransferGeneric = TypeVar("TransferGeneric", bound="Transfer")
+
+
+class EthTransfer(Transfer):
+    @classmethod
+    def from_trace(cls, trace: ClassifiedTrace) -> "EthTransfer":
+        return cls(
+            transaction_hash=trace.transaction_hash,
+            trace_address=trace.trace_address,
+            amount=trace.value,
+            to_address=trace.to_address,
+            from_address=trace.from_address,
+        )
+
+
+class ERC20Transfer(Transfer):
     token_address: str
 
     @classmethod
-    def from_trace(cls, trace: ClassifiedTrace) -> "Transfer":
+    def from_trace(cls, trace: ClassifiedTrace) -> "ERC20Transfer":
         if trace.classification != Classification.transfer or trace.inputs is None:
             raise ValueError("Invalid transfer")
 

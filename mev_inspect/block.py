@@ -3,6 +3,7 @@ from typing import List
 
 from web3 import Web3
 
+from mev_inspect.fees import fetch_base_fee_per_gas
 from mev_inspect.schemas import Block, Trace, TraceType
 from mev_inspect.schemas.receipts import Receipt
 
@@ -11,10 +12,9 @@ cache_directory = "./cache"
 
 
 def create_from_block_number(
-    block_number: int, base_provider, should_cache: bool
+    base_provider, w3: Web3, block_number: int, should_cache: bool
 ) -> Block:
     if not should_cache:
-        w3 = Web3(base_provider)
         return fetch_block(w3, base_provider, block_number)
 
     cache_path = _get_cache_path(block_number)
@@ -26,7 +26,6 @@ def create_from_block_number(
     else:
         print(f"Cache for block {block_number} did not exist, getting data")
 
-        w3 = Web3(base_provider)
         block = fetch_block(w3, base_provider, block_number)
 
         cache_block(cache_path, block)
@@ -35,6 +34,7 @@ def create_from_block_number(
 
 
 def fetch_block(w3, base_provider, block_number: int) -> Block:
+    block_json = w3.eth.get_block(block_number)
     receipts_json = base_provider.make_request("eth_getBlockReceipts", [block_number])
     traces_json = w3.parity.trace_block(block_number)
 
@@ -42,11 +42,14 @@ def fetch_block(w3, base_provider, block_number: int) -> Block:
         Receipt(**receipt) for receipt in receipts_json["result"]
     ]
     traces = [Trace(**trace_json) for trace_json in traces_json]
+    base_fee_per_gas = fetch_base_fee_per_gas(w3, block_number)
 
     return Block(
         block_number=block_number,
-        receipts=receipts,
+        miner=block_json["miner"],
+        base_fee_per_gas=base_fee_per_gas,
         traces=traces,
+        receipts=receipts,
     )
 
 

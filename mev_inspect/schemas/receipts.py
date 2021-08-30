@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import validator
 
 from mev_inspect.utils import hex_to_int
@@ -12,7 +14,7 @@ class Receipt(CamelModel):
     gas_used: int
     effective_gas_price: int
     cumulative_gas_used: int
-    to: str
+    to: Optional[str]
 
     @validator(
         "block_number",

@@ -3,7 +3,7 @@ import json
 import click
 from web3 import Web3
 
-from mev_inspect import block
+from mev_inspect.block import create_from_block_number
 from mev_inspect.crud.arbitrages import (
     delete_arbitrages_for_block,
     write_arbitrages,
@@ -18,6 +18,7 @@ from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
 from mev_inspect.db import get_session
+from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.swaps import get_swaps
 
 
@@ -32,11 +33,12 @@ def cli():
 @click.option("--cache/--no-cache", default=True)
 def inspect_block(block_number: int, rpc: str, cache: bool):
     base_provider = Web3.HTTPProvider(rpc)
+    w3 = Web3(base_provider)
 
     if not cache:
         click.echo("Skipping cache")
 
-    _inspect_block(base_provider, block_number, should_cache=cache)
+    _inspect_block(base_provider, w3, block_number, should_cache=cache)
 
 
 @cli.command()
@@ -46,13 +48,23 @@ def inspect_block(block_number: int, rpc: str, cache: bool):
 @click.option("--cache/--no-cache", default=True)
 def inspect_many_blocks(after_block: int, before_block: int, rpc: str, cache: bool):
     base_provider = Web3.HTTPProvider(rpc)
+    w3 = Web3(base_provider)
 
     if not cache:
         click.echo("Skipping cache")
 
-    for block_number in range(after_block + 1, before_block):
+    for i, block_number in enumerate(range(after_block, before_block)):
+        block_message = (
+            f"Running for {block_number} ({i+1}/{before_block - after_block})"
+        )
+        dashes = "-" * len(block_message)
+        click.echo(dashes)
+        click.echo(block_message)
+        click.echo(dashes)
+
         _inspect_block(
             base_provider,
+            w3,
             block_number,
             should_print_stats=False,
             should_write_classified_traces=False,
@@ -62,37 +74,26 @@ def inspect_many_blocks(after_block: int, before_block: int, rpc: str, cache: bo
 
 def _inspect_block(
     base_provider,
+    w3: Web3,
     block_number: int,
     should_cache: bool,
     should_print_stats: bool = True,
     should_write_classified_traces: bool = True,
     should_write_swaps: bool = True,
     should_write_arbitrages: bool = True,
+    should_print_miner_payments: bool = True,
 ):
+    block = create_from_block_number(base_provider, w3, block_number, should_cache)
 
-    block_message = f"Running for {block_number}"
-    dashes = "-" * len(block_message)
-    click.echo(dashes)
-    click.echo(block_message)
-    click.echo(dashes)
-
-    block_data = block.create_from_block_number(
-        block_number, base_provider, should_cache
-    )
-
-    click.echo(f"Total traces: {len(block_data.traces)}")
+    click.echo(f"Total traces: {len(block.traces)}")
 
     total_transactions = len(
-        set(
-            t.transaction_hash
-            for t in block_data.traces
-            if t.transaction_hash is not None
-        )
+        set(t.transaction_hash for t in block.traces if t.transaction_hash is not None)
     )
     click.echo(f"Total transactions: {total_transactions}")
 
     trace_clasifier = TraceClassifier(ALL_CLASSIFIER_SPECS)
-    classified_traces = trace_clasifier.classify(block_data.traces)
+    classified_traces = trace_clasifier.classify(block.traces)
     click.echo(f"Returned {len(classified_traces)} classified traces")
 
     db_session = get_session()
@@ -118,6 +119,13 @@ def _inspect_block(
     if should_print_stats:
         stats = get_stats(classified_traces)
         click.echo(json.dumps(stats, indent=4))
+
+    miner_payments = get_miner_payments(
+        block.miner, block.base_fee_per_gas, classified_traces, block.receipts
+    )
+
+    if should_print_miner_payments:
+        click.echo(json.dumps([p.dict() for p in miner_payments], indent=4))
 
 
 def get_stats(classified_traces) -> dict:

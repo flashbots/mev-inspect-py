@@ -1,4 +1,3 @@
-from itertools import groupby
 from typing import List, Optional
 
 from mev_inspect.schemas.classified_traces import (
@@ -6,7 +5,8 @@ from mev_inspect.schemas.classified_traces import (
     Classification,
 )
 from mev_inspect.schemas.swaps import Swap
-from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.transfers import ERC20Transfer
+from mev_inspect.traces import get_traces_by_transaction_hash
 from mev_inspect.transfers import (
     get_child_transfers,
     filter_transfers,
@@ -19,15 +19,9 @@ UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
 
 
 def get_swaps(traces: List[ClassifiedTrace]) -> List[Swap]:
-    get_transaction_hash = lambda t: t.transaction_hash
-    traces_by_transaction = groupby(
-        sorted(traces, key=get_transaction_hash),
-        key=get_transaction_hash,
-    )
-
     swaps = []
 
-    for _, transaction_traces in traces_by_transaction:
+    for _, transaction_traces in get_traces_by_transaction_hash(traces).items():
         swaps += _get_swaps_for_transaction(list(transaction_traces))
 
     return swaps
@@ -37,11 +31,11 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
     ordered_traces = list(sorted(traces, key=lambda t: t.trace_address))
 
     swaps: List[Swap] = []
-    prior_transfers: List[Transfer] = []
+    prior_transfers: List[ERC20Transfer] = []
 
     for trace in ordered_traces:
         if trace.classification == Classification.transfer:
-            prior_transfers.append(Transfer.from_trace(trace))
+            prior_transfers.append(ERC20Transfer.from_trace(trace))
 
         elif trace.classification == Classification.swap:
             child_transfers = get_child_transfers(
@@ -64,8 +58,8 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
 
 def _parse_swap(
     trace: ClassifiedTrace,
-    prior_transfers: List[Transfer],
-    child_transfers: List[Transfer],
+    prior_transfers: List[ERC20Transfer],
+    child_transfers: List[ERC20Transfer],
 ) -> Optional[Swap]:
     pool_address = trace.to_address
     recipient_address = _get_recipient_address(trace)
