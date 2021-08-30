@@ -3,7 +3,10 @@ import json
 import click
 from web3 import Web3
 
+from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.block import create_from_block_number
+from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
+from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.crud.arbitrages import (
     delete_arbitrages_for_block,
     write_arbitrages,
@@ -12,10 +15,10 @@ from mev_inspect.crud.classified_traces import (
     delete_classified_traces_for_block,
     write_classified_traces,
 )
-
-from mev_inspect.arbitrages import get_arbitrages
-from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
-from mev_inspect.classifiers.trace import TraceClassifier
+from mev_inspect.crud.miner_payments import (
+    delete_miner_payments_for_block,
+    write_miner_payments,
+)
 from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
 from mev_inspect.db import get_session
 from mev_inspect.miner_payments import get_miner_payments
@@ -78,10 +81,11 @@ def _inspect_block(
     block_number: int,
     should_cache: bool,
     should_print_stats: bool = True,
+    should_print_miner_payments: bool = True,
     should_write_classified_traces: bool = True,
     should_write_swaps: bool = True,
     should_write_arbitrages: bool = True,
-    should_print_miner_payments: bool = True,
+    should_write_miner_payments: bool = True,
 ):
     block = create_from_block_number(base_provider, w3, block_number, should_cache)
 
@@ -126,6 +130,10 @@ def _inspect_block(
 
     if should_print_miner_payments:
         click.echo(json.dumps([p.dict() for p in miner_payments], indent=4))
+
+    if should_write_miner_payments:
+        delete_miner_payments_for_block(db_session, block_number)
+        write_miner_payments(db_session, miner_payments)
 
 
 def get_stats(classified_traces) -> dict:
