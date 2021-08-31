@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -11,3 +13,5 @@ class MinerPayment(BaseModel):
     gas_price: int
     gas_price_with_coinbase_transfer: int
     gas_used: int
+    transaction_to_address: Optional[str]
+    transaction_from_address: Optional[str]
