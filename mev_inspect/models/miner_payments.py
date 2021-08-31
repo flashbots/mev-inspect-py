@@ -15,3 +15,5 @@ class MinerPaymentModel(Base):
     gas_price = Column(Numeric, nullable=False)
     gas_price_with_coinbase_transfer = Column(Numeric, nullable=False)
     gas_used = Column(Numeric, nullable=False)
+    transaction_from_address = Column(String, nullable=True)
+    transaction_to_address = Column(String, nullable=True)

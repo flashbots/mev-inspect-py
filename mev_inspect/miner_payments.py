@@ -22,6 +22,12 @@ def get_miner_payments(
 
     for receipt in receipts:
         transaciton_traces = traces_by_transaction_hash[receipt.transaction_hash]
+
+        if len(transaciton_traces) == 0:
+            continue
+
+        first_trace = sorted(transaciton_traces, key=lambda t: t.trace_address)[0]
+
         eth_transfers = get_eth_transfers(transaciton_traces)
         miner_eth_transfers = filter_transfers(
             eth_transfers, to_address=miner_address.lower()
@@ -46,6 +52,8 @@ def get_miner_payments(
                 base_fee_per_gas=base_fee_per_gas,
                 gas_used=receipt.gas_used,
                 coinbase_transfer=coinbase_transfer,
+                transaction_to_address=first_trace.to_address,
+                transaction_from_address=first_trace.from_address,
             )
         )
 
