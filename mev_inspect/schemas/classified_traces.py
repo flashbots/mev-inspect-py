@@ -51,6 +51,9 @@ class ClassifiedTrace(Trace):
     inputs: Optional[Dict[str, Any]]
     abi_name: Optional[str]
 
+    class Config:
+        validate_assignment = True
+
 
 class CallTrace(ClassifiedTrace):
 
@@ -58,7 +61,7 @@ class CallTrace(ClassifiedTrace):
     from_address: str
 
 
-class ClassifiedCallTrace(CallTrace):
+class DecodedCallTrace(CallTrace):
 
     inputs: Dict[str, Any]
     abi_name: str

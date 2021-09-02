@@ -7,7 +7,7 @@ from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
     CallTrace,
-    ClassifiedCallTrace,
+    DecodedCallTrace,
     ClassifierSpec,
 )
 
@@ -71,7 +71,7 @@ class TraceClassifier:
                     signature, Classification.unknown
                 )
 
-                return ClassifiedCallTrace(
+                return DecodedCallTrace(
                     **trace.dict(),
                     trace_type=trace.type,
                     classification=classification,
