@@ -8,7 +8,7 @@ from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
 )
 
-from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
+from .specs import ALL_CLASSIFIER_SPECS
 
 
 class TraceClassifier:

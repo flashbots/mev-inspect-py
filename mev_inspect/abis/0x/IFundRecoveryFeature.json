@@ -1,0 +1,1 @@
+[{"inputs":[{"internalType":"contract IERC20TokenV06","name":"erc20","type":"address"},{"internalType":"uint256","name":"amountOut","type":"uint256"},{"internalType":"address payable","name":"recipientWallet","type":"address"}],"name":"transferTrappedTokensTo","outputs":[],"stateMutability":"nonpayable","type":"function"}]

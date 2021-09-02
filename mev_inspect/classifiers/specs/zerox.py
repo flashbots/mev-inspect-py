@@ -91,3 +91,76 @@ ZEROX_CONTRACT_SPECS = [
         valid_contract_addresses=["0xd8c38704c9937ea3312de29f824b4ad3450a5e61"],
     ),
 ]
+
+ZEROX_GENERIC_SPECS = [
+    ClassifierSpec(
+        abi_name="IBatchFillNativeOrdersFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IFundRecoveryFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="ILiquidityProviderFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IMetaTransactionsFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IMultiplexFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="INativeOrdersFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IOtcOrdersFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IOwnableFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IPancakeSwapFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="ISimpleFunctionRegistryFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="ITestSimpleFunctionRegistryFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="ITokenSpenderFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="ITransformERC20Feature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IUniswapFeature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IUniswapV3Feature",
+        protocol=Protocol.zerox,
+    ),
+    ClassifierSpec(
+        abi_name="IBootstrapFeature",
+        protocol=Protocol.zerox,
+    ),
+]
+
+ZEROX_CLASSIFIER_SPECS = ZEROX_CONTRACT_SPECS + ZEROX_GENERIC_SPECS
