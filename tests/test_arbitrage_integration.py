@@ -1,5 +1,4 @@
 from mev_inspect.arbitrages import get_arbitrages
-from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.swaps import get_swaps
 
@@ -9,7 +8,7 @@ from .utils import load_test_block
 def test_arbitrage_real_block():
     block = load_test_block(12914944)
 
-    trace_clasifier = TraceClassifier(ALL_CLASSIFIER_SPECS)
+    trace_clasifier = TraceClassifier()
     classified_traces = trace_clasifier.classify(block.traces)
 
     swaps = get_swaps(classified_traces)
