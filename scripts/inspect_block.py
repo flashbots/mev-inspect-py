@@ -5,7 +5,6 @@ from web3 import Web3
 
 from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.block import create_from_block_number
-from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.crud.arbitrages import (
     delete_arbitrages_for_block,
@@ -96,7 +95,7 @@ def _inspect_block(
     )
     click.echo(f"Total transactions: {total_transactions}")
 
-    trace_clasifier = TraceClassifier(ALL_CLASSIFIER_SPECS)
+    trace_clasifier = TraceClassifier()
     classified_traces = trace_clasifier.classify(block.traces)
     click.echo(f"Returned {len(classified_traces)} classified traces")
 

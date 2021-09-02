@@ -6,14 +6,14 @@ from mev_inspect.schemas.blocks import CallAction, CallResult, Trace, TraceType
 from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
-    ClassifierSpec,
 )
+
+from .specs import ALL_CLASSIFIER_SPECS
 
 
 class TraceClassifier:
-    def __init__(self, classifier_specs: List[ClassifierSpec]) -> None:
-        # TODO - index by contract_addresses for speed
-        self._classifier_specs = classifier_specs
+    def __init__(self) -> None:
+        self._classifier_specs = ALL_CLASSIFIER_SPECS
         self._decoders_by_abi_name: Dict[str, ABIDecoder] = {}
 
         for spec in self._classifier_specs:

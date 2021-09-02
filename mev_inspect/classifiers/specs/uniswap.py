@@ -63,12 +63,24 @@ UNISWAP_V3_CONTRACT_SPECS = [
     ),
 ]
 
-UNISWAP_V3_POOL_SPEC = ClassifierSpec(
-    abi_name="UniswapV3Pool",
-    classifications={
-        "swap(address,bool,int256,uint160,bytes)": Classification.swap,
-    },
-)
+UNISWAP_V3_GENERAL_SPECS = [
+    ClassifierSpec(
+        abi_name="UniswapV3Pool",
+        classifications={
+            "swap(address,bool,int256,uint160,bytes)": Classification.swap,
+        },
+    ),
+    ClassifierSpec(
+        abi_name="IUniswapV3SwapCallback",
+    ),
+    ClassifierSpec(
+        abi_name="IUniswapV3MintCallback",
+    ),
+    ClassifierSpec(
+        abi_name="IUniswapV3FlashCallback",
+    ),
+]
+
 
 UNISWAPPY_V2_CONTRACT_SPECS = [
     ClassifierSpec(
@@ -93,6 +105,6 @@ UNISWAPPY_V2_PAIR_SPEC = ClassifierSpec(
 UNISWAP_CLASSIFIER_SPECS = [
     *UNISWAP_V3_CONTRACT_SPECS,
     *UNISWAPPY_V2_CONTRACT_SPECS,
-    UNISWAP_V3_POOL_SPEC,
+    *UNISWAP_V3_GENERAL_SPECS,
     UNISWAPPY_V2_PAIR_SPEC,
 ]
