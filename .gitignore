@@ -16,3 +16,6 @@ htmlcov
 
 # don't commit cache
 cache
+
+# k8s
+.helm

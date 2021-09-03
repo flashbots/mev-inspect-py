@@ -6,14 +6,16 @@ RUN pip install -U pip \
 
 ENV PATH="${PATH}:/root/.poetry/bin"
 
-COPY . /app
+COPY ./pyproject.toml /app/pyproject.toml
+COPY ./poetry.lock /app/poetry.lock
 WORKDIR /app/
 
-# poetry uses virtual env by default, turn this off inside container
 RUN poetry config virtualenvs.create false && \
     poetry install
+
+COPY . /app
 
 # easter eggs 😝
 RUN echo "PS1='🕵️:\[\033[1;36m\]\h \[\033[1;34m\]\W\[\033[0;35m\]\[\033[1;36m\]$ \[\033[0m\]'" >> ~/.bashrc
 
-CMD /bin/bash
+CMD ["/bin/bash"]

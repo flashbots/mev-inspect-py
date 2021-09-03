@@ -1,0 +1,11 @@
+def get_global(name):
+    return os.getenv(_get_env_name(name))
+
+def set_global(name, value):
+    os.putenv(_get_env_name(name), value)
+
+def unset_global(name):
+    os.unsetenv(_get_env_name(name))
+
+def _get_env_name(name):
+    return 'TILT_GLOBAL_VAR_%s' % name.upper()

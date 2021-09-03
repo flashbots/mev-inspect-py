@@ -1,0 +1,12 @@
+#!/usr/bin/expect
+
+spawn telnet memcached 11211
+expect {
+    timeout {exit 1}
+    "Connected"
+}
+send "stats\r\n"
+expect {
+    timeout {exit 1}
+    "STAT pid 1"
+}

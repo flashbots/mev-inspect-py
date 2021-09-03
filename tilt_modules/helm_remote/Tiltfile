@@ -1,0 +1,214 @@
+load('ext://global_vars', 'get_global', 'set_global')
+
+def _get_skip():
+    return get_global(_get_skip_name())
+
+
+def _set_skip(value):
+    set_global(_get_skip_name(), value)
+
+
+def _get_skip_name():
+    return 'HELM_REMOTE_SKIP_UPDATES'
+
+
+if _get_skip() == None:
+    _set_skip('False')  # Gets set to true after the first update, preventing further updates within the same build/instance/up
+
+
+def _find_root_tiltfile_dir():
+    # Find top-level Tilt path
+    current = os.path.abspath('./')
+    while current != '/':
+        if os.path.exists(os.path.join(current, 'tilt_modules')):
+            return current
+
+        current = os.path.dirname(current)
+
+    fail('Could not find root Tiltfile')
+
+def _find_cache_dir():
+    from_env = os.getenv('TILT_HELM_REMOTE_CACHE_DIR', '')
+    if from_env != '':
+        return from_env
+    return os.path.join(_find_root_tiltfile_dir(), '.helm')
+
+# this is the root directory into which remote helm charts will be pulled/cloned/untar'd
+# use `os.putenv('TILT_HELM_REMOTE_CACHE_DIR', new_dir)` to change
+helm_remote_cache_dir = _find_cache_dir()
+watch_settings(ignore=helm_remote_cache_dir)
+
+# TODO: =====================================
+#   if it ever becomes possible for loaded files to also load their own extensions
+#   this method can be replaced by `load('ext://namespace', 'namespace_create')
+def namespace_create(name):
+    """Returns YAML for a namespace
+    Args:    name: The namespace name. Currently not validated.
+    """
+    k8s_yaml(blob("""apiVersion: v1
+kind: Namespace
+metadata:
+  name: %s
+""" % name))
+# TODO: end TODO
+#   =====================================
+
+
+def helm_remote(chart, repo_url='', repo_name='', release_name='', values=[], set=[], namespace='', version='', username='', password='', allow_duplicates=False, create_namespace=False):
+    # ======== Helper methods
+    def get_local_repo(repo_name, repo_url):
+        # if no repos are present, helm exit code is >0 and stderr output buffered
+        added_helm_repos = decode_yaml(local('helm repo list --output yaml 2>/dev/null || true', command_bat='helm repo list --output yaml 2> nul || ver>nul', quiet=True))
+        repo = [item for item in added_helm_repos if item['name'] == chart and item['url'] == repo_url] if added_helm_repos != None else []
+
+        return repo[0] if len(repo) > 0 else None
+
+    # Command string builder with common argument logic
+    def build_helm_command(command, auth=None, version=None):
+        command = 'helm ' + command
+
+        if auth != None:
+            username, password = auth
+            if username != '':
+                command += ' --username %s' % shlex.quote(username)
+            if password != '':
+                command += ' --password %s' % shlex.quote(password)
+
+        if version != None and version != 'latest':
+            command += ' --version %s' % shlex.quote(version)
+
+        return command
+
+    def fetch_chart_details(chart, repo_name, auth, version):
+        command = build_helm_command('search repo %s/%s --output yaml' % (shlex.quote(repo_name), shlex.quote(chart)), None, version)
+        results = decode_yaml(local(command, quiet=True))
+
+        return results[0] if len(results) > 0 else None
+
+
+    # ======== Condition Incoming Arguments
+    if repo_name == '':
+        repo_name = chart
+    if release_name == '':
+        release_name = chart
+    if namespace == '':
+        namespace = 'default'
+    if version == '':
+        version = 'latest'
+
+    # ======== Validate before we start trusting chart/repo names
+
+    # Based on helm chart conventions, and the fact we don't want anyone traversing directories
+    # validate is to essentially ensure there's no special characters aside from '-' being used
+    # str.isalnum accepts dots, which is only dangerous when slashes are allowed
+    # https://helm.sh/docs/chart_best_practices/conventions/#chart-names
+
+    if chart.replace('-', '').isalnum() == False or chart != chart.replace('.', ''):
+        # https://helm.sh/docs/chart_best_practices/conventions/#chart-names
+        fail('Chart name is not valid')
+
+    if repo_name != chart and repo_name.replace('-', '').isalnum() == False or repo_name != repo_name.replace('.', ''):
+        # https://helm.sh/docs/chart_best_practices/conventions/#chart-names
+        fail('Repo name is not valid')
+
+    if version != 'latest' and version != version.replace('/', '').replace('\\', ''):
+        fail('Version cannot contain a forward slash')
+
+
+    # ======== Determine state of existing helm repo
+    if repo_url != '':
+        local_helm_repo = get_local_repo(repo_name, repo_url)
+
+        if local_helm_repo == None:
+            # Unaware of repo, add it
+            repo_command = 'repo add %s %s' % (shlex.quote(repo_name), shlex.quote(repo_url))
+            # Add authentication for adding the repository if credentials are provided
+            output = str(local(build_helm_command(repo_command, (username, password)), quiet=True)).rstrip('\n')
+            if 'already exists' not in output: # repo was added
+                _set_skip('False')
+        else:
+            # Helm is already aware of the chart, update repo (unfortunately you cannot specify a single repo)
+            if _get_skip() != 'True':
+                repo_command = 'repo update'
+                local(build_helm_command(repo_command), quiet=True)
+                _set_skip('True')
+
+    # ======== Create Namespace
+    if create_namespace and namespace != '' and namespace != 'default':
+        # avoid a namespace not found error
+        namespace_create(namespace)  # do this early so it manages to register before we attempt to install into it
+
+    # ======== Initialize
+    # -------- targets
+    pull_target = os.path.join(helm_remote_cache_dir, repo_name, version)
+    chart_target = os.path.join(pull_target, chart)
+
+    cached_chart_exists = os.path.exists(chart_target)
+
+    needs_pull = True
+
+    if cached_chart_exists:
+        # Helm chart structure is concrete, we can trust this YAML file to exist
+        cached_chart_details = read_yaml(os.path.join(chart_target, 'Chart.yaml'))
+
+        # check if our local cached chart matches latest remote
+        remote_chart_details = fetch_chart_details(chart, repo_name, (username, password), version)
+
+        # pull when version mismatch
+        needs_pull = cached_chart_details['version'] != remote_chart_details['version']
+
+
+    if needs_pull:
+        # -------- commands
+        pull_command = 'pull %s/%s --untar --destination %s' % (repo_name, chart, pull_target)
+
+        # ======== Perform Installation
+        if cached_chart_exists:
+            local('rm -rf %s' % chart_target, command_bat='if exist %s ( rd /s /q %s )' % (chart_target, chart_target), quiet=True)
+
+        local(build_helm_command(pull_command, (username, password), version), quiet=True)
+
+    install_crds(chart, chart_target)
+
+    # TODO: since neither `k8s_yaml()` nor `helm()` accept resource_deps,
+    # sometimes the crds haven't yet finished installing before the below tries
+    # to run
+    yaml = helm(chart_target, name=release_name, namespace=namespace, values=values, set=set)
+
+    # The allow_duplicates API is only available in 0.17.1+
+    if allow_duplicates and _version_tuple() >= [0, 17, 1]:
+        k8s_yaml(yaml, allow_duplicates=allow_duplicates)
+    else:
+        k8s_yaml(yaml)
+
+    return yaml
+
+def _version_tuple():
+    ver_string = str(local('tilt version', quiet=True))
+    versions = ver_string.split(', ')
+    # pull first string and remove the `v` and `-dev`
+    version = versions[0].replace('-dev', '').replace('v', '')
+    return [int(str_num) for str_num in version.split(".")]
+
+# install CRDs as a separate resource and wait for them to be ready
+def install_crds(name, directory):
+    name += '-crds'
+    files = str(local(r"grep --include='*.yaml' --include='*.yml' -rEil '\bkind[^\w]+CustomResourceDefinition\s*$' %s || exit 0" % directory, quiet=True)).rstrip('\n')
+
+    if files == '':
+        files = []
+    else:
+        files = files.split("\n")
+
+    # we're applying CRDs directly and not using helm preprocessing
+    # this will cause errors!
+    # since installing CRDs in this function is a nice-to-have, just skip
+    # any that have preprocessing
+    files = [f for f in files if str(read_file(f)).find('{{') == -1]
+
+    if len(files) != 0:
+        local_resource(name+'-install', cmd='kubectl apply -f %s' % " -f ".join(files), deps=files)  # we can wait/depend on this, but it won't cause a proper uninstall
+        k8s_yaml(files)  # this will cause a proper uninstall, but we can't wait/depend on it
+
+        # TODO: Figure out how to avoid another named resource showing up in the tilt HUD for this waiter
+        local_resource(name+'-ready', resource_deps=[name+'-install'], cmd='kubectl wait --for=condition=Established crd --all')  # now we can wait for those crds to finish establishing

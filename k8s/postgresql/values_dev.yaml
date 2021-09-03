@@ -1,0 +1,5 @@
+global:
+  postgresql:
+    postgresqlDatabase: "mev_inspect"
+    postgresqlUsername: "postgres"
+    postgresqlPassword: "password"

@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: helm-remote-test-verify
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - name: helm-remote-test-verify
+        image: helm-remote-test-verify
+      restartPolicy: Never
