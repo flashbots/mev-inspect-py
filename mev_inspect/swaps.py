@@ -5,6 +5,7 @@ from mev_inspect.schemas.classified_traces import (
     Classification,
 )
 
+
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.transfers import ERC20Transfer
 from mev_inspect.traces import get_traces_by_transaction_hash

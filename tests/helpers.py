@@ -50,6 +50,7 @@ def make_swap_trace(
     action: dict = {},
     subtraces: int = 0,
 ):
+
     return DecodedCallTrace(
         action=action,
         subtraces=subtraces,

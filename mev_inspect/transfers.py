@@ -7,6 +7,7 @@ from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
 )
 
+
 from mev_inspect.traces import is_child_trace_address, get_child_traces
 
 

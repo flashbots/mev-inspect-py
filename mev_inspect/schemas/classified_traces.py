@@ -62,7 +62,6 @@ class CallTrace(ClassifiedTrace):
 
 
 class DecodedCallTrace(CallTrace):
-
     inputs: Dict[str, Any]
     abi_name: str
 
