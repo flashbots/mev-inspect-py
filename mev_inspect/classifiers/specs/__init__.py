@@ -3,7 +3,7 @@ from .curve import CURVE_CLASSIFIER_SPECS
 from .erc20 import ERC20_CLASSIFIER_SPECS
 from .uniswap import UNISWAP_CLASSIFIER_SPECS
 from .weth import WETH_CLASSIFIER_SPECS
-from .zerox import ZEROX_CLASSIFIER_SPECS
+from .zero_ex import ZEROX_CLASSIFIER_SPECS
 
 
 ALL_CLASSIFIER_SPECS = (
