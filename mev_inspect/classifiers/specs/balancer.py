@@ -1,0 +1,52 @@
+from mev_inspect.schemas.classified_traces import (
+    ClassifierSpec,
+    Protocol,
+)
+
+BALANCER_CLASSIFIER_SPECS = [
+    ClassifierSpec(
+        abi_name="Vault",
+        protocol=Protocol.balancer,
+        valid_contract_addresses=["0xBA12222222228d8Ba445958a75a0704d566BF2C8"],
+    ),
+    ClassifierSpec(
+        abi_name="WeightedPoolFactory",
+        protocol=Protocol.balancer,
+        valid_contract_addresses=["0x8E9aa87E45e92bad84D5F8DD1bff34Fb92637dE9"],
+    ),
+    ClassifierSpec(
+        abi_name="WeightedPool2TokensFactory",
+        protocol=Protocol.balancer,
+        valid_contract_addresses=["0xA5bf2ddF098bb0Ef6d120C98217dD6B141c74EE0"],
+    ),
+    ClassifierSpec(
+        abi_name="StablePoolFactory",
+        protocol=Protocol.balancer,
+        valid_contract_addresses=["0xc66Ba2B6595D3613CCab350C886aCE23866EDe24"],
+    ),
+    ClassifierSpec(
+        abi_name="LiquidityBootstrappingPoolFactory",
+        protocol=Protocol.balancer,
+        valid_contract_addresses=["0x751A0bC0e3f75b38e01Cf25bFCE7fF36DE1C87DE"],
+    ),
+    ClassifierSpec(
+        abi_name="MetastablePoolFactory",
+        protocol=Protocol.balancer,
+        valid_contract_addresses=["0x67d27634E44793fE63c467035E31ea8635117cd4"],
+    ),
+    ClassifierSpec(
+        abi_name="LDOMerkle",  # rewards contract for LDO
+        protocol=Protocol.balancer,
+        valid_contract_addresses=["0x67d27634E44793fE63c467035E31ea8635117cd4"],
+    ),
+    ClassifierSpec(
+        abi_name="LidoRelayer",
+        protocol=Protocol.balancer,
+        valid_contract_addresses=["0xdcdbf71A870cc60C6F9B621E28a7D3Ffd6Dd4965"],
+    ),
+    ClassifierSpec(
+        abi_name="WstETHProvider",
+        protocol=Protocol.balancer,
+        valid_contract_addresses=["0x72D07D7DcA67b8A406aD1Ec34ce969c90bFEE768"],
+    ),
+]
