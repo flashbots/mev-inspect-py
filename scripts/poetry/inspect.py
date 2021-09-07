@@ -18,7 +18,8 @@ import click
 def inspect(block_number: str, rpc: str, cache: bool):
     check_call(
         [
-            "docker-compose",
+            "docker",
+            "compose",
             "exec",
             "mev-inspect",
             "python",
