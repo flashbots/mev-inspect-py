@@ -10,7 +10,6 @@ class Swap(BaseModel):
     transaction_hash: str
     block_number: int
     trace_address: List[int]
-    protocol: Optional[Protocol]
     pool_address: str
     from_address: str
     to_address: str
@@ -18,4 +17,7 @@ class Swap(BaseModel):
     token_in_amount: int
     token_out_address: str
     token_out_amount: int
+
+    # Optional
+    protocol: Optional[Protocol]
     error: Optional[str]
