@@ -2,7 +2,7 @@ load('ext://helm_remote', 'helm_remote')
 helm_remote("postgresql",
             repo_name='bitnami',
             repo_url='https://charts.bitnami.com/bitnami',
-            values=["k8s/postgresql/values_dev.yaml"]
+            set=["postgresqlPassword=password", "postgresqlDatabase=mev_inspect"],
 )
 
 docker_build('mev-inspect', '.',

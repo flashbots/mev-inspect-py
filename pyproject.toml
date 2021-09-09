@@ -41,6 +41,7 @@ build = 'scripts.poetry.docker:build'
 attach = 'scripts.poetry.docker:attach'
 exec = 'scripts.poetry.docker:exec'
 inspect = 'scripts.poetry.inspect:inspect'
+inspect-block = 'scripts.inspect_block:inspect_block'
 inspect-many = 'scripts.poetry.inspect:inspect_many'
 
 [tool.black]

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mev-inspect
+  name: mev-inspect-deployment
   labels:
     app: mev-inspect
 spec:
@@ -19,6 +19,17 @@ spec:
         image: mev-inspect:latest
         command: [ "/bin/bash", "-c", "--" ]
         args: [ "while true; do sleep 30; done;" ]
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: mev-inspect-db-password
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mev-inspect-db-password
+              key: password
     livenessProbe:
       exec:
         command:
