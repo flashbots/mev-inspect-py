@@ -5,6 +5,12 @@ helm_remote("postgresql",
             set=["postgresqlPassword=password", "postgresqlDatabase=mev_inspect"],
 )
 
+load('ext://secret', 'secret_from_dict')
+k8s_yaml(secret_from_dict("mev-inspect-db-credentials", inputs = {
+    "username" : "postgres",
+    "password": "password",
+}))
+
 docker_build('mev-inspect', '.',
     live_update=[
         sync('.', '/app'),

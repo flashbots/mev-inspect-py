@@ -23,12 +23,12 @@ spec:
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mev-inspect-db-password
+              name: mev-inspect-db-credentials
               key: username
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mev-inspect-db-password
+              name: mev-inspect-db-credentials
               key: password
     livenessProbe:
       exec:
