@@ -30,10 +30,10 @@ spec:
             secretKeyRef:
               name: mev-inspect-db-credentials
               key: password
-    livenessProbe:
-      exec:
-        command:
-        - ls
-        - /
-      initialDelaySeconds: 20
-      periodSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - ls
+            - /
+          initialDelaySeconds: 20
+          periodSeconds: 5
