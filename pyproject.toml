@@ -32,7 +32,6 @@ build-backend = "poetry.core.masonry.api"
 lint = 'scripts.poetry.dev_tools:lint'
 test = 'scripts.poetry.dev_tools:test'
 isort = 'scripts.poetry.dev_tools:isort'
-mypy = 'scripts.poetry.dev_tools:mypy'
 black = 'scripts.poetry.dev_tools:black'
 pre_commit = 'scripts.poetry.dev_tools:pre_commit'
 start = 'scripts.poetry.docker:start'

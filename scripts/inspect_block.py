@@ -22,6 +22,7 @@ from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
 from mev_inspect.db import get_session
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.swaps import get_swaps
+from mev_inspect.retry import http_retry_with_backoff_request_middleware
 
 
 @click.group()
@@ -34,7 +35,7 @@ def cli():
 @click.argument("rpc")
 @click.option("--cache/--no-cache", default=True)
 def inspect_block(block_number: int, rpc: str, cache: bool):
-    base_provider = Web3.HTTPProvider(rpc)
+    base_provider = _get_base_provider(rpc)
     w3 = Web3(base_provider)
 
     if not cache:
@@ -49,7 +50,7 @@ def inspect_block(block_number: int, rpc: str, cache: bool):
 @click.argument("rpc")
 @click.option("--cache/--no-cache", default=True)
 def inspect_many_blocks(after_block: int, before_block: int, rpc: str, cache: bool):
-    base_provider = Web3.HTTPProvider(rpc)
+    base_provider = _get_base_provider(rpc)
     w3 = Web3(base_provider)
 
     if not cache:
@@ -154,6 +155,17 @@ def get_stats(classified_traces) -> dict:
         stats[protocol] = protocol_stats
 
     return stats
+
+
+def _get_base_provider(rpc: str) -> Web3.HTTPProvider:
+    base_provider = Web3.HTTPProvider(rpc)
+    base_provider.middlewares.remove("http_retry_request")
+    base_provider.middlewares.add(
+        http_retry_with_backoff_request_middleware,
+        "http_retry_with_backoff",
+    )
+
+    return base_provider
 
 
 if __name__ == "__main__":
