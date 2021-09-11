@@ -16,9 +16,8 @@ spec:
     spec:
       containers:
       - name: mev-inspect
-        image: mev-inspect:latest
-        command: [ "/bin/bash", "-c", "--" ]
-        args: [ "while true; do sleep 30; done;" ]
+        image: mev-inspect-py
+        command: [ "python", "run.py"]
         env:
         - name: POSTGRES_USER
           valueFrom:
@@ -30,6 +29,8 @@ spec:
             secretKeyRef:
               name: mev-inspect-db-credentials
               key: password
+        - name: POSTGRES_HOST
+          value: postgresql
         livenessProbe:
           exec:
             command:
