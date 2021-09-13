@@ -41,8 +41,8 @@ attach = 'scripts.poetry.docker:attach'
 exec = 'scripts.poetry.docker:exec'
 inspect = 'scripts.poetry.inspect:inspect'
 inspect-many = 'scripts.poetry.inspect:inspect_many'
-inspect-block = 'scripts.inspect_block:inspect_block'
-inspect-many-blocks = 'scripts.inspect_block:inspect_many_blocks'
+inspect-block = 'scripts.inspect_commands:inspect_block_command'
+inspect-many-blocks = 'scripts.inspect_commands:inspect_many_blocks_command'
 
 [tool.black]
 exclude = '''
