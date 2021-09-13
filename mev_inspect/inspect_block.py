@@ -22,6 +22,7 @@ from mev_inspect.swaps import get_swaps
 
 
 def inspect_block(
+    db_session,
     base_provider,
     w3: Web3,
     block_number: int,
