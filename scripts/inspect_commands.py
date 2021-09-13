@@ -1,6 +1,7 @@
 import click
 from web3 import Web3
 
+from mev_inspect.db import get_session
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.retry import http_retry_with_backoff_request_middleware
 
@@ -15,13 +16,14 @@ def cli():
 @click.argument("rpc")
 @click.option("--cache/--no-cache", default=True)
 def inspect_block_command(block_number: int, rpc: str, cache: bool):
+    db_session = get_session()
     base_provider = _get_base_provider(rpc)
     w3 = Web3(base_provider)
 
     if not cache:
         click.echo("Skipping cache")
 
-    inspect_block(base_provider, w3, block_number, should_cache=cache)
+    inspect_block(db_session, base_provider, w3, block_number, should_cache=cache)
 
 
 @cli.command()
@@ -32,6 +34,8 @@ def inspect_block_command(block_number: int, rpc: str, cache: bool):
 def inspect_many_blocks_command(
     after_block: int, before_block: int, rpc: str, cache: bool
 ):
+
+    db_session = get_session()
     base_provider = _get_base_provider(rpc)
     w3 = Web3(base_provider)
 
@@ -48,6 +52,7 @@ def inspect_many_blocks_command(
         click.echo(dashes)
 
         inspect_block(
+            db_session,
             base_provider,
             w3,
             block_number,
