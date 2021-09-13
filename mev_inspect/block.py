@@ -70,6 +70,8 @@ def get_transaction_hashes(calls: List[Trace]) -> List[str]:
 def cache_block(cache_path: Path, block: Block):
     write_mode = "w" if cache_path.is_file() else "x"
 
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(cache_path, mode=write_mode) as cache_file:
         cache_file.write(block.json())
 
