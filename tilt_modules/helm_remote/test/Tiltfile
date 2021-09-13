@@ -1,0 +1,17 @@
+os.putenv('TILT_HELM_REMOTE_CACHE_DIR', os.path.abspath('./.helm'))
+load('../Tiltfile', 'helm_remote')
+
+# Note that .helm is in the .tiltignore!
+helm_remote('memcached', repo_url='https://charts.bitnami.com/bitnami')
+if not os.path.exists('./.helm/memcached'):
+  fail('memcached failed to load in the right directory')
+
+# This chart has a bunch of CRDs (including templated CRDs), so we can test the CRD init logic.
+helm_remote('gloo', repo_url='https://storage.googleapis.com/solo-public-helm',
+            # The gloo chart has duplicate resources, see discussion here:
+            # https://github.com/tilt-dev/tilt/issues/3656
+            allow_duplicates=True)
+
+docker_build('helm-remote-test-verify', '.')
+k8s_yaml('job.yaml')
+k8s_resource('helm-remote-test-verify', resource_deps=['memcached'])

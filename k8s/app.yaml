@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mev-inspect-deployment
+  labels:
+    app: mev-inspect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mev-inspect
+  template:
+    metadata:
+      labels:
+        app: mev-inspect
+    spec:
+      containers:
+      - name: mev-inspect
+        image: mev-inspect:latest
+        command: [ "/bin/bash", "-c", "--" ]
+        args: [ "while true; do sleep 30; done;" ]
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: mev-inspect-db-credentials
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mev-inspect-db-credentials
+              key: password
+        livenessProbe:
+          exec:
+            command:
+            - ls
+            - /
+          initialDelaySeconds: 20
+          periodSeconds: 5
