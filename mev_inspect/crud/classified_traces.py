@@ -1,5 +1,6 @@
 from typing import List
 
+
 from mev_inspect.models.classified_traces import ClassifiedTraceModel
 from mev_inspect.schemas.classified_traces import ClassifiedTrace
 
@@ -35,7 +36,7 @@ def write_classified_traces(
                     "abi_name": trace.abi_name,
                     "function_name": trace.function_name,
                     "function_signature": trace.function_signature,
-                    "inputs": trace.inputs,
+                    # "inputs": json.dumps(trace.inputs),
                     "from_address": trace.from_address,
                     "to_address": trace.to_address,
                     "gas": trace.gas,
