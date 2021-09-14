@@ -15,6 +15,25 @@ def to_original_json_dict(model: BaseModel) -> dict:
     return json.loads(model.json(by_alias=True, exclude_unset=True))
 
 
+def to_json(d):
+    if isinstance(d, dict):
+        tmp = {}
+        for key, value in d.items():
+            if isinstance(value, bytes):
+                tmp[key] = value.hex()
+            if isinstance(value, tuple):
+                res = []
+                for val in value:
+                    if isinstance(val, bytes):
+                        res.append(val.hex())
+                    else:
+                        res.append(val)
+                tmp[key] = res
+
+        d.update(tmp)
+    return json.dumps(d)
+
+
 class Web3Model(BaseModel):
     """BaseModel that handles web3's unserializable objects"""
 
