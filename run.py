@@ -2,6 +2,7 @@ import logging
 import signal
 import time
 
+
 logging.basicConfig(filename="app.log", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -21,8 +22,8 @@ class GracefulKiller:
 
     def exit_gracefully(self, signum, frame):  # pylint: disable=unused-argument
         signal_name = self.signal_names[signum]
-        print(f"Received {signal_name} signal")
-        print("Cleaning up resources. End of process")
+        logger.info(f"Received {signal_name} signal")
+        logger.info("Cleaning up resources. End of process")
         self.kill_now = True
 
 
