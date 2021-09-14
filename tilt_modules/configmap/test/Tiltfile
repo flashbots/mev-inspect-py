@@ -1,0 +1,7 @@
+load('../Tiltfile', 'configmap_create', 'configmap_from_dict')
+
+configmap_create('job-config', from_file='my-job.ini=./my-job.ini')
+configmap_create('env-job-config', from_env_file='my-job.env')
+configmap_from_dict('from-dict-config', inputs={"hello":"world"})
+
+k8s_yaml('job.yaml')

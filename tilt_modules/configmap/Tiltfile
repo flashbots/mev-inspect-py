@@ -1,0 +1,109 @@
+# -*- mode: Python -*-
+
+def configmap_yaml(name, namespace="", from_file=None, watch=True, from_env_file=None):
+  """Returns YAML for a generic configmap
+
+  Args:
+    name: The configmap name.
+    namespace: The namespace.
+    from_file: Use the from-file configmap generator. May be a string or a list of strings.
+       Example: ["grafana.ini=path/to/grafana.ini"]
+    watch: Reruns the Tiltfile and re-deploys automatically if the from-files change.
+       Defaults to true.
+    from_env_file: Use from-env-file configmap generator. Must be string.
+       Example: "./local.env"
+
+  Returns:
+    The configmap YAML as a blob
+  """
+
+  args = [
+    "kubectl",
+    "create",
+    "configmap",
+    name,
+  ]
+
+  if namespace:
+    args.extend(["-n", namespace])
+
+  generator = False
+
+  if from_file and from_env_file:
+    fail("Must specify either 'from_file' OR 'from_env_file'")
+
+  if from_file:
+    if type(from_file) == "string":
+      from_file = [from_file]
+
+    if type(from_file) == "list":
+      for f in from_file:
+        args.extend(["--from-file", f])
+        if watch:
+          l = f.split('=')
+          watch_file(l[len(l)-1])
+      generator = True
+    else:
+      fail("Bad from_file argument: %s" % from_file)
+  elif from_env_file:
+    if type(from_env_file) == "list":
+      fail("from_env_file only supports string as an input to prevent confusion with kubectl behavior of only loading the last item in a list")
+    elif type(from_env_file == "string"):
+      args.extend(["--from-env-file", from_env_file])
+      if watch:
+        watch_file(from_env_file)
+      generator = True
+
+  if not generator:
+    fail("No configmap generator specified")
+
+  args.extend(["-o=yaml", "--dry-run=client"])
+  return local(args, quiet=True)
+
+def configmap_from_dict(name, namespace="", inputs={}):
+    """Returns YAML for a generic configmap
+    Args:
+        name: The configmap name.
+        namespace: The namespace.
+        inputs: A dict of keys and values to use. Nesting is not supported
+    Returns:
+        The configmap YAML as a blob
+    """
+
+    args = [
+        "kubectl",
+        "create",
+        "configmap",
+        name,
+    ]
+
+    if namespace:
+        args.extend(["-n", namespace])
+
+    if type(inputs) != "dict":
+        fail("Bad argument to configmap_from_dict, inputs was not dict typed")
+
+    for k,v in inputs.items():
+        args.extend(["--from-literal", "%s=%s" % (k,v)])
+
+    args.extend(["-o=yaml", "--dry-run=client"])
+    return local(args, quiet=True)
+
+def configmap_create(name, namespace="", from_file=None, watch=True, from_env_file=None):
+  """Creates a configmap in the current Kubernetes cluster.
+
+  Generators:
+    - from_file: Wraps kubectl from-file behavior.
+    - from_env_file: Wraps kubectl from-env-file behavior.
+
+  Args:
+    name: The configmap name.
+    namespace: The namespace.
+    from_file: Use the from-file configmap generator. May be a string or a list of strings.
+       Example: ["grafana.ini=path/to/grafana.ini"]
+    watch: Reruns the Tiltfile and re-deploys automatically if the from-files change.
+       Defaults to true.
+    from_env_file: Use from-env-file configmap generator. Must be string.
+       Example: "./local.env"
+  """
+  k8s_yaml(configmap_yaml(name, namespace, from_file, watch, from_env_file))
