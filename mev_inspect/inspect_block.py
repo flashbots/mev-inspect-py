@@ -16,7 +16,6 @@ from mev_inspect.crud.miner_payments import (
     write_miner_payments,
 )
 from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
-from mev_inspect.db import get_session
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.swaps import get_swaps
 
@@ -44,8 +43,6 @@ def inspect_block(
     trace_clasifier = TraceClassifier()
     classified_traces = trace_clasifier.classify(block.traces)
     print(f"Returned {len(classified_traces)} classified traces")
-
-    db_session = get_session()
 
     if should_write_classified_traces:
         delete_classified_traces_for_block(db_session, block_number)

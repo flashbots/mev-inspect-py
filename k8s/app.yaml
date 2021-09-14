@@ -17,7 +17,7 @@ spec:
       containers:
       - name: mev-inspect
         image: mev-inspect-py
-        command: [ "python", "run.py"]
+        command: [ "/app/run.sh" ]
         env:
         - name: POSTGRES_USER
           valueFrom:

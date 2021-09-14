@@ -14,6 +14,11 @@
       "Name": "secret",
       "ExtensionRegistry": "https://github.com/tilt-dev/tilt-extensions",
       "TimeFetched": "2021-09-09T08:57:26.199313-06:00"
+    },
+    {
+      "Name": "restart_process",
+      "ExtensionRegistry": "https://github.com/tilt-dev/tilt-extensions",
+      "TimeFetched": "2021-09-13T20:14:11.011803-04:00"
     }
   ]
 }
