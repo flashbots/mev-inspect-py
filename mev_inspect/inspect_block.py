@@ -1,3 +1,5 @@
+import logging
+
 from web3 import Web3
 
 from mev_inspect.arbitrages import get_arbitrages
@@ -20,6 +22,9 @@ from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.swaps import get_swaps
 
 
+logger = logging.getLogger(__name__)
+
+
 def inspect_block(
     db_session,
     base_provider,
@@ -33,30 +38,30 @@ def inspect_block(
 ):
     block = create_from_block_number(base_provider, w3, block_number, should_cache)
 
-    print(f"Total traces: {len(block.traces)}")
+    logger.info(f"Total traces: {len(block.traces)}")
 
     total_transactions = len(
         set(t.transaction_hash for t in block.traces if t.transaction_hash is not None)
     )
-    print(f"Total transactions: {total_transactions}")
+    logger.info(f"Total transactions: {total_transactions}")
 
     trace_clasifier = TraceClassifier()
     classified_traces = trace_clasifier.classify(block.traces)
-    print(f"Returned {len(classified_traces)} classified traces")
+    logger.info(f"Returned {len(classified_traces)} classified traces")
 
     if should_write_classified_traces:
         delete_classified_traces_for_block(db_session, block_number)
         write_classified_traces(db_session, classified_traces)
 
     swaps = get_swaps(classified_traces)
-    print(f"Found {len(swaps)} swaps")
+    logger.info(f"Found {len(swaps)} swaps")
 
     if should_write_swaps:
         delete_swaps_for_block(db_session, block_number)
         write_swaps(db_session, swaps)
 
     arbitrages = get_arbitrages(swaps)
-    print(f"Found {len(arbitrages)} arbitrages")
+    logger.info(f"Found {len(arbitrages)} arbitrages")
 
     if should_write_arbitrages:
         delete_arbitrages_for_block(db_session, block_number)
