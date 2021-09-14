@@ -78,8 +78,8 @@ def run():
             )
             update_latest_block(db_session, block_number)
         else:
-            latest_block_number = get_latest_block_number(w3)
             time.sleep(5)
+            latest_block_number = get_latest_block_number(w3)
 
     logger.info("Stopping...")
 
