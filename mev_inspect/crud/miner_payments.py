@@ -1,7 +1,5 @@
 import json
-from typing import List, Optional
-
-from sqlalchemy.sql.expression import func
+from typing import List
 
 from mev_inspect.models.miner_payments import MinerPaymentModel
 from mev_inspect.schemas.miner_payments import MinerPayment
@@ -31,11 +29,3 @@ def write_miner_payments(
 
     db_session.bulk_save_objects(models)
     db_session.commit()
-
-
-def get_max_miner_payment_block(db_session) -> Optional[int]:
-    results = db_session.query(func.max(MinerPaymentModel.block_number)).one_or_none()
-    if results is None:
-        return None
-    else:
-        return int(results[0])

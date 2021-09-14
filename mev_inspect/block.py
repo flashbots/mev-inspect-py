@@ -12,7 +12,7 @@ cache_directory = "./cache"
 
 
 def get_latest_block_number(w3: Web3) -> int:
-    return w3.eth.get_block("latest")["number"]
+    return int(w3.eth.get_block("latest")["number"])
 
 
 def create_from_block_number(
