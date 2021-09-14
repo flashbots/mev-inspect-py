@@ -19,6 +19,11 @@
       "Name": "restart_process",
       "ExtensionRegistry": "https://github.com/tilt-dev/tilt-extensions",
       "TimeFetched": "2021-09-13T20:14:11.011803-04:00"
+    },
+    {
+      "Name": "configmap",
+      "ExtensionRegistry": "https://github.com/tilt-dev/tilt-extensions",
+      "TimeFetched": "2021-09-13T20:58:06.169124-04:00"
     }
   ]
 }

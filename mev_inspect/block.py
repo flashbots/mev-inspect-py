@@ -11,6 +11,10 @@ from mev_inspect.schemas.receipts import Receipt
 cache_directory = "./cache"
 
 
+def get_latest_block_number(w3: Web3) -> int:
+    return w3.eth.get_block("latest")["number"]
+
+
 def create_from_block_number(
     base_provider, w3: Web3, block_number: int, should_cache: bool
 ) -> Block:

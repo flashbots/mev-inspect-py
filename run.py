@@ -1,9 +1,15 @@
 import logging
+import os
 import signal
 import time
 
+from web3 import Web3
 
-logging.basicConfig(filename="app.log", level=logging.DEBUG)
+from mev_inspect.block import get_latest_block_number
+from mev_inspect.provider import get_base_provider
+
+
+logging.basicConfig(filename="app.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -28,11 +34,19 @@ class GracefulKiller:
 
 
 if __name__ == "__main__":
+    rpc = os.getenv("RPC_URL")
+    if rpc is None:
+        raise RuntimeError("Missing environment variable RPC_URL")
+
     logger.info("Starting...")
+
     killer = GracefulKiller()
+    base_provider = get_base_provider(rpc)
+    w3 = Web3(base_provider)
 
     while not killer.kill_now:
-        logger.info("Running...")
+        latest_block_number = get_latest_block_number(w3)
+        logger.info(f"Latest block: {latest_block_number}")
         time.sleep(5)
 
     logger.info("Stopping...")
