@@ -21,4 +21,3 @@ def upgrade():
 
 def downgrade():
     op.drop_index("ix_block_number", "miner_payments")
-    pass
