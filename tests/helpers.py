@@ -17,8 +17,8 @@ def make_transfer_trace(
     to_address: str,
     token_address: str,
     amount: int,
-    action: dict = {},
-    subtraces: int = 0,
+    action={},
+    subtraces=0,
 ):
     return CallTrace(
         transaction_hash=transaction_hash,
@@ -47,8 +47,8 @@ def make_swap_trace(
     abi_name: str,
     recipient_address: str,
     recipient_input_key: str,
-    action: dict = {},
-    subtraces: int = 0,
+    action={},
+    subtraces=0,
 ):
     return DecodedCallTrace(
         transaction_hash=transaction_hash,
@@ -89,8 +89,8 @@ def make_many_unknown_traces(
     block_number: int,
     transaction_hash: str,
     trace_addresses: List[List[int]],
-    action: dict = {},
-    subtraces: int = 0,
+    action={},
+    subtraces=0,
 ) -> List[ClassifiedTrace]:
 
     return [

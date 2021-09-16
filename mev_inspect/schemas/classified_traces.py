@@ -25,13 +25,10 @@ class Protocol(Enum):
 
 
 class ClassifiedTrace(Trace):
-
     transaction_hash: str
     block_number: int
     trace_address: List[int]
     classification: Classification
-
-    # Optional
     error: Optional[str]
     to_address: Optional[str]
     from_address: Optional[str]
@@ -54,7 +51,6 @@ class ClassifiedTrace(Trace):
 
 
 class CallTrace(ClassifiedTrace):
-
     to_address: str
     from_address: str
 
@@ -62,8 +58,6 @@ class CallTrace(ClassifiedTrace):
 class DecodedCallTrace(CallTrace):
     inputs: Dict[str, Any]
     abi_name: str
-
-    # Optional
     protocol: Optional[Protocol]
     gas: Optional[int]
     gas_used: Optional[int]
