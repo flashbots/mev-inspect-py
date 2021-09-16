@@ -1,7 +1,12 @@
 from typing import List
 
 from mev_inspect.schemas.blocks import TraceType
-from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
+from mev_inspect.schemas.classified_traces import (
+    Classification,
+    ClassifiedTrace,
+    CallTrace,
+    DecodedCallTrace,
+)
 
 
 def make_transfer_trace(
@@ -13,10 +18,10 @@ def make_transfer_trace(
     token_address: str,
     amount: int,
 ):
-    return ClassifiedTrace(
+    return CallTrace(
         transaction_hash=transaction_hash,
         block_number=block_number,
-        trace_type=TraceType.call,
+        type=TraceType.call,
         trace_address=trace_address,
         classification=Classification.transfer,
         from_address=from_address,
@@ -25,6 +30,9 @@ def make_transfer_trace(
             "recipient": to_address,
             "amount": amount,
         },
+        block_hash=str(block_number),
+        action={},
+        subtraces=0.0,
     )
 
 
@@ -38,37 +46,43 @@ def make_swap_trace(
     recipient_address: str,
     recipient_input_key: str,
 ):
-    return ClassifiedTrace(
+    return DecodedCallTrace(
         transaction_hash=transaction_hash,
         block_number=block_number,
-        trace_type=TraceType.call,
+        type=TraceType.call,
         trace_address=trace_address,
+        action={},
+        subtraces=0,
         classification=Classification.swap,
         from_address=from_address,
         to_address=pool_address,
         inputs={recipient_input_key: recipient_address},
         abi_name=abi_name,
+        block_hash=str(block_number),
     )
 
 
 def make_unknown_trace(
-    block_number,
-    transaction_hash,
-    trace_address,
+    block_number: int,
+    transaction_hash: str,
+    trace_address: List[int],
 ):
     return ClassifiedTrace(
-        transaction_hash=transaction_hash,
         block_number=block_number,
-        trace_type=TraceType.call,
+        transaction_hash=transaction_hash,
         trace_address=trace_address,
+        action={},
+        subtraces=0,
+        block_hash=str(block_number),
+        type=TraceType.call,
         classification=Classification.unknown,
     )
 
 
 def make_many_unknown_traces(
-    block_number,
-    transaction_hash,
-    trace_addresses,
+    block_number: int,
+    transaction_hash: str,
+    trace_addresses: List[List[int]],
 ) -> List[ClassifiedTrace]:
 
     return [

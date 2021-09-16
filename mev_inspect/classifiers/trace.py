@@ -6,6 +6,8 @@ from mev_inspect.schemas.blocks import CallAction, CallResult, Trace, TraceType
 from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
+    CallTrace,
+    DecodedCallTrace,
 )
 
 from .specs import ALL_CLASSIFIER_SPECS
@@ -69,7 +71,7 @@ class TraceClassifier:
                     signature, Classification.unknown
                 )
 
-                return ClassifiedTrace(
+                return DecodedCallTrace(
                     **trace.dict(),
                     trace_type=trace.type,
                     classification=classification,
@@ -85,7 +87,7 @@ class TraceClassifier:
                     gas_used=result.gas_used if result is not None else None,
                 )
 
-        return ClassifiedTrace(
+        return CallTrace(
             **trace.dict(),
             trace_type=trace.type,
             classification=Classification.unknown,
