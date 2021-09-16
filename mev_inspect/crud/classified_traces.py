@@ -22,9 +22,9 @@ def write_classified_traces(
     db_session,
     classified_traces: List[ClassifiedTrace],
 ) -> None:
+    models = []
     for trace in classified_traces:
         inputs_json = (json.loads(trace.json(include={"inputs"}))["inputs"],)
-        models = []
         models.append(
             ClassifiedTraceModel(
                 transaction_hash=trace.transaction_hash,
