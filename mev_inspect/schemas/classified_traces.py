@@ -22,6 +22,7 @@ class Protocol(Enum):
     weth = "weth"
     curve = "curve"
     zero_ex = "0x"
+    balancer_v1 = "balancer_v1"
 
 
 class ClassifiedTrace(Trace):

@@ -16,6 +16,7 @@ from mev_inspect.transfers import (
 
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
 UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
+BALANCER_V1_POOL_ABI_NAME = "BPool"
 
 
 def get_swaps(traces: List[ClassifiedTrace]) -> List[Swap]:
@@ -114,5 +115,7 @@ def _get_recipient_address(trace: ClassifiedTrace) -> Optional[str]:
             if trace.inputs is not None and "to" in trace.inputs
             else trace.from_address
         )
+    elif trace.abi_name == BALANCER_V1_POOL_ABI_NAME:
+        return trace.from_address
     else:
         return None
