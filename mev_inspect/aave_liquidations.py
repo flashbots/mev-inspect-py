@@ -50,6 +50,7 @@ def find_liquidations_from_traces(
                         reserve = trace.inputs[input]
                         # This will be the address of the received token
                     elif input == "_user":
+
                         liquidated_user = trace.inputs[input]
                 # Register liquidation
                 result.append(
