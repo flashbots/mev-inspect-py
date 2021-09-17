@@ -6,6 +6,7 @@ from .classified_traces import Classification, ClassifiedTrace, Protocol
 
 
 class Transfer(BaseModel):
+    block_number: int
     transaction_hash: str
     trace_address: List[int]
     from_address: str
@@ -21,6 +22,7 @@ class EthTransfer(Transfer):
     @classmethod
     def from_trace(cls, trace: ClassifiedTrace) -> "EthTransfer":
         return cls(
+            block_number=trace.block_number,
             transaction_hash=trace.transaction_hash,
             trace_address=trace.trace_address,
             amount=trace.value,
@@ -39,6 +41,7 @@ class ERC20Transfer(Transfer):
 
         if trace.protocol == Protocol.weth:
             return cls(
+                block_number=trace.block_number,
                 transaction_hash=trace.transaction_hash,
                 trace_address=trace.trace_address,
                 amount=trace.inputs["wad"],
@@ -48,6 +51,7 @@ class ERC20Transfer(Transfer):
             )
         else:
             return cls(
+                block_number=trace.block_number,
                 transaction_hash=trace.transaction_hash,
                 trace_address=trace.trace_address,
                 amount=trace.inputs["amount"],
