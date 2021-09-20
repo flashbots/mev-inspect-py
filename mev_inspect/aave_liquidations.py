@@ -7,14 +7,7 @@ from mev_inspect.schemas.classified_traces import (
 )
 
 from mev_inspect.schemas.liquidations import Liquidation
-
-contract_addresses = [
-    "0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3",
-    "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
-    "0x398eC7346DcD622eDc5ae82352F02bE94C62d119",
-]
-
-
+from mev_inspect.schemas.transfers import ERC20Transfer
 
 LIQUIDATION_CONTRACT_ADDRESSES = [
     "0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3",
@@ -30,6 +23,7 @@ def find_liquidations_from_traces(
     seen_transactions: List[str] = []
     liquidations: List[ClassifiedTrace] = []
     result: List[Liquidation] = []
+
 
     for trace in traces:
 
