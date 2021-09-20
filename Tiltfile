@@ -19,7 +19,7 @@ k8s_yaml(secret_from_dict("mev-inspect-db-credentials", inputs = {
 }))
 
 docker_build_with_restart("mev-inspect-py", ".",
-    entrypoint="/app/run.sh",
+    entrypoint="/app/entrypoint.sh",
     live_update=[
         sync(".", "/app"),
         run("cd /app && poetry install",

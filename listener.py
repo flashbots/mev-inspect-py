@@ -1,6 +1,5 @@
 import logging
 import os
-import signal
 import time
 
 from web3 import Web3
@@ -13,30 +12,11 @@ from mev_inspect.crud.latest_block_update import (
 from mev_inspect.db import get_session
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
+from mev_inspect.signal_handler import GracefulKiller
 
 
-logging.basicConfig(filename="app.log", level=logging.INFO)
+logging.basicConfig(filename="listener.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-class GracefulKiller:
-    """
-    handle sigint / sigterm gracefully
-    taken from https://stackoverflow.com/a/31464349
-    """
-
-    signal_names = {signal.SIGINT: "SIGINT", signal.SIGTERM: "SIGTERM"}
-
-    def __init__(self):
-        self.kill_now = False
-        signal.signal(signal.SIGINT, self.exit_gracefully)
-        signal.signal(signal.SIGTERM, self.exit_gracefully)
-
-    def exit_gracefully(self, signum, frame):  # pylint: disable=unused-argument
-        signal_name = self.signal_names[signum]
-        logger.info(f"Received {signal_name} signal")
-        logger.info("Cleaning up resources. End of process")
-        self.kill_now = True
 
 
 def run():
