@@ -114,14 +114,28 @@ Stop the system if running
 tilt down
 ```
 
-Then delete with
+Delete it with
 ```
 kubectl delete pvc data-postgresql-postgresql-0
 ```
 
+Start back up again
+```
+tilt up
+```
+
+And rerun migrations to create the tables again
+```
+kubectl exec deploy/mev-inspect-deployment -- alembic upgrade head
+```
+
 ### I was using the docker-compose setup and want to switch to kube, now what?
 
-Make sure the docker-compose resources are down
+Re-add the old `docker-compose.yml` file to your mev-inspect-py directory
+
+A copy can be found [here](https://github.com/flashbots/mev-inspect-py/blob/ef60c097719629a7d2dc56c6e6c9a100fb706f76/docker-compose.yml)
+
+Tear down docker-compose resources
 ```
 docker compose down
 ```
