@@ -29,20 +29,8 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-lint = 'scripts.poetry.dev_tools:lint'
-test = 'scripts.poetry.dev_tools:test'
-isort = 'scripts.poetry.dev_tools:isort'
-black = 'scripts.poetry.dev_tools:black'
-pre_commit = 'scripts.poetry.dev_tools:pre_commit'
-start = 'scripts.poetry.docker:start'
-stop = 'scripts.poetry.docker:stop'
-build = 'scripts.poetry.docker:build'
-attach = 'scripts.poetry.docker:attach'
-exec = 'scripts.poetry.docker:exec'
-inspect = 'scripts.poetry.inspect:inspect'
-inspect-many = 'scripts.poetry.inspect:inspect_many'
-inspect-block = 'scripts.inspect_commands:inspect_block_command'
-inspect-many-blocks = 'scripts.inspect_commands:inspect_many_blocks_command'
+inspect-block = 'cli:inspect_block_command'
+inspect-many-blocks = 'cli:inspect_many_blocks_command'
 
 [tool.black]
 exclude = '''

@@ -1,9 +1,14 @@
+import os
+
 import click
 from web3 import Web3
 
 from mev_inspect.db import get_session
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
+
+
+RPC_URL_ENV = "RPC_URL"
 
 
 @click.group()
@@ -13,7 +18,7 @@ def cli():
 
 @cli.command()
 @click.argument("block_number", type=int)
-@click.argument("rpc")
+@click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
 @click.option("--cache/--no-cache", default=True)
 def inspect_block_command(block_number: int, rpc: str, cache: bool):
     db_session = get_session()
@@ -29,7 +34,7 @@ def inspect_block_command(block_number: int, rpc: str, cache: bool):
 @cli.command()
 @click.argument("after_block", type=int)
 @click.argument("before_block", type=int)
-@click.argument("rpc")
+@click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
 @click.option("--cache/--no-cache", default=True)
 def inspect_many_blocks_command(
     after_block: int, before_block: int, rpc: str, cache: bool
@@ -59,6 +64,10 @@ def inspect_many_blocks_command(
             should_write_classified_traces=False,
             should_cache=cache,
         )
+
+
+def get_rpc_url() -> str:
+    return os.environ["RPC_URL"]
 
 
 if __name__ == "__main__":
