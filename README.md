@@ -82,7 +82,7 @@ kubectl exec deploy/mev-inspect-deployment -- /app/listener stop
 
 ### Guide
 
-Coming soon
+✨ Coming soon
 
 ### Pre-commit
 
