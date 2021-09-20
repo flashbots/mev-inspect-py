@@ -16,8 +16,9 @@ mev-inspect-py is built to run on kubernetes locally and in production
 
 ### Install dependencies
 
-Setup a local kubernetes deployment (we use [kind](https://kind.sigs.k8s.io/docs/user/quick-start))
-Setup [Tilt](https://docs.tilt.dev/install.html) which manages the local deployment
+1. Setup a local kubernetes deployment (we use [kind](https://kind.sigs.k8s.io/docs/user/quick-start))
+
+2. Setup [Tilt](https://docs.tilt.dev/install.html) which manages the local deployment
 
 ### Start up
 
