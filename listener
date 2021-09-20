@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -e
+
+NAME=listener
+PIDFILE=/var/run/$NAME.pid
+DAEMON=/root/.poetry/bin/poetry
+DAEMON_OPTS="run python listener.py"
+
+case "$1" in
+  start)
+        echo -n "Starting daemon: "$NAME
+	start-stop-daemon \
+        --background \
+        --chdir /app \
+        --start \
+        --quiet \
+        --pidfile $PIDFILE \
+        --make-pidfile \
+        --startas $DAEMON -- $DAEMON_OPTS
+        echo "."
+	;;
+  stop)
+        echo -n "Stopping daemon: "$NAME
+	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+        echo "."
+	;;
+  restart)
+        echo -n "Restarting daemon: "$NAME
+	start-stop-daemon --stop --quiet --oknodo --retry 30 --pidfile $PIDFILE
+	start-stop-daemon \
+        --background \
+        --chdir /app \
+        --start \
+        --quiet \
+        --pidfile $PIDFILE \
+        --make-pidfile \
+        --startas $DAEMON -- $DAEMON_OPTS
+        echo "."
+    ;;
+
+  *)
+	echo "Usage: "$1" {start|stop|restart}"
+	exit 1
+esac
+
+exit 0
