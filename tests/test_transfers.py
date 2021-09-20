@@ -14,6 +14,7 @@ def test_remove_child_transfers_of_transfers(get_transaction_hashes, get_address
     ] = get_addresses(5)
 
     outer_transfer = ERC20Transfer(
+        block_number=123,
         transaction_hash=transaction_hash,
         trace_address=[0],
         from_address=alice_address,
@@ -33,6 +34,7 @@ def test_remove_child_transfers_of_transfers(get_transaction_hashes, get_address
     )
 
     other_transfer = ERC20Transfer(
+        block_number=123,
         transaction_hash=transaction_hash,
         trace_address=[1],
         from_address=bob_address,

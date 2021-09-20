@@ -18,8 +18,10 @@ from mev_inspect.crud.miner_payments import (
     write_miner_payments,
 )
 from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
+from mev_inspect.crud.transfers import delete_transfers_for_block, write_transfers
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.swaps import get_swaps
+from mev_inspect.transfers import get_transfers
 
 
 logger = logging.getLogger(__name__)
@@ -33,6 +35,7 @@ def inspect_block(
     should_cache: bool,
     should_write_classified_traces: bool = True,
     should_write_swaps: bool = True,
+    should_write_transfers: bool = True,
     should_write_arbitrages: bool = True,
     should_write_miner_payments: bool = True,
 ):
@@ -52,6 +55,11 @@ def inspect_block(
     if should_write_classified_traces:
         delete_classified_traces_for_block(db_session, block_number)
         write_classified_traces(db_session, classified_traces)
+
+    transfers = get_transfers(classified_traces)
+    if should_write_transfers:
+        delete_transfers_for_block(db_session, block_number)
+        write_transfers(db_session, transfers)
 
     swaps = get_swaps(classified_traces)
     logger.info(f"Found {len(swaps)} swaps")
