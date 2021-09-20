@@ -27,8 +27,8 @@ def find_liquidations_from_traces(
 
     # Used to remove double-counted 'from' transfers
     unique_transfer_hashes: List[str]
-    transfers_to: List[List]
-    transfers_from: List[List]
+    transfers_to: List[List] = [[]]
+    transfers_from: List[List] = [[]]
     liquidator: str
 
     for trace in traces:
