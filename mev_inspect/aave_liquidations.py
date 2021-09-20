@@ -24,7 +24,6 @@ def find_liquidations_from_traces(
     liquidations: List[ClassifiedTrace] = []
     result: List[Liquidation] = []
 
-
     for trace in traces:
 
         if isinstance(trace, DecodedCallTrace):
