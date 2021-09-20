@@ -21,7 +21,9 @@ def get_miner_payments(
     traces_by_transaction_hash = get_traces_by_transaction_hash(traces)
 
     for receipt in receipts:
-        transaciton_traces = traces_by_transaction_hash[receipt.transaction_hash]
+        transaciton_traces = traces_by_transaction_hash.get(
+            receipt.transaction_hash, []
+        )
 
         if len(transaciton_traces) == 0:
             continue

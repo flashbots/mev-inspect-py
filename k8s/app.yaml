@@ -17,7 +17,7 @@ spec:
       containers:
       - name: mev-inspect
         image: mev-inspect-py
-        command: [ "python", "run.py"]
+        command: [ "/app/run.sh" ]
         env:
         - name: POSTGRES_USER
           valueFrom:
@@ -31,6 +31,11 @@ spec:
               key: password
         - name: POSTGRES_HOST
           value: postgresql
+        - name: RPC_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mev-inspect-rpc
+              key: url
         livenessProbe:
           exec:
             command:

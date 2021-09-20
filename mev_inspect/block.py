@@ -11,6 +11,10 @@ from mev_inspect.schemas.receipts import Receipt
 cache_directory = "./cache"
 
 
+def get_latest_block_number(w3: Web3) -> int:
+    return int(w3.eth.get_block("latest")["number"])
+
+
 def create_from_block_number(
     base_provider, w3: Web3, block_number: int, should_cache: bool
 ) -> Block:
@@ -69,6 +73,8 @@ def get_transaction_hashes(calls: List[Trace]) -> List[str]:
 
 def cache_block(cache_path: Path, block: Block):
     write_mode = "w" if cache_path.is_file() else "x"
+
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(cache_path, mode=write_mode) as cache_file:
         cache_file.write(block.json())
