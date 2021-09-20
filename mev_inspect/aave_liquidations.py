@@ -6,6 +6,7 @@ from mev_inspect.schemas.classified_traces import (
     Classification,
 )
 from mev_inspect.schemas.liquidations import Liquidation
+from mev_inspect.schemas.transfers import ERC20Transfer
 
 contract_addresses = [
     "0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3",
@@ -14,7 +15,9 @@ contract_addresses = [
 ]
 
 
-def get_liquidations(traces: List[ClassifiedTrace]) -> List[Liquidation]:
+def find_liquidations_from_traces(
+    traces: List[ClassifiedTrace],
+) -> List:
     """Inspect list of classified traces and identify liquidation"""
     tx = []
     liquidations = []
@@ -23,9 +26,10 @@ def get_liquidations(traces: List[ClassifiedTrace]) -> List[Liquidation]:
     # Protocol contract address must be in included
 
     # Used to remove double-counted 'from' transfers
-    unique_transfers = []
-    transfers_to = []
-    transfers_from = []
+    unique_transfer_hashes: List[str]
+    transfers_to: List[List]
+    transfers_from: List[List]
+    liquidator: str
 
     for trace in traces:
 
@@ -66,47 +70,63 @@ def get_liquidations(traces: List[ClassifiedTrace]) -> List[Liquidation]:
                 )
 
             # Check for transfer from a liquidator
-            elif (
-                trace.classification == Classification.transfer
-                and "sender" in trace.inputs
-                and trace.inputs["sender"] in contract_addresses
-                and trace.transaction_hash not in unique_transfers
-            ):
+            elif is_transfer_from_liquidator(trace, unique_transfer_hashes):
 
                 # Add the transfer
                 liquidator = next(
-                    contract_addresses[i]
-                    for i in range(len(contract_addresses))
-                    if trace.inputs["sender"] == contract_addresses[i]
+                    (
+                        contract_addresses[i]
+                        for i in range(len(contract_addresses))
+                        if trace.inputs["sender"] == contract_addresses[i]
+                    ),
+                    "",
                 )
+
                 transfers_from.append(
                     ["from", liquidator, trace.transaction_hash, trace.inputs["amount"]]
                 )
-                unique_transfers.append(trace.transaction_hash)
+                unique_transfer_hashes.append(trace.transaction_hash)
 
             # Check for transfer to a liquidator
-            elif (
-                trace.classification == Classification.transfer
-                and trace.inputs["recipient"] in contract_addresses
-            ):
+            elif is_transfer_to_liquidator(trace):
+
                 # Add the transfer
                 liquidator = next(
-                    contract_addresses[i]
-                    for i in range(len(contract_addresses))
-                    if trace.inputs["recipient"] == contract_addresses[i]
+                    (
+                        contract_addresses[i]
+                        for i in range(len(contract_addresses))
+                        if trace.inputs["recipient"] == contract_addresses[i]
+                    ),
+                    "",
                 )
                 transfers_to.append(
                     ["to", liquidator, trace.transaction_hash, trace.inputs["amount"]]
                 )
 
-    return result
+    return [result, transfers_to, transfers_from]
 
-    # for count, trace in enumerate(liquidations):
-    # tx = trace.transaction_hash
-    # convert token to ETH
-    # profit = transfers[count][2] - transfers[count+1][2]
 
-    # for count, trace in enumerate(transfers_to):
-    # profits.append({"liquidator" : transfers_to[count][1],
-    # "transaction" : transfers_to[count][2],
-    # "profit" : transfers_to[count][3] - transfers_from[count][3]})
+def is_transfer_from_liquidator(
+    trace: ClassifiedTrace,
+    unique_transfer_hashes: List[str],
+) -> bool:
+    transfer = ERC20Transfer.from_trace(trace)
+    if (
+        trace.classification == Classification.transfer
+        and transfer.from_address in contract_addresses
+        and trace.transaction_hash not in unique_transfer_hashes
+    ):
+        return True
+    else:
+        return False
+
+
+def is_transfer_to_liquidator(trace: ClassifiedTrace) -> bool:
+    transfer = ERC20Transfer.from_trace(trace)
+    if (
+        trace.classification == Classification.transfer
+        and transfer.to_address in contract_addresses
+    ):
+        return True
+    else:
+        return False

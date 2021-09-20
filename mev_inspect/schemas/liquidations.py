@@ -1,6 +1,4 @@
-from typing import List
 from pydantic import BaseModel
-from .classified_traces import ClassifiedTrace
 
 
 class Liquidation(BaseModel):
@@ -9,8 +7,3 @@ class Liquidation(BaseModel):
     collateral_amount: int
     collateral_source: str
     reserve: str
-
-
-class LiquidationData(Liquidation):
-    profit: float
-    traces: List[ClassifiedTrace]
