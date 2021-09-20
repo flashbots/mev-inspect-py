@@ -20,6 +20,7 @@ def find_liquidations_from_traces(
     traces: List[ClassifiedTrace],
 ) -> List[Liquidation]:
     """Inspect list of classified traces and identify liquidation"""
+
     seen_transactions: List[str] = []
     liquidations: List[ClassifiedTrace] = []
     result: List[Liquidation] = []
