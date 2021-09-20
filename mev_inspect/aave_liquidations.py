@@ -22,10 +22,6 @@ def find_liquidations_from_traces(
     tx = []
     liquidations = []
     result = []
-
-    # Protocol contract address must be in included
-
-    # Used to remove double-counted 'from' transfers
     unique_transfer_hashes: List[str]
     transfers_to: List[List] = [[]]
     transfers_from: List[List] = [[]]
@@ -69,7 +65,6 @@ def find_liquidations_from_traces(
                     )
                 )
 
-            # Check for transfer from a liquidator
             elif is_transfer_from_liquidator(trace, unique_transfer_hashes):
 
                 # Add the transfer
@@ -87,7 +82,6 @@ def find_liquidations_from_traces(
                 )
                 unique_transfer_hashes.append(trace.transaction_hash)
 
-            # Check for transfer to a liquidator
             elif is_transfer_to_liquidator(trace):
 
                 # Add the transfer
@@ -110,6 +104,7 @@ def is_transfer_from_liquidator(
     trace: ClassifiedTrace,
     unique_transfer_hashes: List[str],
 ) -> bool:
+    """Check if transfer is from liquidator"""
     transfer = ERC20Transfer.from_trace(trace)
     if (
         trace.classification == Classification.transfer
@@ -122,6 +117,7 @@ def is_transfer_from_liquidator(
 
 
 def is_transfer_to_liquidator(trace: ClassifiedTrace) -> bool:
+    """Check if transfer is to liquidator"""
     transfer = ERC20Transfer.from_trace(trace)
     if (
         trace.classification == Classification.transfer
