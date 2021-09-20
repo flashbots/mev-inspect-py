@@ -1,33 +1,32 @@
 from typing import List
 
 from mev_inspect.schemas.classified_traces import (
-    Classification,
     ClassifiedTrace,
-    # CallTrace,
     DecodedCallTrace,
+    Classification,
 )
 from mev_inspect.schemas.liquidations import Liquidation
 
+contract_addresses = [
+    "0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3",
+    "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
+    "0x398eC7346DcD622eDc5ae82352F02bE94C62d119",
+]
 
-# Inspect list of classified traces and identify liquidation
-def get_liquidations(traces: List[ClassifiedTrace]):
+
+def get_liquidations(traces: List[ClassifiedTrace]) -> List[Liquidation]:
+    """Inspect list of classified traces and identify liquidation"""
     tx = []
     liquidations = []
     result = []
 
-    # Protocol contract address must be in included, below is AaveLendingPoolCoreV1
-    addrs = [
-        "0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3",
-        "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
-        "0x398eC7346DcD622eDc5ae82352F02bE94C62d119",
-    ]
+    # Protocol contract address must be in included
 
     # Used to remove double-counted 'from' transfers
-    from_doubles = []
+    unique_transfers = []
     transfers_to = []
     transfers_from = []
 
-    # For each trace
     for trace in traces:
 
         if isinstance(trace, DecodedCallTrace):
@@ -39,7 +38,7 @@ def get_liquidations(traces: List[ClassifiedTrace]):
             ):
 
                 liquidations.append(trace)
-                addrs.append(trace.from_address)
+                contract_addresses.append(trace.from_address)
                 tx.append(trace.transaction_hash)
 
                 # Found liquidation, now parse inputs for data
@@ -54,11 +53,11 @@ def get_liquidations(traces: List[ClassifiedTrace]):
                         reserve = trace.inputs[input]
                         # This will be the address of the received token
                     elif input == "_user":
-                        liquidated_usr = trace.inputs[input]
+                        liquidated_user = trace.inputs[input]
                 # Register liquidation
                 result.append(
                     Liquidation(
-                        liquidated_usr=liquidated_usr,
+                        liquidated_user=liquidated_user,
                         collateral_address=collateral_address,
                         collateral_amount=liquidation_amount,
                         collateral_source="",
@@ -70,31 +69,31 @@ def get_liquidations(traces: List[ClassifiedTrace]):
             elif (
                 trace.classification == Classification.transfer
                 and "sender" in trace.inputs
-                and trace.inputs["sender"] in addrs
-                and trace.transaction_hash not in from_doubles
+                and trace.inputs["sender"] in contract_addresses
+                and trace.transaction_hash not in unique_transfers
             ):
 
                 # Add the transfer
                 liquidator = next(
-                    addrs[i]
-                    for i in range(len(addrs))
-                    if trace.inputs["sender"] == addrs[i]
+                    contract_addresses[i]
+                    for i in range(len(contract_addresses))
+                    if trace.inputs["sender"] == contract_addresses[i]
                 )
                 transfers_from.append(
                     ["from", liquidator, trace.transaction_hash, trace.inputs["amount"]]
                 )
-                from_doubles.append(trace.transaction_hash)
+                unique_transfers.append(trace.transaction_hash)
 
             # Check for transfer to a liquidator
             elif (
                 trace.classification == Classification.transfer
-                and trace.inputs["recipient"] in addrs
+                and trace.inputs["recipient"] in contract_addresses
             ):
                 # Add the transfer
                 liquidator = next(
-                    addrs[i]
-                    for i in range(len(addrs))
-                    if trace.inputs["recipient"] == addrs[i]
+                    contract_addresses[i]
+                    for i in range(len(contract_addresses))
+                    if trace.inputs["recipient"] == contract_addresses[i]
                 )
                 transfers_to.append(
                     ["to", liquidator, trace.transaction_hash, trace.inputs["amount"]]

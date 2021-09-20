@@ -4,7 +4,7 @@ from .classified_traces import ClassifiedTrace
 
 
 class Liquidation(BaseModel):
-    liquidated_usr: str
+    liquidated_user: str
     collateral_address: str
     collateral_amount: int
     collateral_source: str
