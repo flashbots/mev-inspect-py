@@ -98,6 +98,12 @@ Then install pre-commit hooks with
 poetry run pre-commit install
 ```
 
+### Tests
+
+Run tests with
+```
+kubectl exec deploy/mev-inspect-deployment -- poetry run pytest --cov=mev_inspect tests
+```
 
 ## FAQ
 
