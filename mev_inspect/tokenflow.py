@@ -1,13 +1,8 @@
 from typing import List, Optional
 
-from mev_inspect.config import load_config
 from mev_inspect.schemas import Block, Trace, TraceType
 
-config = load_config()
-
-rpc_url = config["RPC"]["Endpoint"]
-weth_address = config["ADDRESSES"]["WETH"]
-# w3 = Web3(HTTPProvider(rpc_url))
+weth_address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
 
 cache_directory = "./cache"
 
