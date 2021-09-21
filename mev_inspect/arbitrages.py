@@ -1,5 +1,6 @@
 from itertools import groupby
-from typing import List, Optional
+from typing import List
+from functools import cmp_to_key
 
 from mev_inspect.schemas.arbitrages import Arbitrage
 from mev_inspect.schemas.swaps import Swap
@@ -23,70 +24,70 @@ def get_arbitrages(swaps: List[Swap]) -> List[Arbitrage]:
 
 
 def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
-    pool_addresses = {swap.pool_address for swap in swaps}
-
     all_arbitrages = []
 
-    for index, first_swap in enumerate(swaps):
-        other_swaps = swaps[:index] + swaps[index + 1 :]
+    ordered_swaps = _order_swaps_by_trace_order(swaps)
 
-        if first_swap.from_address not in pool_addresses:
-            arbitrage = _get_arbitrage_starting_with_swap(first_swap, other_swaps)
+    grouped_swaps: List[List[Swap]] = []
 
-            if arbitrage is not None:
-                all_arbitrages.append(arbitrage)
+    # An arbitrage is defined as multiple swaps in a row that result in the initial token being returned.
+    # Ex: [WETH -> UNI, UNI -> DAI, DAI -> WETH]
+    # Code below assumes there can be multiple arbitrages per swap set, but they'll be serial.
+    # Ex: [WETH -> UNI, UNI -> WETH, DAI -> SUSHI, SUSHI -> DAI]
+    # Non-working ex: [WETH -> UNI, DAI -> SUSHI, UNI -> WETH, SUSHI -> DAI]
+    for start_swap_index in range(len(ordered_swaps)):
+        current_swap = ordered_swaps[start_swap_index]
+        swap_path: List[Swap] = [current_swap]
+
+        for path_index in range(start_swap_index + 1, len(ordered_swaps)):
+            next_swap = ordered_swaps[path_index]
+            if current_swap.token_out_address == next_swap.token_in_address:
+                swap_path.append(next_swap)
+                current_swap = next_swap
+                if (
+                    swap_path[0].token_in_address == next_swap.token_out_address
+                ):  # Cycle complete
+                    grouped_swaps.append(swap_path)
+                    swap_path = []
+            else:
+                swap_path = []
+
+    for swap_path in grouped_swaps:
+        start_amount = swap_path[0].token_in_amount
+        end_amount = swap_path[-1].token_out_amount
+        profit_amount = end_amount - start_amount
+
+        arb = Arbitrage(
+            swaps=swap_path,
+            block_number=swap_path[0].block_number,
+            transaction_hash=swap_path[0].transaction_hash,
+            account_address=swap_path[0].from_address,
+            profit_token_address=swap_path[0].token_in_address,
+            start_amount=start_amount,
+            end_amount=end_amount,
+            profit_amount=profit_amount,
+        )
+        all_arbitrages.append(arb)
 
     return all_arbitrages
 
 
-def _get_arbitrage_starting_with_swap(
-    start_swap: Swap,
-    other_swaps: List[Swap],
-) -> Optional[Arbitrage]:
-    swap_path = [start_swap]
-    current_swap: Swap = start_swap
-
-    while True:
-        next_swap = _get_swap_from_address(
-            current_swap.to_address,
-            current_swap.token_out_address,
-            other_swaps,
-        )
-
-        if next_swap is None:
-            return None
-
-        swap_path.append(next_swap)
-        current_swap = next_swap
-
-        if (
-            current_swap.to_address == start_swap.from_address
-            and current_swap.token_out_address == start_swap.token_in_address
-        ):
-
-            start_amount = start_swap.token_in_amount
-            end_amount = current_swap.token_out_amount
-            profit_amount = end_amount - start_amount
-
-            return Arbitrage(
-                swaps=swap_path,
-                block_number=start_swap.block_number,
-                transaction_hash=start_swap.transaction_hash,
-                account_address=start_swap.from_address,
-                profit_token_address=start_swap.token_in_address,
-                start_amount=start_amount,
-                end_amount=end_amount,
-                profit_amount=profit_amount,
-            )
-
-    return None
+def _order_swaps_by_trace_order(unordered_swaps: List[Swap]) -> List[Swap]:
+    unordered_swaps.sort(key=cmp_to_key(_compare_trace_address))
+    return unordered_swaps
 
 
-def _get_swap_from_address(
-    address: str, token_address: str, swaps: List[Swap]
-) -> Optional[Swap]:
-    for swap in swaps:
-        if swap.pool_address == address and swap.token_in_address == token_address:
-            return swap
+def _compare_trace_address(a: Swap, b: Swap):
+    if a.trace_address == b.trace_address:
+        return 0
+    for i in range(0, max(len(a.trace_address), len(b.trace_address))):
+        if len(a.trace_address) == i:
+            return -1
+        if len(b.trace_address) == i:
+            return 1
 
-    return None
+        if a.trace_address[i] > b.trace_address[i]:
+            return 1
+        if a.trace_address[i] < b.trace_address[i]:
+            return -1
+    return 0

@@ -1,4 +1,7 @@
-from mev_inspect.arbitrages import get_arbitrages
+import itertools
+from typing import List
+
+from mev_inspect.arbitrages import get_arbitrages, _order_swaps_by_trace_order
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.swaps import (
     UNISWAP_V2_PAIR_ABI_NAME,
@@ -158,3 +161,50 @@ def test_three_pool_arbitrage(get_transaction_hashes, get_addresses):
     assert arbitrage.start_amount == first_token_in_amount
     assert arbitrage.end_amount == first_token_out_amount
     assert arbitrage.profit_amount == first_token_out_amount - first_token_in_amount
+
+
+def test_order_swaps_by_trace_order():
+    trace_address_0 = []
+    trace_address_1 = [0]
+    trace_address_2 = [1]
+    trace_address_3 = [1, 1]
+    trace_address_4 = [2, 1, 3]
+    trace_address_5 = [2, 2]
+
+    permutated_trace_addresses: List[List[int]] = itertools.permutations(
+        [
+            trace_address_0,
+            trace_address_1,
+            trace_address_2,
+            trace_address_3,
+            trace_address_4,
+            trace_address_5,
+        ]
+    )
+
+    for trace_addresses in permutated_trace_addresses:
+        print("permute")
+        swaps: List[Swap] = []
+        for trace_address in trace_addresses:
+            swap = Swap(
+                abi_name=UNISWAP_V3_POOL_ABI_NAME,
+                transaction_hash="0xfake",
+                block_number=0,
+                trace_address=trace_address,
+                pool_address="0xfake",
+                from_address="0xfake",
+                to_address="0xfake",
+                token_in_address="0xfake",
+                token_in_amount=1,
+                token_out_address="0xfake",
+                token_out_amount=1,
+            )
+            swaps.append(swap)
+        ordered_swaps = _order_swaps_by_trace_order(swaps)
+
+        assert ordered_swaps[0].trace_address == trace_address_0
+        assert ordered_swaps[1].trace_address == trace_address_1
+        assert ordered_swaps[2].trace_address == trace_address_2
+        assert ordered_swaps[3].trace_address == trace_address_3
+        assert ordered_swaps[4].trace_address == trace_address_4
+        assert ordered_swaps[5].trace_address == trace_address_5
