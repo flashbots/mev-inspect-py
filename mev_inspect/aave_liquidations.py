@@ -31,28 +31,12 @@ def find_liquidations_from_traces(
 
                 liquidations.append(trace)
 
-                # Found liquidation, now parse inputs for data
-                for input in trace.inputs:
-
-                    if input == "_purchaseAmount":
-                        liquidation_amount = trace.inputs[input]
-                    elif input == "_collateral":
-                        collateral_address = trace.inputs[input]
-                        # This will be the address of the sent token
-                    elif input == "_reserve":
-                        reserve = trace.inputs[input]
-                        # This will be the address of the received token
-                    elif input == "_user":
-
-                        liquidated_user = trace.inputs[input]
-                # Register liquidation
                 result.append(
                     Liquidation(
-                        liquidated_user=liquidated_user,
-                        collateral_address=collateral_address,
-                        collateral_amount=liquidation_amount,
-                        collateral_source="",
-                        reserve=reserve,
+                        liquidated_user=trace.inputs["_user"],
+                        collateral_address=trace.inputs["_collateral"],
+                        collateral_amount=trace.inputs["_purchaseAmount"],
+                        reserve=trace.inputs["_reserve"],
                     )
                 )
 
