@@ -19,6 +19,7 @@ LIQUIDATION_CONTRACT_ADDRESSES = [
 def find_liquidations_from_traces(
     traces: List[ClassifiedTrace],
 ) -> List[Liquidation]:
+
     """Inspect list of classified traces and identify liquidation"""
 
     seen_transactions: List[str] = []
@@ -63,5 +64,5 @@ def find_liquidations_from_traces(
                         reserve=reserve,
                     )
                 )
-
+                
     return result
