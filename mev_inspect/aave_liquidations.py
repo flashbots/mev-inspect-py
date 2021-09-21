@@ -5,10 +5,11 @@ from mev_inspect.schemas.classified_traces import (
     DecodedCallTrace,
     Classification,
 )
+
 from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.transfers import ERC20Transfer
 
-contract_addresses = [
+LIQUIDATION_CONTRACT_ADDRESSES = [
     "0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3",
     "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
     "0x398eC7346DcD622eDc5ae82352F02bE94C62d119",
@@ -16,7 +17,7 @@ contract_addresses = [
 
 
 def find_liquidations_from_traces(
-    traces: List[ClassifiedTrace],
+    traces: List,
 ) -> List:
     """Inspect list of classified traces and identify liquidation"""
     tx = []
@@ -38,7 +39,7 @@ def find_liquidations_from_traces(
             ):
 
                 liquidations.append(trace)
-                contract_addresses.append(trace.from_address)
+                LIQUIDATION_CONTRACT_ADDRESSES.append(trace.from_address)
                 tx.append(trace.transaction_hash)
 
                 # Found liquidation, now parse inputs for data
@@ -70,9 +71,9 @@ def find_liquidations_from_traces(
                 # Add the transfer
                 liquidator = next(
                     (
-                        contract_addresses[i]
-                        for i in range(len(contract_addresses))
-                        if trace.inputs["sender"] == contract_addresses[i]
+                        LIQUIDATION_CONTRACT_ADDRESSES[i]
+                        for i in range(len(LIQUIDATION_CONTRACT_ADDRESSES))
+                        if trace.inputs["sender"] == LIQUIDATION_CONTRACT_ADDRESSES[i]
                     ),
                     "",
                 )
@@ -87,9 +88,10 @@ def find_liquidations_from_traces(
                 # Add the transfer
                 liquidator = next(
                     (
-                        contract_addresses[i]
-                        for i in range(len(contract_addresses))
-                        if trace.inputs["recipient"] == contract_addresses[i]
+                        LIQUIDATION_CONTRACT_ADDRESSES[i]
+                        for i in range(len(LIQUIDATION_CONTRACT_ADDRESSES))
+                        if trace.inputs["recipient"]
+                        == LIQUIDATION_CONTRACT_ADDRESSES[i]
                     ),
                     "",
                 )
@@ -108,7 +110,7 @@ def is_transfer_from_liquidator(
     transfer = ERC20Transfer.from_trace(trace)
     if (
         trace.classification == Classification.transfer
-        and transfer.from_address in contract_addresses
+        and transfer.from_address in LIQUIDATION_CONTRACT_ADDRESSES
         and trace.transaction_hash not in unique_transfer_hashes
     ):
         return True
@@ -121,7 +123,7 @@ def is_transfer_to_liquidator(trace: ClassifiedTrace) -> bool:
     transfer = ERC20Transfer.from_trace(trace)
     if (
         trace.classification == Classification.transfer
-        and transfer.to_address in contract_addresses
+        and transfer.to_address in LIQUIDATION_CONTRACT_ADDRESSES
     ):
         return True
     else:
