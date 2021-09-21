@@ -1,6 +1,7 @@
 from typing import List
 
 from mev_inspect.schemas.classified_traces import (
+    ClassifiedTrace,
     DecodedCallTrace,
     Classification,
 )
@@ -19,9 +20,9 @@ def find_liquidations_from_traces(
     traces: List[Liquidation],
 ) -> List:
     """Inspect list of classified traces and identify liquidation"""
-    seen_transactions = []
-    liquidations = []
-    result = []
+    seen_transactions: List[str] = []
+    liquidations: List[ClassifiedTrace] = []
+    result: List[Liquidation] = []
 
     for trace in traces:
 
