@@ -1,13 +1,12 @@
 from typing import List
 
 from mev_inspect.schemas.classified_traces import (
-    ClassifiedTrace,
     DecodedCallTrace,
     Classification,
 )
 
 from mev_inspect.schemas.liquidations import Liquidation
-from mev_inspect.schemas.transfers import ERC20Transfer
+
 
 LIQUIDATION_CONTRACT_ADDRESSES = [
     "0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3",
@@ -64,5 +63,5 @@ def find_liquidations_from_traces(
                         reserve=reserve,
                     )
                 )
-                
+ 
     return result
