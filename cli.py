@@ -1,4 +1,6 @@
 import os
+import logging
+import sys
 
 import click
 from web3 import Web3
@@ -9,6 +11,9 @@ from mev_inspect.provider import get_base_provider
 
 
 RPC_URL_ENV = "RPC_URL"
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @click.group()
@@ -26,7 +31,7 @@ def inspect_block_command(block_number: int, rpc: str, cache: bool):
     w3 = Web3(base_provider)
 
     if not cache:
-        click.echo("Skipping cache")
+        logger.info("Skipping cache")
 
     inspect_block(db_session, base_provider, w3, block_number, should_cache=cache)
 
@@ -45,16 +50,16 @@ def inspect_many_blocks_command(
     w3 = Web3(base_provider)
 
     if not cache:
-        click.echo("Skipping cache")
+        logger.info("Skipping cache")
 
     for i, block_number in enumerate(range(after_block, before_block)):
         block_message = (
             f"Running for {block_number} ({i+1}/{before_block - after_block})"
         )
         dashes = "-" * len(block_message)
-        click.echo(dashes)
-        click.echo(block_message)
-        click.echo(dashes)
+        logger.info(dashes)
+        logger.info(block_message)
+        logger.info(dashes)
 
         inspect_block(
             db_session,
