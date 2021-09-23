@@ -23,7 +23,9 @@ If using kind, create a new cluster with:
 kind create cluster
 ```
 
-Next, install [helm](https://helm.sh/docs/intro/install/) - helm is a package manager for kubernetes
+Next, install the kubernetes CLI [`kubectl`](https://kubernetes.io/docs/tasks/tools/)
+
+Then, install [helm](https://helm.sh/docs/intro/install/) - helm is a package manager for kubernetes
 
 Lastly, setup [Tilt](https://docs.tilt.dev/install.html) which manages running and updating kubernetes resources locally
 
