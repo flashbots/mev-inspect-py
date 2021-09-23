@@ -1,5 +1,5 @@
 # mev-inspect-py
-> illuminating the dark forest 🌲🔦
+> illuminating the dark forest 🌲💡
 
 **mev-inspect-py** is an MEV inspector for Ethereum
 
@@ -16,9 +16,16 @@ mev-inspect-py is built to run on kubernetes locally and in production
 
 ### Install dependencies
 
-1. Setup a local kubernetes deployment (we use [kind](https://kind.sigs.k8s.io/docs/user/quick-start))
+First, setup a local kubernetes deployment - we use [kind](https://kind.sigs.k8s.io/docs/user/quick-start)
 
-2. Setup [Tilt](https://docs.tilt.dev/install.html) which manages the local deployment
+If using kind, create a new cluster with:
+```
+kind create cluster
+```
+
+Next, install [helm](https://helm.sh/docs/intro/install/) - helm is a package manager for kubernetes
+
+Lastly, setup [Tilt](https://docs.tilt.dev/install.html) which manages running and updating kubernetes resources locally
 
 ### Start up
 
