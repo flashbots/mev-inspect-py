@@ -9,35 +9,78 @@ from mev_inspect.schemas.classified_traces import (
 )
 
 from mev_inspect.schemas.liquidations import Liquidation
-from mev_inspect.schemas.transfers import EthTransfer
+from mev_inspect.schemas.transfers import Transfer, EthTransfer, ERC20Transfer
 
-liquidators = []
+liquidators: List[str] = []
 
 
-def is_transfer_from_liquidator(
-    trace: ClassifiedTrace,
-) -> bool:
+def is_transfer_from_liquidator(trace: ClassifiedTrace, liquidator: str) -> bool:
     """Check if transfer is from liquidator"""
-    transfer = EthTransfer.from_trace(trace)
-    if (
-        trace.classification == Classification.transfer
-        and transfer.from_address in liquidators
-    ):
-        return True
-    else:
-        return False
+
+    transfer: Transfer
+
+    try:
+
+        transfer = ERC20Transfer.from_trace(trace)
+        if transfer.from_address == liquidator:
+            return True
+        else:
+            return False
+
+    except ValueError:
+
+        pass
+
+    try:
+
+        transfer = EthTransfer.from_trace(trace)
+        if transfer.from_address == liquidator:
+            return True
+        else:
+            return False
+
+    except ValueError:
+
+        if trace.from_address == liquidator:
+            # print(trace.inputs)
+            return True
+        else:
+            return False
 
 
-def is_transfer_to_liquidator(trace: ClassifiedTrace) -> bool:
+def is_transfer_to_liquidator(trace: ClassifiedTrace, liquidator: str) -> bool:
     """Check if transfer is to liquidator"""
-    transfer = EthTransfer.from_trace(trace)
-    if (
-        trace.classification == Classification.transfer
-        and transfer.to_address in liquidators
-    ):
-        return True
-    else:
-        return False
+
+    transfer: Transfer
+
+    try:
+
+        transfer = ERC20Transfer.from_trace(trace)
+        if transfer.to_address == liquidator:
+            return True
+        else:
+            return False
+
+    except ValueError:
+
+        pass
+
+    try:
+
+        transfer = EthTransfer.from_trace(trace)
+        if transfer.to_address == liquidator:
+            print(transfer.amount, transfer.from_address)
+            return True
+        else:
+            return False
+
+    except ValueError:
+
+        if trace.to_address == liquidator:
+            # print(trace.inputs)
+            return True
+        else:
+            return False
 
 
 def get_liquidations(
@@ -59,8 +102,22 @@ def get_liquidations(
             and trace.transaction_hash not in unique_transaction_hashes
         ):
 
-            liquidators.append(trace.from_address)
-            transfer = EthTransfer.from_trace(trace)
+            liquidator = trace.from_address
+
+            transfers_to = [
+                EthTransfer.from_trace(t)
+                for t in traces
+                if is_transfer_to_liquidator(t, liquidator)
+            ]
+            print(transfers_to)
+
+            transfers_from = [
+                EthTransfer.from_trace(t)
+                for t in traces
+                if is_transfer_from_liquidator(t, liquidator)
+            ]
+            print(transfers_from)
+
             unique_transaction_hashes.append(trace.transaction_hash)
 
             liquidations.append(
@@ -68,29 +125,15 @@ def get_liquidations(
                     liquidated_user=trace.inputs["_user"],
                     collateral_token_address=trace.inputs["_collateral"],
                     debt_token_address=trace.inputs["_reserve"],
-                    liquidator_user=transfer.from_address,
+                    liquidator_user=liquidator,
                     debt_purchase_amount=trace.inputs["_purchaseAmount"],
                     protocol=Protocol.aave,
+                    # aToken lookup is out of scope for now, WIP
+                    received_token_address=trace.inputs["_collateral"],
                     transaction_hash=trace.transaction_hash,
                     block_number=trace.block_number,
                 )
             )
 
-        elif is_transfer_from_liquidator(trace):
-
-            # Add the transfer
-            print(trace)
-            transfers_from.append(EthTransfer.from_trace(trace))
-            unique_transaction_hashes.append(trace.transaction_hash)
-
-        elif is_transfer_to_liquidator(trace):
-
-            # Add the transfer
-            print(trace)
-            transfers_to.append(EthTransfer.from_trace(trace))
-
-    print(unique_transaction_hashes)
-    print(transfers_to)
-    print(transfers_from)
     print(liquidations)
     return liquidations
