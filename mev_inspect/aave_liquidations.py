@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 
 from mev_inspect.schemas.classified_traces import (
@@ -14,18 +14,18 @@ from mev_inspect.schemas.transfers import Transfer, EthTransfer, ERC20Transfer
 liquidators: List[str] = []
 
 
-def is_transfer_from_liquidator(trace: ClassifiedTrace, liquidator: str) -> bool:
+def is_transfer_from_liquidator(
+    trace: ClassifiedTrace, liquidator: str
+) -> Union[Transfer, ClassifiedTrace]:
     """Check if transfer is from liquidator"""
-
-    transfer: Transfer
+    transfer: Union[Transfer, ClassifiedTrace]
+    result: Union[Transfer, ClassifiedTrace]
 
     try:
 
         transfer = ERC20Transfer.from_trace(trace)
         if transfer.from_address == liquidator:
-            return True
-        else:
-            return False
+            result = transfer
 
     except ValueError:
 
@@ -35,31 +35,28 @@ def is_transfer_from_liquidator(trace: ClassifiedTrace, liquidator: str) -> bool
 
         transfer = EthTransfer.from_trace(trace)
         if transfer.from_address == liquidator:
-            return True
-        else:
-            return False
+            result = transfer
 
     except ValueError:
 
         if trace.from_address == liquidator:
-            # print(trace.inputs)
-            return True
-        else:
-            return False
+            result = trace
+
+    return result
 
 
-def is_transfer_to_liquidator(trace: ClassifiedTrace, liquidator: str) -> bool:
+def is_transfer_to_liquidator(
+    trace: ClassifiedTrace, liquidator: str
+) -> Union[Transfer, ClassifiedTrace]:
     """Check if transfer is to liquidator"""
 
-    transfer: Transfer
-
+    transfer: Union[Transfer, ClassifiedTrace]
+    result: Union[Transfer, ClassifiedTrace]
     try:
 
         transfer = ERC20Transfer.from_trace(trace)
         if transfer.to_address == liquidator:
-            return True
-        else:
-            return False
+            result = transfer
 
     except ValueError:
 
@@ -69,18 +66,14 @@ def is_transfer_to_liquidator(trace: ClassifiedTrace, liquidator: str) -> bool:
 
         transfer = EthTransfer.from_trace(trace)
         if transfer.to_address == liquidator:
-            print(transfer.amount, transfer.from_address)
-            return True
-        else:
-            return False
+            result = transfer
 
     except ValueError:
 
         if trace.to_address == liquidator:
-            # print(trace.inputs)
-            return True
-        else:
-            return False
+            result = trace
+
+    return result
 
 
 def get_liquidations(
@@ -104,18 +97,17 @@ def get_liquidations(
 
             liquidator = trace.from_address
 
-            transfers_to = [
-                EthTransfer.from_trace(t)
-                for t in traces
-                if is_transfer_to_liquidator(t, liquidator)
-            ]
-            print(transfers_to)
+            for t in traces:
 
-            transfers_from = [
-                EthTransfer.from_trace(t)
-                for t in traces
-                if is_transfer_from_liquidator(t, liquidator)
-            ]
+                from_result = is_transfer_from_liquidator(t, liquidator)
+                if from_result:
+                    transfers_from.append(from_result)
+
+                to_result = is_transfer_to_liquidator(t, liquidator)
+                if to_result:
+                    transfers_to.append(to_result)
+
+            print(transfers_to)
             print(transfers_from)
 
             unique_transaction_hashes.append(trace.transaction_hash)
