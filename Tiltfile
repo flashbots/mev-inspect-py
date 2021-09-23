@@ -25,7 +25,6 @@ docker_build_with_restart("mev-inspect-py", ".",
         run("cd /app && poetry install",
             trigger="./pyproject.toml"),
     ],
-    platform="linux/arm64",
 )
 k8s_yaml("k8s/app.yaml")
 k8s_resource(workload="mev-inspect-deployment", resource_deps=["postgresql-postgresql"])

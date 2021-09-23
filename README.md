@@ -1,5 +1,5 @@
 # mev-inspect-py
-> illuminating the dark forest 🌲🔦
+> illuminating the dark forest 🌲💡
 
 **mev-inspect-py** is an MEV inspector for Ethereum
 
@@ -16,9 +16,18 @@ mev-inspect-py is built to run on kubernetes locally and in production
 
 ### Install dependencies
 
-1. Setup a local kubernetes deployment (we use [kind](https://kind.sigs.k8s.io/docs/user/quick-start))
+First, setup a local kubernetes deployment - we use [Docker](https://www.docker.com/products/docker-desktop) and [kind](https://kind.sigs.k8s.io/docs/user/quick-start)
 
-2. Setup [Tilt](https://docs.tilt.dev/install.html) which manages the local deployment
+If using kind, create a new cluster with:
+```
+kind create cluster
+```
+
+Next, install the kubernetes CLI [`kubectl`](https://kubernetes.io/docs/tasks/tools/)
+
+Then, install [helm](https://helm.sh/docs/intro/install/) - helm is a package manager for kubernetes
+
+Lastly, setup [Tilt](https://docs.tilt.dev/install.html) which manages running and updating kubernetes resources locally
 
 ### Start up
 
@@ -77,6 +86,38 @@ And stop the listener with
 ```
 kubectl exec deploy/mev-inspect-deployment -- /app/listener stop
 ```
+
+## Exploring
+
+All inspect output data is stored in Postgres.
+
+To connect to the local Postgres database for querying, launch a client container with:
+```
+kubectl run -i --rm --tty postgres-client --env="PGPASSWORD=password" --image=jbergknoff/postgresql-client -- mev_inspect --host=postgresql --user=postgres
+```
+
+When you see the prompt
+```
+mev_inspect=#
+```
+
+You're ready to query!
+
+Try finding the total number of swaps decoded with UniswapV3Pool
+```
+SELECT COUNT(*) FROM swaps WHERE abi_name='UniswapV3Pool';
+```
+
+or top 10 arbs by gross profit that took profit in WETH
+```
+SELECT *
+FROM arbitrages
+WHERE profit_token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+ORDER BY profit_amount DESC
+LIMIT 10;
+```
+
+Postgres tip: Enter `\x` to enter "Explanded display" mode which looks nicer for results with many columns
 
 ## Contributing
 
@@ -141,3 +182,13 @@ docker compose down
 ```
 
 Then go through the steps in the current README for kube setup
+
+### Error from server (AlreadyExists): pods "postgres-client" already exists
+This means the postgres client container didn't shut down correctly
+
+Delete this one with
+```
+kubectl delete pod/postgres-client
+```
+
+Then start it back up again
