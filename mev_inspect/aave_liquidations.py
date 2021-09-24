@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict
 
-
+from mev_inspect.traces import get_child_traces
 from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
     DecodedCallTrace,
@@ -54,35 +54,37 @@ def get_liquidations(
     """Inspect list of classified traces and identify liquidation"""
     liquidations: List[Liquidation] = []
     transfers_to: Dict = {}
-    unique_transaction_hashes: List = []
 
     for trace in traces:
 
-        if (
-            trace.classification == Classification.liquidate
-            and isinstance(trace, DecodedCallTrace)
-            and trace.transaction_hash not in unique_transaction_hashes
+        if trace.classification == Classification.liquidate and isinstance(
+            trace, DecodedCallTrace
         ):
 
             liquidator = trace.from_address
-            unique_transaction_hashes.append(trace.transaction_hash)
 
-            for t in traces:
-                to_result = find_transfer_to_liquidator(t, liquidator)
+            child_traces = get_child_traces(
+                trace.transaction_hash, trace.trace_address, traces
+            )
+
+            for child in child_traces:
+
+                if child.classification == Classification.liquidate:
+                    traces.remove(child)
+
+                to_result = find_transfer_to_liquidator(child, liquidator)
                 if to_result and not (
                     to_result.transaction_hash in transfers_to.keys()
                 ):
-                    transfers_to[trace.transaction_hash] = to_result
+                    transfers_to[str(trace.to_address)] = to_result
 
-            if "amount" in transfers_to[trace.transaction_hash].inputs:
+            if "amount" in transfers_to[str(trace.to_address)].inputs:
                 received_amount = int(
-                    transfers_to[trace.transaction_hash].inputs["amount"]
+                    transfers_to[str(trace.to_address)].inputs["amount"]
                 )
 
-            elif "wad" in transfers_to[trace.transaction_hash].inputs:
-                received_amount = int(
-                    transfers_to[trace.transaction_hash].inputs["wad"]
-                )
+            elif "wad" in transfers_to[str(trace.to_address)].inputs:
+                received_amount = int(transfers_to[str(trace.to_address)].inputs["wad"])
 
             liquidations.append(
                 Liquidation(
@@ -99,6 +101,7 @@ def get_liquidations(
                     block_number=trace.block_number,
                 )
             )
+
     print("\n")
     print(liquidations)
     return liquidations
