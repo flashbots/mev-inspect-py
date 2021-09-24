@@ -46,19 +46,5 @@ class ABIFunctionDescription(BaseModel):
         return f"{self.name}({joined_input_types})"
 
 
-class ABIEventDescription(BaseModel):
-    type: Literal[ABIDescriptionType.event]
-    name: str
-    inputs: List[ABIDescriptionInput]
-
-    def get_selector(self) -> HexBytes:
-        signature = self.get_signature()
-        return Web3.sha3(text=signature)[0:4]
-
-    def get_signature(self) -> HexBytes:
-        joined_input_types = ",".join(input.type for input in self.inputs)
-        return f"{self.name}({joined_input_types})"
-
-
 ABIDescription = Union[ABIFunctionDescription, ABIGenericDescription]
 ABI = List[ABIDescription]

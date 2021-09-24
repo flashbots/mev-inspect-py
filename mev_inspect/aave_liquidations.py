@@ -22,29 +22,27 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
 ]
 
 
-def is_transfer_to_liquidator(
+def find_transfer_to_liquidator(
     trace: ClassifiedTrace, liquidator: str
 ) -> Optional[ClassifiedTrace]:
     """Check if transfer is to liquidator"""
 
     if isinstance(trace, DecodedCallTrace):
-        try:
+
+        if "recipient" in trace.inputs:
+
             if (
                 trace.inputs["recipient"] == liquidator
                 and trace.from_address in AAVE_CONTRACT_ADDRESSES
             ):
                 return trace
 
-        except KeyError:
-            pass
-        try:
+        elif "dst" in trace.inputs:
             if (
                 trace.inputs["dst"] == liquidator
                 and trace.from_address in AAVE_CONTRACT_ADDRESSES
             ):
                 return trace
-        except KeyError:
-            return None
 
     return None
 
@@ -54,7 +52,6 @@ def get_liquidations(
 ) -> List[Liquidation]:
 
     """Inspect list of classified traces and identify liquidation"""
-    # liquidation_traces: List[DecodedCallTrace] = []
     liquidations: List[Liquidation] = []
     transfers_to: Dict = {}
     unique_transaction_hashes: List = []
@@ -71,17 +68,18 @@ def get_liquidations(
             unique_transaction_hashes.append(trace.transaction_hash)
 
             for t in traces:
-                to_result = is_transfer_to_liquidator(t, liquidator)
+                to_result = find_transfer_to_liquidator(t, liquidator)
                 if to_result and not (
                     to_result.transaction_hash in transfers_to.keys()
                 ):
                     transfers_to[trace.transaction_hash] = to_result
 
-            try:
+            if "amount" in transfers_to[trace.transaction_hash].inputs:
                 received_amount = int(
                     transfers_to[trace.transaction_hash].inputs["amount"]
                 )
-            except KeyError:
+
+            elif "wad" in transfers_to[trace.transaction_hash].inputs:
                 received_amount = int(
                     transfers_to[trace.transaction_hash].inputs["wad"]
                 )
@@ -101,5 +99,6 @@ def get_liquidations(
                     block_number=trace.block_number,
                 )
             )
-
+    print("\n")
+    print(liquidations)
     return liquidations
