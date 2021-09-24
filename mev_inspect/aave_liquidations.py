@@ -22,7 +22,7 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
 ]
 
 
-def find_transfer_to_liquidator(
+def find_liquidator_payback(
     trace: ClassifiedTrace, liquidator: str
 ) -> Optional[ClassifiedTrace]:
     """Check if transfer is to liquidator"""
@@ -53,7 +53,6 @@ def get_liquidations(
 
     """Inspect list of classified traces and identify liquidation"""
     liquidations: List[Liquidation] = []
-    transfers_to: Dict = {}
 
     for trace in traces:
 
@@ -72,19 +71,19 @@ def get_liquidations(
                 if child.classification == Classification.liquidate:
                     traces.remove(child)
 
-                to_result = find_transfer_to_liquidator(child, liquidator)
-                if to_result and not (
-                    to_result.transaction_hash in transfers_to.keys()
-                ):
-                    transfers_to[str(trace.to_address)] = to_result
+                liquidator_payback = find_liquidator_payback(child, liquidator)
 
-            if "amount" in transfers_to[str(trace.to_address)].inputs:
-                received_amount = int(
-                    transfers_to[str(trace.to_address)].inputs["amount"]
-                )
+                if liquidator_payback:
+                    assert isinstance(liquidator_payback.inputs, Dict)
 
-            elif "wad" in transfers_to[str(trace.to_address)].inputs:
-                received_amount = int(transfers_to[str(trace.to_address)].inputs["wad"])
+                    if "amount" in liquidator_payback.inputs:
+                        received_amount = int(liquidator_payback.inputs["amount"])
+
+                    elif "wad" in liquidator_payback.inputs:
+                        received_amount = int(liquidator_payback.inputs["wad"])
+
+                    else:
+                        received_amount = 0
 
             liquidations.append(
                 Liquidation(
