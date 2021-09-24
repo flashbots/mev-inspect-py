@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import List, Dict
 
 from mev_inspect.traces import get_child_traces
 from mev_inspect.schemas.classified_traces import (
@@ -22,9 +22,7 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
 ]
 
 
-def find_liquidator_payback(
-    trace: ClassifiedTrace, liquidator: str
-) -> Optional[ClassifiedTrace]:
+def is_liquidator_payback(trace: ClassifiedTrace, liquidator: str) -> bool:
     """Finds liquidator payback """
 
     if isinstance(trace, DecodedCallTrace):
@@ -35,16 +33,16 @@ def find_liquidator_payback(
                 trace.inputs["recipient"] == liquidator
                 and trace.from_address in AAVE_CONTRACT_ADDRESSES
             ):
-                return trace
+                return True
 
         elif "dst" in trace.inputs:
             if (
                 trace.inputs["dst"] == liquidator
                 and trace.from_address in AAVE_CONTRACT_ADDRESSES
             ):
-                return trace
+                return True
 
-    return None
+    return False
 
 
 def get_liquidations(
@@ -71,19 +69,17 @@ def get_liquidations(
                 if child.classification == Classification.liquidate:
                     traces.remove(child)
 
-                liquidator_payback = find_liquidator_payback(child, liquidator)
-
-                if liquidator_payback:
+                if is_liquidator_payback(child, liquidator):
 
                     assert isinstance(
-                        liquidator_payback.inputs, Dict
+                        child.inputs, Dict
                     )  # Necessary for mypy to indentify type
 
-                    if "amount" in liquidator_payback.inputs:
-                        received_amount = int(liquidator_payback.inputs["amount"])
+                    if "amount" in child.inputs:
+                        received_amount = int(child.inputs["amount"])
 
-                    elif "wad" in liquidator_payback.inputs:
-                        received_amount = int(liquidator_payback.inputs["wad"])
+                    elif "wad" in child.inputs:
+                        received_amount = int(child.inputs["wad"])
 
                     else:
                         received_amount = 0
