@@ -1,6 +1,10 @@
 from typing import List
 
-from mev_inspect.traces import get_child_traces, is_child_trace_address
+from mev_inspect.traces import (
+    get_child_traces,
+    is_child_of_any_address,
+    is_child_trace_address,
+)
 from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
     DecodedCallTrace,
@@ -8,6 +12,7 @@ from mev_inspect.schemas.classified_traces import (
     Protocol,
 )
 
+from mev_inspect.schemas.transfers import ERC20Transfer
 from mev_inspect.schemas.liquidations import Liquidation
 
 AAVE_CONTRACT_ADDRESSES: List[str] = [
@@ -22,43 +27,24 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
 ]
 
 
-def is_liquidator_payback(trace: ClassifiedTrace, liquidator: str) -> bool:
-    """Finds liquidator payback """
-
-    if isinstance(trace, DecodedCallTrace):
-        if "recipient" in trace.inputs:
-
-            if (
-                trace.inputs["recipient"] == liquidator
-                and trace.from_address in AAVE_CONTRACT_ADDRESSES
+def _get_liquidator_payback(
+    child_traces: List[ClassifiedTrace], liquidator: str
+) -> int:
+    for child in child_traces:
+        if child.classification == Classification.transfer:
+            print("HERE 1")
+            child_transfer = ERC20Transfer.from_trace(child)
+            print(child_transfer.from_address in AAVE_CONTRACT_ADDRESSES)
+            print(child_transfer.to_address == liquidator)
+            if (child_transfer.to_address == liquidator) and (
+                child.from_address in AAVE_CONTRACT_ADDRESSES
             ):
-                return True
+                return child_transfer.amount
 
-        elif "dst" in trace.inputs:
-            if (
-                trace.inputs["dst"] == liquidator
-                and trace.from_address in AAVE_CONTRACT_ADDRESSES
-            ):
-                return True
-
-    return False
+    return 0
 
 
-def get_received_amount(trace: DecodedCallTrace) -> int:
-
-    if "amount" in trace.inputs:
-        received_amount = int(trace.inputs["amount"])
-
-    elif "wad" in trace.inputs:
-        received_amount = int(trace.inputs["wad"])
-
-    else:
-        received_amount = 0
-
-    return received_amount
-
-
-def is_child_of_liquidation(
+def _is_child_of_any_address(
     trace: ClassifiedTrace, parent_liquidations: List[List[int]]
 ) -> bool:
 
@@ -83,7 +69,7 @@ def get_liquidations(
         if (
             trace.classification == Classification.liquidate
             and isinstance(trace, DecodedCallTrace)
-            and not is_child_of_liquidation(trace, parent_liquidations)
+            and not is_child_of_any_address(trace, parent_liquidations)
         ):
 
             parent_liquidations.append(trace.trace_address)
@@ -93,16 +79,7 @@ def get_liquidations(
                 trace.transaction_hash, trace.trace_address, traces
             )
 
-            for child in child_traces:
-
-                if is_liquidator_payback(child, liquidator):
-
-                    assert isinstance(child, DecodedCallTrace)
-                    received_amount = get_received_amount(child)
-
-                else:
-
-                    received_amount = 0
+            received_amount = _get_liquidator_payback(child_traces, liquidator)
 
             liquidations.append(
                 Liquidation(
@@ -120,4 +97,5 @@ def get_liquidations(
                 )
             )
 
+    print(liquidations)
     return liquidations

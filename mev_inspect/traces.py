@@ -34,6 +34,18 @@ def get_child_traces(
     return child_traces
 
 
+def is_child_of_any_address(
+    trace: ClassifiedTrace, parent_liquidations: List[List[int]]
+) -> bool:
+
+    return any(
+        [
+            is_child_trace_address(trace.trace_address, parent)
+            for parent in parent_liquidations
+        ]
+    )
+
+
 def get_traces_by_transaction_hash(
     traces: List[ClassifiedTrace],
 ) -> Dict[str, List[ClassifiedTrace]]:
