@@ -32,10 +32,9 @@ def _get_liquidator_payback(
 ) -> int:
     for child in child_traces:
         if child.classification == Classification.transfer:
-            print("HERE 1")
+
             child_transfer = ERC20Transfer.from_trace(child)
-            print(child_transfer.from_address in AAVE_CONTRACT_ADDRESSES)
-            print(child_transfer.to_address == liquidator)
+
             if (child_transfer.to_address == liquidator) and (
                 child.from_address in AAVE_CONTRACT_ADDRESSES
             ):
