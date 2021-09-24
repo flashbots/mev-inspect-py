@@ -13,10 +13,3 @@ class Liquidation(BaseModel):
     protocol: Protocol
     transaction_hash: str
     block_number: str
-
-
-class LiquidationData(Liquidation):
-    liquidator_user: str
-    collateral_amount: int
-    received_token_address: str
-    received_amount: int
