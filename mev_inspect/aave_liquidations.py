@@ -64,7 +64,7 @@ def get_liquidations(
 
     """Inspect list of classified traces and identify liquidation"""
     liquidations: List[Liquidation] = []
-    parent_liquidations: List[List] = []
+    parent_liquidations: List[List[int]] = []
 
     for trace in traces:
 
