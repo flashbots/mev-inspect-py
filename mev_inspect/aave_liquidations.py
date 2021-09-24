@@ -58,6 +58,18 @@ def get_received_amount(trace: DecodedCallTrace) -> int:
     return received_amount
 
 
+def is_child_of_liquidation(
+    trace: ClassifiedTrace, parent_liquidations: List[List[int]]
+) -> bool:
+
+    return any(
+        [
+            is_child_trace_address(trace.trace_address, parent)
+            for parent in parent_liquidations
+        ]
+    )
+
+
 def get_liquidations(
     traces: List[ClassifiedTrace],
 ) -> List[Liquidation]:
@@ -71,12 +83,7 @@ def get_liquidations(
         if (
             trace.classification == Classification.liquidate
             and isinstance(trace, DecodedCallTrace)
-            and not any(
-                [
-                    is_child_trace_address(trace.trace_address, parent)
-                    for parent in parent_liquidations
-                ]
-            )
+            and not is_child_of_liquidation(trace, parent_liquidations)
         ):
 
             parent_liquidations.append(trace.trace_address)
@@ -92,6 +99,10 @@ def get_liquidations(
 
                     assert isinstance(child, DecodedCallTrace)
                     received_amount = get_received_amount(child)
+
+                else:
+
+                    received_amount = 0
 
             liquidations.append(
                 Liquidation(
