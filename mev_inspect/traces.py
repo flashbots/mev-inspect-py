@@ -35,13 +35,13 @@ def get_child_traces(
 
 
 def is_child_of_any_address(
-    trace: ClassifiedTrace, parent_liquidations: List[List[int]]
+    trace: ClassifiedTrace, parent_trace_addresses: List[List[int]]
 ) -> bool:
 
     return any(
         [
             is_child_trace_address(trace.trace_address, parent)
-            for parent in parent_liquidations
+            for parent in parent_trace_addresses
         ]
     )
 

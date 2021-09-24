@@ -3,7 +3,6 @@ from typing import List
 from mev_inspect.traces import (
     get_child_traces,
     is_child_of_any_address,
-    is_child_trace_address,
 )
 from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
@@ -25,34 +24,6 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
     # AAVE V2 WETH
     "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
 ]
-
-
-def _get_liquidator_payback(
-    child_traces: List[ClassifiedTrace], liquidator: str
-) -> int:
-    for child in child_traces:
-        if child.classification == Classification.transfer:
-
-            child_transfer = ERC20Transfer.from_trace(child)
-
-            if (child_transfer.to_address == liquidator) and (
-                child.from_address in AAVE_CONTRACT_ADDRESSES
-            ):
-                return child_transfer.amount
-
-    return 0
-
-
-def _is_child_of_any_address(
-    trace: ClassifiedTrace, parent_liquidations: List[List[int]]
-) -> bool:
-
-    return any(
-        [
-            is_child_trace_address(trace.trace_address, parent)
-            for parent in parent_liquidations
-        ]
-    )
 
 
 def get_liquidations(
@@ -96,5 +67,20 @@ def get_liquidations(
                 )
             )
 
-    print(liquidations)
     return liquidations
+
+
+def _get_liquidator_payback(
+    child_traces: List[ClassifiedTrace], liquidator: str
+) -> int:
+    for child in child_traces:
+        if child.classification == Classification.transfer:
+
+            child_transfer = ERC20Transfer.from_trace(child)
+
+            if (child_transfer.to_address == liquidator) and (
+                child.from_address in AAVE_CONTRACT_ADDRESSES
+            ):
+                return child_transfer.amount
+
+    return 0
