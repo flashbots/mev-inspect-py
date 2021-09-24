@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List
 
 from mev_inspect.traces import get_child_traces
 from mev_inspect.schemas.classified_traces import (
@@ -26,7 +26,6 @@ def is_liquidator_payback(trace: ClassifiedTrace, liquidator: str) -> bool:
     """Finds liquidator payback """
 
     if isinstance(trace, DecodedCallTrace):
-
         if "recipient" in trace.inputs:
 
             if (
@@ -43,6 +42,20 @@ def is_liquidator_payback(trace: ClassifiedTrace, liquidator: str) -> bool:
                 return True
 
     return False
+
+
+def get_received_amount(trace: DecodedCallTrace) -> int:
+
+    if "amount" in trace.inputs:
+        received_amount = int(trace.inputs["amount"])
+
+    elif "wad" in trace.inputs:
+        received_amount = int(trace.inputs["wad"])
+
+    else:
+        received_amount = 0
+
+    return received_amount
 
 
 def get_liquidations(
@@ -71,18 +84,8 @@ def get_liquidations(
 
                 if is_liquidator_payback(child, liquidator):
 
-                    assert isinstance(
-                        child.inputs, Dict
-                    )  # Necessary for mypy to indentify type
-
-                    if "amount" in child.inputs:
-                        received_amount = int(child.inputs["amount"])
-
-                    elif "wad" in child.inputs:
-                        received_amount = int(child.inputs["wad"])
-
-                    else:
-                        received_amount = 0
+                    assert isinstance(child, DecodedCallTrace)
+                    received_amount = get_received_amount(child)
 
             liquidations.append(
                 Liquidation(
