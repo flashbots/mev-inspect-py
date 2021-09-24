@@ -13,7 +13,7 @@ class Liquidation(BaseModel):
     # purchaseAmount
     debt_purchase_amount: int
     received_token_address: str
-    # received_amount: int
+    received_amount: int
     protocol: Protocol
     transaction_hash: str
     block_number: str

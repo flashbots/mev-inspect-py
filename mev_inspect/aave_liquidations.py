@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional, Dict
 
 
 from mev_inspect.schemas.classified_traces import (
@@ -9,71 +9,44 @@ from mev_inspect.schemas.classified_traces import (
 )
 
 from mev_inspect.schemas.liquidations import Liquidation
-from mev_inspect.schemas.transfers import Transfer, EthTransfer, ERC20Transfer
 
-liquidators: List[str] = []
-
-
-def is_transfer_from_liquidator(
-    trace: ClassifiedTrace, liquidator: str
-) -> Union[Transfer, ClassifiedTrace]:
-    """Check if transfer is from liquidator"""
-    transfer: Union[Transfer, ClassifiedTrace]
-    result: Union[Transfer, ClassifiedTrace]
-
-    try:
-
-        transfer = ERC20Transfer.from_trace(trace)
-        if transfer.from_address == liquidator:
-            result = transfer
-
-    except ValueError:
-
-        pass
-
-    try:
-
-        transfer = EthTransfer.from_trace(trace)
-        if transfer.from_address == liquidator:
-            result = transfer
-
-    except ValueError:
-
-        if trace.from_address == liquidator:
-            result = trace
-
-    return result
+AAVE_CONTRACT_ADDRESSES: List[str] = [
+    # AAVE Proxy
+    "0x398ec7346dcd622edc5ae82352f02be94c62d119",
+    # AAVE V2
+    "0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9",
+    # AAVE V1
+    "0x3dfd23a6c5e8bbcfc9581d2e864a68feb6a076d3",
+    # AAVE V2 WETH
+    "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
+]
 
 
 def is_transfer_to_liquidator(
     trace: ClassifiedTrace, liquidator: str
-) -> Union[Transfer, ClassifiedTrace]:
+) -> Optional[ClassifiedTrace]:
     """Check if transfer is to liquidator"""
 
-    transfer: Union[Transfer, ClassifiedTrace]
-    result: Union[Transfer, ClassifiedTrace]
-    try:
+    if isinstance(trace, DecodedCallTrace):
+        try:
+            if (
+                trace.inputs["recipient"] == liquidator
+                and trace.from_address in AAVE_CONTRACT_ADDRESSES
+            ):
+                return trace
 
-        transfer = ERC20Transfer.from_trace(trace)
-        if transfer.to_address == liquidator:
-            result = transfer
+        except KeyError:
+            pass
+        try:
+            if (
+                trace.inputs["dst"] == liquidator
+                and trace.from_address in AAVE_CONTRACT_ADDRESSES
+            ):
+                return trace
+        except KeyError:
+            return None
 
-    except ValueError:
-
-        pass
-
-    try:
-
-        transfer = EthTransfer.from_trace(trace)
-        if transfer.to_address == liquidator:
-            result = transfer
-
-    except ValueError:
-
-        if trace.to_address == liquidator:
-            result = trace
-
-    return result
+    return None
 
 
 def get_liquidations(
@@ -83,8 +56,7 @@ def get_liquidations(
     """Inspect list of classified traces and identify liquidation"""
     # liquidation_traces: List[DecodedCallTrace] = []
     liquidations: List[Liquidation] = []
-    transfers_to: List = []
-    transfers_from: List = []
+    transfers_to: Dict = {}
     unique_transaction_hashes: List = []
 
     for trace in traces:
@@ -99,18 +71,21 @@ def get_liquidations(
 
             for t in traces:
 
-                from_result = is_transfer_from_liquidator(t, liquidator)
-                if from_result:
-                    transfers_from.append(from_result)
-
                 to_result = is_transfer_to_liquidator(t, liquidator)
-                if to_result:
-                    transfers_to.append(to_result)
-
-            print(transfers_to)
-            print(transfers_from)
+                if to_result and not (
+                    to_result.transaction_hash in transfers_to.keys()
+                ):
+                    transfers_to[trace.transaction_hash] = to_result
 
             unique_transaction_hashes.append(trace.transaction_hash)
+            try:
+                received_amount = int(
+                    transfers_to[trace.transaction_hash].inputs["amount"]
+                )
+            except KeyError:
+                received_amount = int(
+                    transfers_to[trace.transaction_hash].inputs["wad"]
+                )
 
             liquidations.append(
                 Liquidation(
@@ -120,6 +95,7 @@ def get_liquidations(
                     liquidator_user=liquidator,
                     debt_purchase_amount=trace.inputs["_purchaseAmount"],
                     protocol=Protocol.aave,
+                    received_amount=received_amount,
                     # aToken lookup is out of scope for now, WIP
                     received_token_address=trace.inputs["_collateral"],
                     transaction_hash=trace.transaction_hash,
@@ -127,5 +103,8 @@ def get_liquidations(
                 )
             )
 
+    print("\n")
+    print(transfers_to)
+    print("\n")
     print(liquidations)
     return liquidations
