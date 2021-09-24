@@ -1,6 +1,6 @@
 from typing import List
 
-from mev_inspect.traces import get_child_traces
+from mev_inspect.traces import get_child_traces, is_child_trace_address
 from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
     DecodedCallTrace,
@@ -64,13 +64,22 @@ def get_liquidations(
 
     """Inspect list of classified traces and identify liquidation"""
     liquidations: List[Liquidation] = []
+    parent_liquidations: List[List] = []
 
     for trace in traces:
 
-        if trace.classification == Classification.liquidate and isinstance(
-            trace, DecodedCallTrace
+        if (
+            trace.classification == Classification.liquidate
+            and isinstance(trace, DecodedCallTrace)
+            and not any(
+                [
+                    is_child_trace_address(trace.trace_address, parent)
+                    for parent in parent_liquidations
+                ]
+            )
         ):
 
+            parent_liquidations.append(trace.trace_address)
             liquidator = trace.from_address
 
             child_traces = get_child_traces(
@@ -78,9 +87,6 @@ def get_liquidations(
             )
 
             for child in child_traces:
-
-                if child.classification == Classification.liquidate:
-                    traces.remove(child)
 
                 if is_liquidator_payback(child, liquidator):
 
