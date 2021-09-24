@@ -25,7 +25,7 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
 def find_liquidator_payback(
     trace: ClassifiedTrace, liquidator: str
 ) -> Optional[ClassifiedTrace]:
-    """Check if transfer is to liquidator"""
+    """Finds liquidator payback """
 
     if isinstance(trace, DecodedCallTrace):
 
@@ -74,7 +74,10 @@ def get_liquidations(
                 liquidator_payback = find_liquidator_payback(child, liquidator)
 
                 if liquidator_payback:
-                    assert isinstance(liquidator_payback.inputs, Dict)
+
+                    assert isinstance(
+                        liquidator_payback.inputs, Dict
+                    )  # Necessary for mypy to indentify type
 
                     if "amount" in liquidator_payback.inputs:
                         received_amount = int(liquidator_payback.inputs["amount"])
@@ -101,6 +104,4 @@ def get_liquidations(
                 )
             )
 
-    print("\n")
-    print(liquidations)
     return liquidations
