@@ -68,16 +68,15 @@ def get_liquidations(
         ):
 
             liquidator = trace.from_address
+            unique_transaction_hashes.append(trace.transaction_hash)
 
             for t in traces:
-
                 to_result = is_transfer_to_liquidator(t, liquidator)
                 if to_result and not (
                     to_result.transaction_hash in transfers_to.keys()
                 ):
                     transfers_to[trace.transaction_hash] = to_result
 
-            unique_transaction_hashes.append(trace.transaction_hash)
             try:
                 received_amount = int(
                     transfers_to[trace.transaction_hash].inputs["amount"]
@@ -103,8 +102,4 @@ def get_liquidations(
                 )
             )
 
-    print("\n")
-    print(transfers_to)
-    print("\n")
-    print(liquidations)
     return liquidations
