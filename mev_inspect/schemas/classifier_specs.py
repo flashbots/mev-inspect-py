@@ -3,13 +3,10 @@ from typing import Callable, Dict, List, Optional
 from pydantic import BaseModel
 
 from .classified_traces import Classification, DecodedCallTrace, Protocol
-from .transfers import Transfer
+from .transfers import ERC20Transfer
 
 
-TransferClassifier = Callable[
-    [DecodedCallTrace, List[DecodedCallTrace], List[DecodedCallTrace]],
-    Transfer,
-]
+TransferClassifier = Callable[[DecodedCallTrace], Optional[ERC20Transfer]]
 
 
 class ClassifierSpec(BaseModel):
