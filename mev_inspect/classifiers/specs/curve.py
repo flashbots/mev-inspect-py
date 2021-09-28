@@ -1,5 +1,5 @@
+from mev_inspect.schemas.classifier_specs import ClassifierSpec
 from mev_inspect.schemas.classified_traces import (
-    ClassifierSpec,
     Protocol,
 )
 

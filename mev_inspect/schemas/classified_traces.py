@@ -1,8 +1,6 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel
-
 from .blocks import Trace
 
 
@@ -64,10 +62,3 @@ class DecodedCallTrace(CallTrace):
     gas_used: Optional[int]
     function_name: Optional[str]
     function_signature: Optional[str]
-
-
-class ClassifierSpec(BaseModel):
-    abi_name: str
-    protocol: Optional[Protocol] = None
-    valid_contract_addresses: Optional[List[str]] = None
-    classifications: Dict[str, Classification] = {}
