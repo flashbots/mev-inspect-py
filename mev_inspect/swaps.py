@@ -14,11 +14,6 @@ from mev_inspect.transfers import (
 )
 
 
-UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
-UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
-BALANCER_V1_POOL_ABI_NAME = "BPool"
-
-
 def get_swaps(traces: List[ClassifiedTrace]) -> List[Swap]:
     swaps = []
 
@@ -63,10 +58,6 @@ def _parse_swap(
     child_transfers: List[ERC20Transfer],
 ) -> Optional[Swap]:
     pool_address = trace.to_address
-    recipient_address = _get_recipient_address(trace)
-
-    if recipient_address is None:
-        return None
 
     transfers_to_pool = filter_transfers(prior_transfers, to_address=pool_address)
 
@@ -74,17 +65,15 @@ def _parse_swap(
         transfers_to_pool = filter_transfers(child_transfers, to_address=pool_address)
 
     if len(transfers_to_pool) == 0:
-        return None
+        raise RuntimeError("Expected at least one transfer to pool")
 
-    transfers_from_pool_to_recipient = filter_transfers(
-        child_transfers, to_address=recipient_address, from_address=pool_address
-    )
+    transfers_from_pool = filter_transfers(child_transfers, from_address=pool_address)
 
-    if len(transfers_from_pool_to_recipient) != 1:
-        return None
+    if len(transfers_from_pool) != 1:
+        raise RuntimeError("Expected exactly one transfer from pool")
 
     transfer_in = transfers_to_pool[-1]
-    transfer_out = transfers_from_pool_to_recipient[0]
+    transfer_out = transfers_from_pool[0]
 
     return Swap(
         abi_name=trace.abi_name,
@@ -100,22 +89,3 @@ def _parse_swap(
         token_out_amount=transfer_out.amount,
         error=trace.error,
     )
-
-
-def _get_recipient_address(trace: ClassifiedTrace) -> Optional[str]:
-    if trace.abi_name == UNISWAP_V3_POOL_ABI_NAME:
-        return (
-            trace.inputs["recipient"]
-            if trace.inputs is not None and "recipient" in trace.inputs
-            else trace.from_address
-        )
-    elif trace.abi_name == UNISWAP_V2_PAIR_ABI_NAME:
-        return (
-            trace.inputs["to"]
-            if trace.inputs is not None and "to" in trace.inputs
-            else trace.from_address
-        )
-    elif trace.abi_name == BALANCER_V1_POOL_ABI_NAME:
-        return trace.from_address
-    else:
-        return None

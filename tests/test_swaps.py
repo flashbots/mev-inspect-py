@@ -1,15 +1,15 @@
-from mev_inspect.swaps import (
-    get_swaps,
-    UNISWAP_V2_PAIR_ABI_NAME,
-    UNISWAP_V3_POOL_ABI_NAME,
-    BALANCER_V1_POOL_ABI_NAME,
-)
+from mev_inspect.swaps import get_swaps
 
 from .helpers import (
     make_unknown_trace,
     make_transfer_trace,
     make_swap_trace,
 )
+
+
+UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
+UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
+BALANCER_V1_POOL_ABI_NAME = "BPool"
 
 
 def test_swaps(
