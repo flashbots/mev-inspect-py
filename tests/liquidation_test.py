@@ -118,5 +118,5 @@ def test_multiple_liquidations_in_block():
 
 
 def _assert_n_equals(result: List[Liquidation], liquidations: List[Liquidation]):
-    for liquidation in range(len(liquidations)):
-        assert result[liquidation] == liquidations[liquidation]
+    for i in range(len(liquidations)):
+        assert result[i] == liquidations[i]
