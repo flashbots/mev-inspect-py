@@ -23,6 +23,8 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
     "0x3dfd23a6c5e8bbcfc9581d2e864a68feb6a076d3",
     # AAVE V2 WETH
     "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
+    # AAVE AMM Market DAI
+    "0x79bE75FFC64DD58e66787E4Eae470c8a1FD08ba4",
 ]
 
 
@@ -60,8 +62,6 @@ def get_liquidations(
                     debt_purchase_amount=trace.inputs["_purchaseAmount"],
                     protocol=Protocol.aave,
                     received_amount=received_amount,
-                    # aToken lookup is out of scope for now, WIP
-                    received_token_address=trace.inputs["_collateral"],
                     transaction_hash=trace.transaction_hash,
                     block_number=trace.block_number,
                 )

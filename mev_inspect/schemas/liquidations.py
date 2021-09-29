@@ -8,7 +8,6 @@ class Liquidation(BaseModel):
     collateral_token_address: str
     debt_token_address: str
     debt_purchase_amount: int
-    received_token_address: str
     received_amount: int
     protocol: Protocol
     transaction_hash: str

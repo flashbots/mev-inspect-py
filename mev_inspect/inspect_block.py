@@ -78,6 +78,7 @@ def inspect_block(
 
     liquidations = get_liquidations(classified_traces)
     logger.info(f"Found {len(liquidations)} liquidations")
+    print(liquidations)
 
     miner_payments = get_miner_payments(
         block.miner, block.base_fee_per_gas, classified_traces, block.receipts
