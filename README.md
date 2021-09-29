@@ -37,7 +37,7 @@ Example:
 export RPC_URL="http://111.111.111.111:8546"
 ```
 
-**Note: mev-inspect-py currently requires and RPC with support for parity traces**
+**Note: mev-inspect-py currently requires and RPC with support for OpenEthereum / Erigon traces (not geth 😔)**
 
 Next, start all servcies with:
 ```
