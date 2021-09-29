@@ -24,6 +24,7 @@ def test_single_weth_liquidation():
             received_amount=8182733924513576561,
             protocol=Protocol.aave,
             transaction_hash=transaction_hash,
+            trace_address=[1, 1, 6],
             block_number=block_number,
         )
     ]
@@ -53,6 +54,7 @@ def test_single_liquidation():
             received_amount=2657946947610159065393,
             protocol=Protocol.aave,
             transaction_hash=transaction_hash,
+            trace_address=[0, 7, 1, 0, 6],
             block_number=block_number,
         )
     ]
@@ -81,6 +83,7 @@ def test_multiple_liquidations_in_block():
         received_amount=10111753901939162887,
         protocol=Protocol.aave,
         transaction_hash=transaction1,
+        trace_address=[],
         block_number=block_number,
     )
 
@@ -93,6 +96,7 @@ def test_multiple_liquidations_in_block():
         received_amount=21996356316098208090,
         protocol=Protocol.aave,
         transaction_hash=transaction2,
+        trace_address=[],
         block_number=block_number,
     )
 
@@ -105,6 +109,7 @@ def test_multiple_liquidations_in_block():
         received_amount=121531358145247546,
         protocol=Protocol.aave,
         transaction_hash=transaction3,
+        trace_address=[],
         block_number=block_number,
     )
 

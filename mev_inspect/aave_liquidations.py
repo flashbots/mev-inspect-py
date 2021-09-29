@@ -63,10 +63,11 @@ def get_aave_liquidations(
                     protocol=Protocol.aave,
                     received_amount=received_amount,
                     transaction_hash=trace.transaction_hash,
+                    trace_address=trace.trace_address,
                     block_number=trace.block_number,
                 )
             )
-
+    print(liquidations)
     return liquidations
 
 

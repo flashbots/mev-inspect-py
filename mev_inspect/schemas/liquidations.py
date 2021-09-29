@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel
 from mev_inspect.schemas.classified_traces import Protocol
 
@@ -11,4 +12,5 @@ class Liquidation(BaseModel):
     received_amount: int
     protocol: Protocol
     transaction_hash: str
+    trace_address: List[int]
     block_number: str
