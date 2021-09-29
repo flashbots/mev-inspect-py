@@ -33,7 +33,7 @@ def test_single_weth_liquidation():
     classified_traces = trace_classifier.classify(block.traces)
     result = get_liquidations(classified_traces)
 
-    _assert_n_equals(result, liquidations)
+    _assert_actual_and_expected_are_equal(result, liquidations)
 
 
 def test_single_liquidation():
@@ -62,7 +62,7 @@ def test_single_liquidation():
     classified_traces = trace_classifier.classify(block.traces)
     result = get_liquidations(classified_traces)
 
-    _assert_n_equals(result, liquidations)
+    _assert_actual_and_expected_are_equal(result, liquidations)
 
 
 def test_multiple_liquidations_in_block():
@@ -114,9 +114,11 @@ def test_multiple_liquidations_in_block():
     result = get_liquidations(classified_traces)
     liquidations = [liquidation1, liquidation2, liquidation3]
 
-    _assert_n_equals(result, liquidations)
+    _assert_actual_and_expected_are_equal(result, liquidations)
 
 
-def _assert_n_equals(result: List[Liquidation], liquidations: List[Liquidation]):
-    for i in range(len(liquidations)):
-        assert result[i] == liquidations[i]
+def _assert_actual_and_expected_are_equal(
+    actual_liquidations: List[Liquidation], expected_liquidations: List[Liquidation]
+):
+    for i in range(len(actual_liquidations)):
+        assert actual_liquidations[i] == expected_liquidations[i]
