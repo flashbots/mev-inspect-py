@@ -28,7 +28,7 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
 ]
 
 
-def get_liquidations(
+def get_aave_liquidations(
     traces: List[ClassifiedTrace],
 ) -> List[Liquidation]:
 
