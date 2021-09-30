@@ -22,6 +22,7 @@ from mev_inspect.crud.transfers import delete_transfers_for_block, write_transfe
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
+from mev_inspect.aave_liquidations import get_aave_liquidations
 
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,9 @@ def inspect_block(
     if should_write_arbitrages:
         delete_arbitrages_for_block(db_session, block_number)
         write_arbitrages(db_session, arbitrages)
+
+    liquidations = get_aave_liquidations(classified_traces)
+    logger.info(f"Found {len(liquidations)} liquidations")
 
     miner_payments = get_miner_payments(
         block.miner, block.base_fee_per_gas, classified_traces, block.receipts
