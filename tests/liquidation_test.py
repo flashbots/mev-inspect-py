@@ -1,6 +1,6 @@
 from typing import List
 
-from mev_inspect.aave_liquidations import get_liquidations
+from mev_inspect.aave_liquidations import get_aave_liquidations
 from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.classified_traces import Protocol
 from mev_inspect.classifiers.trace import TraceClassifier
@@ -31,7 +31,7 @@ def test_single_weth_liquidation():
     block = load_test_block(block_number)
     trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_liquidations(classified_traces)
+    result = get_aave_liquidations(classified_traces)
 
     _assert_equal_list_of_liquidations(result, liquidations)
 
@@ -60,7 +60,7 @@ def test_single_liquidation():
     block = load_test_block(block_number)
     trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_liquidations(classified_traces)
+    result = get_aave_liquidations(classified_traces)
 
     _assert_equal_list_of_liquidations(result, liquidations)
 
@@ -111,7 +111,7 @@ def test_multiple_liquidations_in_block():
     block = load_test_block(block_number)
     trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_liquidations(classified_traces)
+    result = get_aave_liquidations(classified_traces)
     liquidations = [liquidation1, liquidation2, liquidation3]
 
     _assert_equal_list_of_liquidations(result, liquidations)
