@@ -17,8 +17,13 @@ from mev_inspect.crud.miner_payments import (
     delete_miner_payments_for_block,
     write_miner_payments,
 )
+
 from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
 from mev_inspect.crud.transfers import delete_transfers_for_block, write_transfers
+from mev_inspect.crud.liquidations import (
+    delete_liquidations_for_block,
+    write_liquidations,
+)
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
@@ -38,6 +43,7 @@ def inspect_block(
     should_write_swaps: bool = True,
     should_write_transfers: bool = True,
     should_write_arbitrages: bool = True,
+    should_write_liquidations: bool = True,
     should_write_miner_payments: bool = True,
 ):
     block = create_from_block_number(base_provider, w3, block_number, should_cache)
@@ -78,6 +84,10 @@ def inspect_block(
 
     liquidations = get_aave_liquidations(classified_traces)
     logger.info(f"Found {len(liquidations)} liquidations")
+
+    if should_write_liquidations:
+        delete_liquidations_for_block(db_session, block_number)
+        write_liquidations(db_session, liquidations)
 
     miner_payments = get_miner_payments(
         block.miner, block.base_fee_per_gas, classified_traces, block.receipts
