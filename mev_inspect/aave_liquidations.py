@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Dict
+import json
 
 from mev_inspect.traces import (
     get_child_traces,
@@ -84,3 +85,17 @@ def _get_liquidator_payback(
                 return child_transfer.amount
 
     return 0
+
+
+def _get_atoken_address(token_address: str) -> str:
+
+    # Dictionary, values are lists of dictionaries
+    atoken_address_json = open("atokens.json")
+    atoken_addresses: Dict = json.load(atoken_address_json)
+
+    for atoken_list in atoken_addresses.keys():
+        for atoken_index, atoken_dict in enumerate(atoken_list):
+            if token_address in atoken_dict.values():
+                return atoken_list[atoken_index]["aTokenAddress"]
+
+    return token_address
