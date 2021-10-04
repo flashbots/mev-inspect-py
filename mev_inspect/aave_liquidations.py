@@ -84,6 +84,8 @@ def get_aave_liquidations(
 def _get_liquidator_payback(
     child_traces: List[ClassifiedTrace], liquidator: str
 ) -> Optional[ERC20Transfer]:
+
+    """Look for and return liquidator payback from liquidation"""
     for child in child_traces:
         if child.classification == Classification.transfer:
 
