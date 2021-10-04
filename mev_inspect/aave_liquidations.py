@@ -1,5 +1,4 @@
-from typing import List, Dict
-import json
+from typing import List, Optional
 
 from mev_inspect.traces import (
     get_child_traces,
@@ -52,7 +51,17 @@ def get_aave_liquidations(
                 trace.transaction_hash, trace.trace_address, traces
             )
 
-            received_amount = _get_liquidator_payback(child_traces, liquidator)
+            payback_transfer = _get_liquidator_payback(child_traces, liquidator)
+
+            if payback_transfer:
+                assert isinstance(payback_transfer, ERC20Transfer)
+                received_amount = payback_transfer.amount
+                received_token_address = payback_transfer.token_address
+            else:
+                received_amount = 0
+                received_token_address = trace.inputs["_collateral"]
+
+            print(received_token_address)
 
             liquidations.append(
                 Liquidation(
@@ -68,12 +77,13 @@ def get_aave_liquidations(
                     block_number=trace.block_number,
                 )
             )
+    print(liquidations)
     return liquidations
 
 
 def _get_liquidator_payback(
     child_traces: List[ClassifiedTrace], liquidator: str
-) -> int:
+) -> Optional[ERC20Transfer]:
     for child in child_traces:
         if child.classification == Classification.transfer:
 
@@ -82,20 +92,6 @@ def _get_liquidator_payback(
             if (child_transfer.to_address == liquidator) and (
                 child.from_address in AAVE_CONTRACT_ADDRESSES
             ):
-                return child_transfer.amount
+                return child_transfer
 
-    return 0
-
-
-def _get_atoken_address(token_address: str) -> str:
-
-    # Dictionary, values are lists of dictionaries
-    atoken_address_json = open("atokens.json")
-    atoken_addresses: Dict = json.load(atoken_address_json)
-
-    for atoken_list in atoken_addresses.keys():
-        for atoken_index, atoken_dict in enumerate(atoken_list):
-            if token_address in atoken_dict.values():
-                return atoken_list[atoken_index]["aTokenAddress"]
-
-    return token_address
+    return None
