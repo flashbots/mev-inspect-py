@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Tuple
 
 from mev_inspect.traces import (
     get_child_traces,
@@ -52,17 +52,9 @@ def get_aave_liquidations(
                 trace.transaction_hash, trace.trace_address, traces
             )
 
-            payback_transfer = _get_liquidator_payback(child_traces, liquidator)
-
-            if payback_transfer:
-                assert isinstance(payback_transfer, ERC20Transfer)
-                received_amount = payback_transfer.amount
-                received_token_address = payback_transfer.token_address
-            else:
-                received_amount = 0
-                received_token_address = trace.inputs["_collateral"]
-
-            print(received_token_address)
+            received_amount, received_token_address = _get_liquidator_payback(
+                trace, child_traces, liquidator
+            )
 
             liquidations.append(
                 Liquidation(
@@ -79,13 +71,13 @@ def get_aave_liquidations(
                     block_number=trace.block_number,
                 )
             )
-    print(liquidations)
+
     return liquidations
 
 
 def _get_liquidator_payback(
-    child_traces: List[ClassifiedTrace], liquidator: str
-) -> Optional[ERC20Transfer]:
+    liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
+) -> Tuple[int, str]:
 
     """Look for and return liquidator payback from liquidation"""
     for child in child_traces:
@@ -98,6 +90,6 @@ def _get_liquidator_payback(
                 and child_transfer.to_address == liquidator
                 and child.from_address in AAVE_CONTRACT_ADDRESSES
             ):
-                return child_transfer
+                return child_transfer.amount, child_transfer.token_address
 
-    return None
+    return 0, liquidation.inputs["_collateral"]
