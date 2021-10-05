@@ -37,9 +37,9 @@ Example:
 export RPC_URL="http://111.111.111.111:8546"
 ```
 
-**Note: mev-inspect-py currently requires and RPC with support for OpenEthereum / Erigon traces (not geth 😔)**
+**Note: mev-inspect-py currently requires an RPC with support for OpenEthereum / Erigon traces (not geth 😔)**
 
-Next, start all servcies with:
+Next, start all services with:
 ```
 tilt up
 ```
@@ -127,7 +127,7 @@ Postgres tip: Enter `\x` to enter "Explanded display" mode which looks nicer for
 
 ### Pre-commit
 
-We use pre-commit to maintain a consistent style, prevent errors, and ensure test coverage. 
+We use pre-commit to maintain a consistent style, prevent errors, and ensure test coverage.
 
 To set up, install dependencies through poetry
 ```
