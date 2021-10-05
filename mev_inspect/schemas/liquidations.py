@@ -10,6 +10,7 @@ class Liquidation(BaseModel):
     debt_token_address: str
     debt_purchase_amount: int
     received_amount: int
+    received_token_address: str
     protocol: Protocol
     transaction_hash: str
     trace_address: List[int]

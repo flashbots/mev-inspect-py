@@ -72,6 +72,7 @@ def get_aave_liquidations(
                     debt_purchase_amount=trace.inputs["_purchaseAmount"],
                     protocol=Protocol.aave,
                     received_amount=received_amount,
+                    received_token_address=received_token_address,
                     transaction_hash=trace.transaction_hash,
                     trace_address=trace.trace_address,
                     block_number=trace.block_number,
