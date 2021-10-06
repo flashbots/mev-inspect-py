@@ -56,6 +56,8 @@ def make_swap_trace(
         classification=Classification.swap,
         from_address=from_address,
         to_address=pool_address,
+        function_name="swap",
+        function_signature="swap()",
         inputs={recipient_input_key: recipient_address},
         abi_name=abi_name,
         block_hash=str(block_number),
