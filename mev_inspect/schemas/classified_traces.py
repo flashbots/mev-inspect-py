@@ -7,7 +7,6 @@ from .blocks import Trace
 class Classification(Enum):
     unknown = "unknown"
     swap = "swap"
-    burn = "burn"
     transfer = "transfer"
     liquidate = "liquidate"
 

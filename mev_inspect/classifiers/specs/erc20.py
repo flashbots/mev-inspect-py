@@ -16,9 +16,6 @@ ERC20_SPEC = ClassifierSpec(
         "transfer(address,uint256)": Classifier(
             classification=Classification.transfer,
         ),
-        "burn(address)": Classifier(
-            classification=Classification.burn,
-        ),
     },
 )
 
