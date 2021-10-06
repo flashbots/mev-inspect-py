@@ -24,4 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table("liquidations")
+    op.drop_column("liquidations", "received_token_address")

@@ -51,9 +51,10 @@ def get_aave_liquidations(
                 trace.transaction_hash, trace.trace_address, traces
             )
 
-            received_amount, received_token_address = _get_liquidator_payback(
-                trace, child_traces, liquidator
-            )
+            (
+                received_amount,
+                received_token_address,
+            ) = _get_payback_amount_and_token_address(trace, child_traces, liquidator)
 
             liquidations.append(
                 Liquidation(
@@ -74,7 +75,7 @@ def get_aave_liquidations(
     return liquidations
 
 
-def _get_liquidator_payback(
+def _get_payback_amount_and_token_address(
     liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
 ) -> Tuple[int, str]:
 
