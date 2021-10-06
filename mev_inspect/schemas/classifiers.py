@@ -11,7 +11,7 @@ class Classifier(ABC):
     @staticmethod
     @abstractmethod
     def get_classification() -> Classification:
-        pass
+        raise NotImplementedError()
 
 
 class TransferClassifier(Classifier):
@@ -22,7 +22,7 @@ class TransferClassifier(Classifier):
     @staticmethod
     @abstractmethod
     def get_transfer(trace: DecodedCallTrace) -> ERC20Transfer:
-        pass
+        raise NotImplementedError()
 
 
 class SwapClassifier(Classifier):
