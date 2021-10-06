@@ -52,9 +52,9 @@ def get_aave_liquidations(
             )
 
             (
-                received_amount,
                 received_token_address,
-            ) = _get_payback_amount_and_token_address(trace, child_traces, liquidator)
+                received_amount,
+            ) = _get_payback_token_and_amount(trace, child_traces, liquidator)
 
             liquidations.append(
                 Liquidation(
@@ -75,9 +75,9 @@ def get_aave_liquidations(
     return liquidations
 
 
-def _get_payback_amount_and_token_address(
+def _get_payback_token_and_amount(
     liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
-) -> Tuple[int, str]:
+) -> Tuple[str, int]:
 
     """Look for and return liquidator payback from liquidation"""
     for child in child_traces:
@@ -88,6 +88,6 @@ def _get_payback_amount_and_token_address(
             if (child_transfer.to_address == liquidator) and (
                 child.from_address in AAVE_CONTRACT_ADDRESSES
             ):
-                return child_transfer.amount, child_transfer.token_address
+                return child_transfer.token_address, child_transfer.amount
 
-    return 0, liquidation.inputs["_collateral"]
+    return liquidation.inputs["_collateral"], 0
