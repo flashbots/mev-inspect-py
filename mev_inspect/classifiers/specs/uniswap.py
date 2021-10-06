@@ -69,7 +69,7 @@ UNISWAP_V3_GENERAL_SPECS = [
     ClassifierSpec(
         abi_name="UniswapV3Pool",
         classifiers={
-            "swap(address,bool,int256,uint160,bytes)": SwapClassifier(),
+            "swap(address,bool,int256,uint160,bytes)": SwapClassifier,
         },
     ),
     ClassifierSpec(
@@ -100,7 +100,7 @@ UNISWAPPY_V2_CONTRACT_SPECS = [
 UNISWAPPY_V2_PAIR_SPEC = ClassifierSpec(
     abi_name="UniswapV2Pair",
     classifiers={
-        "swap(uint256,uint256,address,bytes)": SwapClassifier(),
+        "swap(uint256,uint256,address,bytes)": SwapClassifier,
     },
 )
 

@@ -11,7 +11,7 @@ AAVE_SPEC = ClassifierSpec(
     abi_name="AaveLendingPool",
     protocol=Protocol.aave,
     classifiers={
-        "liquidationCall(address,address,address,uint256,bool)": LiquidationClassifier(),
+        "liquidationCall(address,address,address,uint256,bool)": LiquidationClassifier,
     },
 )
 

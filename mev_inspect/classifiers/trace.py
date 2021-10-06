@@ -71,7 +71,7 @@ class TraceClassifier:
                 classification = (
                     Classification.unknown
                     if classifier is None
-                    else classifier.classification
+                    else classifier.get_classification()
                 )
 
                 return DecodedCallTrace(

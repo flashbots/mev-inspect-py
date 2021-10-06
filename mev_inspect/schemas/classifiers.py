@@ -1,30 +1,44 @@
-from typing import Callable, Dict, List, Optional, Union
-from typing_extensions import Literal
+from abc import ABC, abstractmethod
+from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
 from .classified_traces import Classification, DecodedCallTrace, Protocol
-from .transfers import Transfer
+from .transfers import ERC20Transfer
 
 
-class TransferClassifier(BaseModel):
-    classification: Literal[Classification.transfer] = Classification.transfer
-    get_transfer: Callable[[DecodedCallTrace], Transfer]
+class Classifier(ABC):
+    @staticmethod
+    @abstractmethod
+    def get_classification() -> Classification:
+        pass
 
 
-class SwapClassifier(BaseModel):
-    classification: Literal[Classification.swap] = Classification.swap
+class TransferClassifier(Classifier):
+    @staticmethod
+    def get_classification() -> Classification:
+        return Classification.transfer
+
+    @staticmethod
+    @abstractmethod
+    def get_transfer(trace: DecodedCallTrace) -> ERC20Transfer:
+        pass
 
 
-class LiquidationClassifier(BaseModel):
-    classification: Literal[Classification.liquidate] = Classification.liquidate
+class SwapClassifier(Classifier):
+    @staticmethod
+    def get_classification() -> Classification:
+        return Classification.swap
 
 
-Classifier = Union[TransferClassifier, SwapClassifier, LiquidationClassifier]
+class LiquidationClassifier(Classifier):
+    @staticmethod
+    def get_classification() -> Classification:
+        return Classification.liquidate
 
 
 class ClassifierSpec(BaseModel):
     abi_name: str
     protocol: Optional[Protocol] = None
     valid_contract_addresses: Optional[List[str]] = None
-    classifiers: Dict[str, Classifier] = {}
+    classifiers: Dict[str, Type[Classifier]] = {}

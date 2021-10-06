@@ -59,5 +59,5 @@ class DecodedCallTrace(CallTrace):
     protocol: Optional[Protocol]
     gas: Optional[int]
     gas_used: Optional[int]
-    function_name: Optional[str]
-    function_signature: Optional[str]
+    function_name: str
+    function_signature: str

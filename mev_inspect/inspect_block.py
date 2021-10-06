@@ -64,6 +64,8 @@ def inspect_block(
         write_classified_traces(db_session, classified_traces)
 
     transfers = get_transfers(classified_traces)
+    logger.info(f"Found {len(transfers)} transfers")
+
     if should_write_transfers:
         delete_transfers_for_block(db_session, block_number)
         write_transfers(db_session, transfers)

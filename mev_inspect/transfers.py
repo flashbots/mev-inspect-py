@@ -1,6 +1,13 @@
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence, Tuple
 
-from mev_inspect.schemas.classified_traces import Classification, ClassifiedTrace
+from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
+from mev_inspect.schemas.classifiers import ClassifierSpec, TransferClassifier
+from mev_inspect.schemas.classified_traces import (
+    Classification,
+    ClassifiedTrace,
+    DecodedCallTrace,
+    Protocol,
+)
 from mev_inspect.schemas.transfers import ERC20Transfer, EthTransfer, TransferGeneric
 from mev_inspect.traces import is_child_trace_address, get_child_traces
 
@@ -18,9 +25,21 @@ def get_eth_transfers(traces: List[ClassifiedTrace]) -> List[EthTransfer]:
 def get_transfers(traces: List[ClassifiedTrace]) -> List[ERC20Transfer]:
     transfers = []
 
+    specs_by_abi_name_and_protocol: Dict[
+        Tuple[str, Optional[Protocol]], ClassifierSpec
+    ] = {(spec.abi_name, spec.protocol): spec for spec in ALL_CLASSIFIER_SPECS}
+
     for trace in traces:
-        if trace.classification == Classification.transfer:
-            transfers.append(ERC20Transfer.from_trace(trace))
+        if not isinstance(trace, DecodedCallTrace):
+            continue
+
+        abi_name_and_protocol = (trace.abi_name, trace.protocol)
+        spec = specs_by_abi_name_and_protocol.get(abi_name_and_protocol)
+
+        if spec is not None:
+            classifier = spec.classifiers.get(trace.function_signature)
+            if classifier is not None and issubclass(classifier, TransferClassifier):
+                transfers.append(classifier.get_transfer(trace))
 
     return transfers
 
