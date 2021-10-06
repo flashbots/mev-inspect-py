@@ -1,10 +1,9 @@
 from mev_inspect.schemas.classified_traces import (
-    Classification,
     Protocol,
 )
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
-    Classifier,
+    LiquidationClassifier,
 )
 
 
@@ -12,9 +11,7 @@ AAVE_SPEC = ClassifierSpec(
     abi_name="AaveLendingPool",
     protocol=Protocol.aave,
     classifiers={
-        "liquidationCall(address,address,address,uint256,bool)": Classifier(
-            classification=Classification.liquidate,
-        )
+        "liquidationCall(address,address,address,uint256,bool)": LiquidationClassifier(),
     },
 )
 

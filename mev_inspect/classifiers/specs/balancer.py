@@ -1,10 +1,9 @@
 from mev_inspect.schemas.classified_traces import (
-    Classification,
     Protocol,
 )
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
-    Classifier,
+    SwapClassifier,
 )
 
 
@@ -13,12 +12,8 @@ BALANCER_V1_SPECS = [
         abi_name="BPool",
         protocol=Protocol.balancer_v1,
         classifiers={
-            "swapExactAmountIn(address,uint256,address,uint256,uint256)": Classifier(
-                classification=Classification.swap,
-            ),
-            "swapExactAmountOut(address,uint256,address,uint256,uint256)": Classifier(
-                classification=Classification.swap,
-            ),
+            "swapExactAmountIn(address,uint256,address,uint256,uint256)": SwapClassifier(),
+            "swapExactAmountOut(address,uint256,address,uint256,uint256)": SwapClassifier(),
         },
     ),
 ]
