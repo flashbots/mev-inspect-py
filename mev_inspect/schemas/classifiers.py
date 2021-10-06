@@ -1,13 +1,15 @@
-from typing import Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 from typing_extensions import Literal
 
 from pydantic import BaseModel
 
-from .classified_traces import Classification, Protocol
+from .classified_traces import Classification, DecodedCallTrace, Protocol
+from .transfers import Transfer
 
 
 class TransferClassifier(BaseModel):
     classification: Literal[Classification.transfer] = Classification.transfer
+    get_transfer: Callable[[DecodedCallTrace], Transfer]
 
 
 class SwapClassifier(BaseModel):
