@@ -1,7 +1,10 @@
 from mev_inspect.schemas.classified_traces import (
     Classification,
-    ClassifierSpec,
     Protocol,
+)
+from mev_inspect.schemas.classifiers import (
+    ClassifierSpec,
+    Classifier,
 )
 
 
@@ -66,8 +69,10 @@ UNISWAP_V3_CONTRACT_SPECS = [
 UNISWAP_V3_GENERAL_SPECS = [
     ClassifierSpec(
         abi_name="UniswapV3Pool",
-        classifications={
-            "swap(address,bool,int256,uint160,bytes)": Classification.swap,
+        classifiers={
+            "swap(address,bool,int256,uint160,bytes)": Classifier(
+                classification=Classification.swap,
+            )
         },
     ),
     ClassifierSpec(
@@ -97,8 +102,10 @@ UNISWAPPY_V2_CONTRACT_SPECS = [
 
 UNISWAPPY_V2_PAIR_SPEC = ClassifierSpec(
     abi_name="UniswapV2Pair",
-    classifications={
-        "swap(uint256,uint256,address,bytes)": Classification.swap,
+    classifiers={
+        "swap(uint256,uint256,address,bytes)": Classifier(
+            classification=Classification.swap,
+        ),
     },
 )
 
