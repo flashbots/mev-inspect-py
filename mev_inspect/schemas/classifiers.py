@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from typing_extensions import Literal
 
 from pydantic import BaseModel
@@ -6,20 +6,19 @@ from pydantic import BaseModel
 from .classified_traces import Classification, Protocol
 
 
-class Classifier(BaseModel):
-    classification: Classification
-
-
-class TransferClassifier(Classifier):
+class TransferClassifier(BaseModel):
     classification: Literal[Classification.transfer] = Classification.transfer
 
 
-class SwapClassifier(Classifier):
+class SwapClassifier(BaseModel):
     classification: Literal[Classification.swap] = Classification.swap
 
 
-class LiquidationClassifier(Classifier):
+class LiquidationClassifier(BaseModel):
     classification: Literal[Classification.liquidate] = Classification.liquidate
+
+
+Classifier = Union[TransferClassifier, SwapClassifier, LiquidationClassifier]
 
 
 class ClassifierSpec(BaseModel):
