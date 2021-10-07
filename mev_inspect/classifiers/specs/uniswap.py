@@ -8,6 +8,10 @@ from mev_inspect.schemas.classifiers import (
 )
 
 
+UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
+UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
+
+
 class UniswapV3SwapClassifier(SwapClassifier):
     @staticmethod
     def get_swap_recipient(trace: DecodedCallTrace) -> str:
@@ -86,7 +90,7 @@ UNISWAP_V3_CONTRACT_SPECS = [
 
 UNISWAP_V3_GENERAL_SPECS = [
     ClassifierSpec(
-        abi_name="UniswapV3Pool",
+        abi_name=UNISWAP_V3_POOL_ABI_NAME,
         classifiers={
             "swap(address,bool,int256,uint160,bytes)": UniswapV3SwapClassifier,
         },
@@ -117,7 +121,7 @@ UNISWAPPY_V2_CONTRACT_SPECS = [
 ]
 
 UNISWAPPY_V2_PAIR_SPEC = ClassifierSpec(
-    abi_name="UniswapV2Pair",
+    abi_name=UNISWAP_V2_PAIR_ABI_NAME,
     classifiers={
         "swap(uint256,uint256,address,bytes)": UniswapV2SwapClassifier,
     },
