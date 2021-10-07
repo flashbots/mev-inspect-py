@@ -1,22 +1,21 @@
 from typing import List, Optional
 
+from mev_inspect.classifiers.specs import get_classifier
 from mev_inspect.schemas.classified_traces import (
     ClassifiedTrace,
     Classification,
+    DecodedCallTrace,
 )
+from mev_inspect.schemas.classifiers import SwapClassifier
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.transfers import ERC20Transfer
 from mev_inspect.traces import get_traces_by_transaction_hash
 from mev_inspect.transfers import (
+    get_transfer,
     get_child_transfers,
     filter_transfers,
     remove_child_transfers_of_transfers,
 )
-
-
-UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
-UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
-BALANCER_V1_POOL_ABI_NAME = "BPool"
 
 
 def get_swaps(traces: List[ClassifiedTrace]) -> List[Swap]:
@@ -35,8 +34,13 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
     prior_transfers: List[ERC20Transfer] = []
 
     for trace in ordered_traces:
-        if trace.classification == Classification.transfer:
-            prior_transfers.append(ERC20Transfer.from_trace(trace))
+        if not isinstance(trace, DecodedCallTrace):
+            continue
+
+        elif trace.classification == Classification.transfer:
+            transfer = get_transfer(trace)
+            if transfer is not None:
+                prior_transfers.append(transfer)
 
         elif trace.classification == Classification.swap:
             child_transfers = get_child_transfers(
@@ -58,7 +62,7 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
 
 
 def _parse_swap(
-    trace: ClassifiedTrace,
+    trace: DecodedCallTrace,
     prior_transfers: List[ERC20Transfer],
     child_transfers: List[ERC20Transfer],
 ) -> Optional[Swap]:
@@ -102,20 +106,9 @@ def _parse_swap(
     )
 
 
-def _get_recipient_address(trace: ClassifiedTrace) -> Optional[str]:
-    if trace.abi_name == UNISWAP_V3_POOL_ABI_NAME:
-        return (
-            trace.inputs["recipient"]
-            if trace.inputs is not None and "recipient" in trace.inputs
-            else trace.from_address
-        )
-    elif trace.abi_name == UNISWAP_V2_PAIR_ABI_NAME:
-        return (
-            trace.inputs["to"]
-            if trace.inputs is not None and "to" in trace.inputs
-            else trace.from_address
-        )
-    elif trace.abi_name == BALANCER_V1_POOL_ABI_NAME:
-        return trace.from_address
-    else:
-        return None
+def _get_recipient_address(trace: DecodedCallTrace) -> Optional[str]:
+    classifier = get_classifier(trace)
+    if classifier is not None and issubclass(classifier, SwapClassifier):
+        return classifier.get_swap_recipient(trace)
+
+    return None

@@ -30,6 +30,11 @@ class SwapClassifier(Classifier):
     def get_classification() -> Classification:
         return Classification.swap
 
+    @staticmethod
+    @abstractmethod
+    def get_swap_recipient(trace: DecodedCallTrace) -> str:
+        raise NotImplementedError()
+
 
 class LiquidationClassifier(Classifier):
     @staticmethod
