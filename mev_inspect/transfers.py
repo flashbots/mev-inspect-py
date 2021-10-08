@@ -1,12 +1,11 @@
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence
 
-from mev_inspect.classifiers.specs import ALL_CLASSIFIER_SPECS
-from mev_inspect.schemas.classifiers import ClassifierSpec, TransferClassifier
+from mev_inspect.classifiers.specs import get_classifier
+from mev_inspect.schemas.classifiers import TransferClassifier
 from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
     DecodedCallTrace,
-    Protocol,
 )
 from mev_inspect.schemas.transfers import ERC20Transfer, EthTransfer, TransferGeneric
 from mev_inspect.traces import is_child_trace_address, get_child_traces
@@ -25,23 +24,24 @@ def get_eth_transfers(traces: List[ClassifiedTrace]) -> List[EthTransfer]:
 def get_transfers(traces: List[ClassifiedTrace]) -> List[ERC20Transfer]:
     transfers = []
 
-    specs_by_abi_name_and_protocol: Dict[
-        Tuple[str, Optional[Protocol]], ClassifierSpec
-    ] = {(spec.abi_name, spec.protocol): spec for spec in ALL_CLASSIFIER_SPECS}
-
     for trace in traces:
-        if not isinstance(trace, DecodedCallTrace):
-            continue
-
-        abi_name_and_protocol = (trace.abi_name, trace.protocol)
-        spec = specs_by_abi_name_and_protocol.get(abi_name_and_protocol)
-
-        if spec is not None:
-            classifier = spec.classifiers.get(trace.function_signature)
-            if classifier is not None and issubclass(classifier, TransferClassifier):
-                transfers.append(classifier.get_transfer(trace))
+        if isinstance(trace, DecodedCallTrace):
+            transfer = get_transfer(trace)
+            if transfer is not None:
+                transfers.append(transfer)
 
     return transfers
+
+
+def get_transfer(trace: DecodedCallTrace) -> Optional[ERC20Transfer]:
+    if not isinstance(trace, DecodedCallTrace):
+        return None
+
+    classifier = get_classifier(trace)
+    if classifier is not None and issubclass(classifier, TransferClassifier):
+        return classifier.get_transfer(trace)
+
+    return None
 
 
 def get_child_transfers(
@@ -52,8 +52,12 @@ def get_child_transfers(
     child_transfers = []
 
     for child_trace in get_child_traces(transaction_hash, parent_trace_address, traces):
-        if child_trace.classification == Classification.transfer:
-            child_transfers.append(ERC20Transfer.from_trace(child_trace))
+        if child_trace.classification == Classification.transfer and isinstance(
+            child_trace, DecodedCallTrace
+        ):
+            transfer = get_transfer(child_trace)
+            if transfer is not None:
+                child_transfers.append(transfer)
 
     return child_transfers
 

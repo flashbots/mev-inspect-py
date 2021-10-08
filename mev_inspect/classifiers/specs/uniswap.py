@@ -1,10 +1,33 @@
 from mev_inspect.schemas.classified_traces import (
+    DecodedCallTrace,
     Protocol,
 )
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
+
+
+UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
+UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
+
+
+class UniswapV3SwapClassifier(SwapClassifier):
+    @staticmethod
+    def get_swap_recipient(trace: DecodedCallTrace) -> str:
+        if trace.inputs is not None and "recipient" in trace.inputs:
+            return trace.inputs["recipient"]
+        else:
+            return trace.from_address
+
+
+class UniswapV2SwapClassifier(SwapClassifier):
+    @staticmethod
+    def get_swap_recipient(trace: DecodedCallTrace) -> str:
+        if trace.inputs is not None and "to" in trace.inputs:
+            return trace.inputs["to"]
+        else:
+            return trace.from_address
 
 
 UNISWAP_V3_CONTRACT_SPECS = [
@@ -67,9 +90,9 @@ UNISWAP_V3_CONTRACT_SPECS = [
 
 UNISWAP_V3_GENERAL_SPECS = [
     ClassifierSpec(
-        abi_name="UniswapV3Pool",
+        abi_name=UNISWAP_V3_POOL_ABI_NAME,
         classifiers={
-            "swap(address,bool,int256,uint160,bytes)": SwapClassifier,
+            "swap(address,bool,int256,uint160,bytes)": UniswapV3SwapClassifier,
         },
     ),
     ClassifierSpec(
@@ -98,9 +121,9 @@ UNISWAPPY_V2_CONTRACT_SPECS = [
 ]
 
 UNISWAPPY_V2_PAIR_SPEC = ClassifierSpec(
-    abi_name="UniswapV2Pair",
+    abi_name=UNISWAP_V2_PAIR_ABI_NAME,
     classifiers={
-        "swap(uint256,uint256,address,bytes)": SwapClassifier,
+        "swap(uint256,uint256,address,bytes)": UniswapV2SwapClassifier,
     },
 )
 

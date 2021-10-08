@@ -1,3 +1,8 @@
+from typing import Dict, Optional, Tuple, Type
+
+from mev_inspect.schemas.classified_traces import DecodedCallTrace, Protocol
+from mev_inspect.schemas.classifiers import ClassifierSpec, Classifier
+
 from .aave import AAVE_CLASSIFIER_SPECS
 from .curve import CURVE_CLASSIFIER_SPECS
 from .erc20 import ERC20_CLASSIFIER_SPECS
@@ -16,3 +21,19 @@ ALL_CLASSIFIER_SPECS = (
     + ZEROX_CLASSIFIER_SPECS
     + BALANCER_CLASSIFIER_SPECS
 )
+
+_SPECS_BY_ABI_NAME_AND_PROTOCOL: Dict[
+    Tuple[str, Optional[Protocol]], ClassifierSpec
+] = {(spec.abi_name, spec.protocol): spec for spec in ALL_CLASSIFIER_SPECS}
+
+
+def get_classifier(
+    trace: DecodedCallTrace,
+) -> Optional[Type[Classifier]]:
+    abi_name_and_protocol = (trace.abi_name, trace.protocol)
+    spec = _SPECS_BY_ABI_NAME_AND_PROTOCOL.get(abi_name_and_protocol)
+
+    if spec is not None:
+        return spec.classifiers.get(trace.function_signature)
+
+    return None

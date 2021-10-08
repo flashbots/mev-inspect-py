@@ -1,9 +1,10 @@
-from mev_inspect.swaps import (
-    get_swaps,
+from mev_inspect.swaps import get_swaps
+from mev_inspect.classifiers.specs.balancer import BALANCER_V1_POOL_ABI_NAME
+from mev_inspect.classifiers.specs.uniswap import (
     UNISWAP_V2_PAIR_ABI_NAME,
     UNISWAP_V3_POOL_ABI_NAME,
-    BALANCER_V1_POOL_ABI_NAME,
 )
+from mev_inspect.schemas.classified_traces import Protocol
 
 from .helpers import (
     make_unknown_trace,
@@ -64,6 +65,8 @@ def test_swaps(
             from_address=alice_address,
             pool_address=first_pool_address,
             abi_name=UNISWAP_V2_PAIR_ABI_NAME,
+            protocol=None,
+            function_signature="swap(uint256,uint256,address,bytes)",
             recipient_address=bob_address,
             recipient_input_key="to",
         ),
@@ -83,6 +86,8 @@ def test_swaps(
             from_address=bob_address,
             pool_address=second_pool_address,
             abi_name=UNISWAP_V3_POOL_ABI_NAME,
+            protocol=None,
+            function_signature="swap(address,bool,int256,uint160,bytes)",
             recipient_address=carl_address,
             recipient_input_key="recipient",
         ),
@@ -129,6 +134,8 @@ def test_swaps(
             from_address=bob_address,
             pool_address=third_pool_address,
             abi_name=BALANCER_V1_POOL_ABI_NAME,
+            protocol=Protocol.balancer_v1,
+            function_signature="swapExactAmountIn(address,uint256,address,uint256,uint256)",
             recipient_address=bob_address,
             recipient_input_key="recipient",
         ),
