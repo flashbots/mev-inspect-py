@@ -26,14 +26,14 @@ def get_transfers(traces: List[ClassifiedTrace]) -> List[ERC20Transfer]:
 
     for trace in traces:
         if isinstance(trace, DecodedCallTrace):
-            transfer = get_transfer(trace)
+            transfer = get_erc20_transfer(trace)
             if transfer is not None:
                 transfers.append(transfer)
 
     return transfers
 
 
-def get_transfer(trace: DecodedCallTrace) -> Optional[ERC20Transfer]:
+def get_erc20_transfer(trace: DecodedCallTrace) -> Optional[ERC20Transfer]:
     if not isinstance(trace, DecodedCallTrace):
         return None
 
@@ -55,7 +55,7 @@ def get_child_transfers(
         if child_trace.classification == Classification.transfer and isinstance(
             child_trace, DecodedCallTrace
         ):
-            transfer = get_transfer(child_trace)
+            transfer = get_erc20_transfer(child_trace)
             if transfer is not None:
                 child_transfers.append(transfer)
 

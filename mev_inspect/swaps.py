@@ -11,8 +11,8 @@ from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.transfers import ERC20Transfer
 from mev_inspect.traces import get_traces_by_transaction_hash
 from mev_inspect.transfers import (
-    get_transfer,
     get_child_transfers,
+    get_erc20_transfer,
     filter_transfers,
     remove_child_transfers_of_transfers,
 )
@@ -38,7 +38,7 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
             continue
 
         elif trace.classification == Classification.transfer:
-            transfer = get_transfer(trace)
+            transfer = get_erc20_transfer(trace)
             if transfer is not None:
                 prior_transfers.append(transfer)
 
