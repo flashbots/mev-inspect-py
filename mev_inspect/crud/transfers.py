@@ -2,7 +2,7 @@ import json
 from typing import List
 
 from mev_inspect.models.transfers import TransferModel
-from mev_inspect.schemas.transfers import ERC20Transfer
+from mev_inspect.schemas.transfers import Transfer
 
 
 def delete_transfers_for_block(
@@ -20,7 +20,7 @@ def delete_transfers_for_block(
 
 def write_transfers(
     db_session,
-    transfers: List[ERC20Transfer],
+    transfers: List[Transfer],
 ) -> None:
     models = [TransferModel(**json.loads(transfer.json())) for transfer in transfers]
 
