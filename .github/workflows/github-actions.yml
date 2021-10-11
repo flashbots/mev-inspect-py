@@ -51,7 +51,7 @@ jobs:
 
       - name: Run precommit
         run: |
-          poetry run pre-commit
+          poetry run pre-commit --all-files
 
       - name: Test with pytest
         shell: bash
