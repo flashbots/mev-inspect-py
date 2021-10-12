@@ -198,7 +198,7 @@ Then start it back up again.
 You are welcome here <3.
 
 - If you want to join us, come and say hi in our [Discord chat](https://discord.gg/7hvTycdNcK).
-- If you have a question, feedback or a bug report for this project, please [open a new Issue](https://github.com/flashbots/flashbots-repository-template/issues).
+- If you have a question, feedback or a bug report for this project, please [open a new Issue](https://github.com/flashbots/mev-inspect-py/issues).
 - If you would like to contribute with code, check the [CONTRIBUTING file](CONTRIBUTING.md).
 - We just ask you to be nice.
 
