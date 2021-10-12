@@ -96,6 +96,7 @@ def _parse_swap(
         block_number=trace.block_number,
         trace_address=trace.trace_address,
         pool_address=pool_address,
+        protocol=trace.protocol,
         from_address=transfer_in.from_address,
         to_address=transfer_out.to_address,
         token_in_address=transfer_in.token_address,
