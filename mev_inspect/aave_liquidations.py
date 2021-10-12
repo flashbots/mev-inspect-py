@@ -24,7 +24,10 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
     # AAVE V2 WETH
     "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
     # AAVE AMM Market DAI
-    "0x79bE75FFC64DD58e66787E4Eae470c8a1FD08ba4",
+    "0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4",
+    # AAVE i
+    "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
+    "0xbcca60bb61934080951369a648fb03df4f96263c",
 ]
 
 
@@ -71,7 +74,7 @@ def get_aave_liquidations(
                     block_number=trace.block_number,
                 )
             )
-
+    print(liquidations)
     return liquidations
 
 
@@ -81,13 +84,13 @@ def _get_payback_token_and_amount(
 
     """Look for and return liquidator payback from liquidation"""
     for child in child_traces:
+
         if child.classification == Classification.transfer:
 
             child_transfer = ERC20Transfer.from_trace(child)
-
-            if (child_transfer.to_address == liquidator) and (
-                child.from_address in AAVE_CONTRACT_ADDRESSES
-            ):
+            if (
+                child_transfer.to_address == liquidator
+            ) and child.from_address in AAVE_CONTRACT_ADDRESSES:
                 return child_transfer.token_address, child_transfer.amount
 
     return liquidation.inputs["_collateral"], 0
