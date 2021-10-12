@@ -185,7 +185,7 @@ def test_swaps(
     assert bal_v1_swap.transaction_hash == third_transaction_hash
     assert bal_v1_swap.block_number == block_number
     assert bal_v1_swap.trace_address == [6]
-    assert bal_v1_swap.protocol is None
+    assert bal_v1_swap.protocol == Protocol.balancer_v1
     assert bal_v1_swap.pool_address == third_pool_address
     assert bal_v1_swap.from_address == bob_address
     assert bal_v1_swap.to_address == bob_address
