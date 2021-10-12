@@ -127,34 +127,6 @@ def test_multiple_liquidations_in_block():
     _assert_equal_list_of_liquidations(result, liquidations)
 
 
-def test_received_token_address_with_a_tokens():
-
-    transaction = "0xfa4487cf93952a91d6c1ec4d3eeff745a0e39f416bcf71b84203ec7953d60db5"
-    block_number = 13370850
-
-    liquidation = Liquidation(
-        liquidated_user="0xcee6e89b99ed58ed32ad83ba339c98c32e6b079b",
-        liquidator_user="0x887668f2dc9612280243f2a6ef834cecf456654e",
-        collateral_token_address="0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-        debt_token_address="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-        debt_purchase_amount=752044474949707219,
-        received_amount=2835767961,
-        received_token_address="0xbcca60bb61934080951369a648fb03df4f96263c",
-        protocol=Protocol.aave,
-        transaction_hash=transaction,
-        trace_address=[2],
-        block_number=block_number,
-    )
-
-    block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
-    classified_traces = trace_classifier.classify(block.traces)
-    result = get_aave_liquidations(classified_traces)
-    liquidations = [liquidation]
-
-    _assert_equal_list_of_liquidations(result, liquidations)
-
-
 def _assert_equal_list_of_liquidations(
     actual_liquidations: List[Liquidation], expected_liquidations: List[Liquidation]
 ):
