@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from .classified_traces import (
     Classification,
     ClassifiedTrace,
-    DecodedCallTrace,
     Protocol,
 )
 
@@ -33,22 +32,6 @@ class EthTransfer(Transfer):
             amount=trace.value,
             to_address=trace.to_address,
             from_address=trace.from_address,
-        )
-
-
-class aTokenTransfer(Transfer):
-    token_address: str
-
-    @classmethod
-    def from_trace(cls, trace: DecodedCallTrace) -> "aTokenTransfer":
-        return cls(
-            block_number=trace.block_number,
-            transaction_hash=trace.transaction_hash,
-            trace_address=trace.trace_address,
-            amount=trace.inputs["value"],
-            to_address=trace.inputs["to"],
-            from_address=trace.inputs["from"],
-            token_address=trace.to_address,
         )
 
 

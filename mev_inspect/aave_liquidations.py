@@ -11,7 +11,7 @@ from mev_inspect.schemas.classified_traces import (
     Protocol,
 )
 
-from mev_inspect.schemas.transfers import ERC20Transfer, aTokenTransfer, Transfer
+from mev_inspect.schemas.transfers import ERC20Transfer, Transfer
 from mev_inspect.schemas.liquidations import Liquidation
 
 AAVE_CONTRACT_ADDRESSES: List[str] = [
@@ -91,22 +91,13 @@ def _get_payback_token_and_amount(
         if child.classification == Classification.transfer and isinstance(
             child, DecodedCallTrace
         ):
-            if liquidation.inputs["_receiveAToken"]:
 
-                child_transfer = aTokenTransfer.from_trace(child)
+            child_transfer = ERC20Transfer.from_trace(child)
 
-                if (
-                    child_transfer.to_address == liquidator
-                ) and child.from_address in AAVE_CONTRACT_ADDRESSES:
-                    return child_transfer.token_address, child_transfer.amount
-
-            else:
-
-                child_transfer = ERC20Transfer.from_trace(child)
-
-                if (
-                    child_transfer.to_address == liquidator
-                ) and child.from_address in AAVE_CONTRACT_ADDRESSES:
-                    return child_transfer.token_address, child_transfer.amount
+            if (
+                child_transfer.to_address == liquidator
+                and child.from_address in AAVE_CONTRACT_ADDRESSES
+            ):
+                return child_transfer.token_address, child_transfer.amount
 
     return liquidation.inputs["_collateral"], 0
