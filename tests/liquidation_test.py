@@ -69,6 +69,37 @@ def test_single_liquidation():
     _assert_equal_list_of_liquidations(result, liquidations)
 
 
+def test_single_liquidation_with_atoken_payback():
+
+    transaction_hash = (
+        "0xde551a73e813f1a1e5c843ac2c6a0e40d71618f4040bb7d0cd7cf7b2b6cf4633"
+    )
+    block_number = 13376024
+
+    liquidations = [
+        Liquidation(
+            liquidated_user="0x3d2b6eacd1bca51af57ed8b3ff9ef0bd8ee8c56d",
+            liquidator_user="0x887668f2dc9612280243f2a6ef834cecf456654e",
+            collateral_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
+            debt_token_address="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            debt_purchase_amount=767615458043667978,
+            received_amount=113993647930952952550,
+            received_token_address="0xa06bc25b5805d5f8d82847d191cb4af5a3e873e0",
+            protocol=Protocol.aave,
+            transaction_hash=transaction_hash,
+            trace_address=[2],
+            block_number=block_number,
+        )
+    ]
+
+    block = load_test_block(block_number)
+    trace_classifier = TraceClassifier()
+    classified_traces = trace_classifier.classify(block.traces)
+    result = get_aave_liquidations(classified_traces)
+
+    _assert_equal_list_of_liquidations(result, liquidations)
+
+
 def test_multiple_liquidations_in_block():
 
     transaction1 = "0xedd062c3a728db4b114f2e83cac281d19a9f753e36afa8a35cdbdf1e1dd5d017"
