@@ -42,6 +42,12 @@ class LiquidationClassifier(Classifier):
         return Classification.liquidate
 
 
+class SeizeClassifier(Classifier):
+    @staticmethod
+    def get_classification() -> Classification:
+        return Classification.seize
+
+
 class ClassifierSpec(BaseModel):
     abi_name: str
     protocol: Optional[Protocol] = None

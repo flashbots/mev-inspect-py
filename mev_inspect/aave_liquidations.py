@@ -42,6 +42,7 @@ def get_aave_liquidations(
             trace.classification == Classification.liquidate
             and isinstance(trace, DecodedCallTrace)
             and not is_child_of_any_address(trace, parent_liquidations)
+            and trace.protocol == Protocol.aave
         ):
 
             parent_liquidations.append(trace.trace_address)
