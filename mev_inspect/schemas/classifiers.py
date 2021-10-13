@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Type
 from pydantic import BaseModel
 
 from .classified_traces import Classification, DecodedCallTrace, Protocol
-from .transfers import ERC20Transfer
+from .transfers import Transfer
 
 
 class Classifier(ABC):
@@ -21,7 +21,7 @@ class TransferClassifier(Classifier):
 
     @staticmethod
     @abstractmethod
-    def get_transfer(trace: DecodedCallTrace) -> ERC20Transfer:
+    def get_transfer(trace: DecodedCallTrace) -> Transfer:
         raise NotImplementedError()
 
 

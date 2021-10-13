@@ -8,11 +8,12 @@ from mev_inspect.schemas.classified_traces import (
 )
 from mev_inspect.schemas.classifiers import SwapClassifier
 from mev_inspect.schemas.swaps import Swap
-from mev_inspect.schemas.transfers import ERC20Transfer
+from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.traces import get_traces_by_transaction_hash
 from mev_inspect.transfers import (
+    build_eth_transfer,
     get_child_transfers,
-    get_erc20_transfer,
+    get_transfer,
     filter_transfers,
     remove_child_transfers_of_transfers,
 )
@@ -31,14 +32,14 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
     ordered_traces = list(sorted(traces, key=lambda t: t.trace_address))
 
     swaps: List[Swap] = []
-    prior_transfers: List[ERC20Transfer] = []
+    prior_transfers: List[Transfer] = []
 
     for trace in ordered_traces:
         if not isinstance(trace, DecodedCallTrace):
             continue
 
         elif trace.classification == Classification.transfer:
-            transfer = get_erc20_transfer(trace)
+            transfer = get_transfer(trace)
             if transfer is not None:
                 prior_transfers.append(transfer)
 
@@ -63,8 +64,8 @@ def _get_swaps_for_transaction(traces: List[ClassifiedTrace]) -> List[Swap]:
 
 def _parse_swap(
     trace: DecodedCallTrace,
-    prior_transfers: List[ERC20Transfer],
-    child_transfers: List[ERC20Transfer],
+    prior_transfers: List[Transfer],
+    child_transfers: List[Transfer],
 ) -> Optional[Swap]:
     pool_address = trace.to_address
     recipient_address = _get_recipient_address(trace)
@@ -72,7 +73,13 @@ def _parse_swap(
     if recipient_address is None:
         return None
 
-    transfers_to_pool = filter_transfers(prior_transfers, to_address=pool_address)
+    transfers_to_pool = []
+
+    if trace.value is not None and trace.value > 0:
+        transfers_to_pool = [build_eth_transfer(trace)]
+
+    if len(transfers_to_pool) == 0:
+        transfers_to_pool = filter_transfers(prior_transfers, to_address=pool_address)
 
     if len(transfers_to_pool) == 0:
         transfers_to_pool = filter_transfers(child_transfers, to_address=pool_address)

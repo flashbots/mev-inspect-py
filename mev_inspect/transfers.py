@@ -3,40 +3,66 @@ from typing import Dict, List, Optional, Sequence
 from mev_inspect.classifiers.specs import get_classifier
 from mev_inspect.schemas.classifiers import TransferClassifier
 from mev_inspect.schemas.classified_traces import (
-    Classification,
     ClassifiedTrace,
     DecodedCallTrace,
 )
-from mev_inspect.schemas.transfers import ERC20Transfer, EthTransfer, TransferGeneric
+from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS, Transfer
 from mev_inspect.traces import is_child_trace_address, get_child_traces
 
 
-def get_eth_transfers(traces: List[ClassifiedTrace]) -> List[EthTransfer]:
+def get_transfers(traces: List[ClassifiedTrace]) -> List[Transfer]:
     transfers = []
 
     for trace in traces:
-        if trace.value is not None and trace.value > 0:
-            transfers.append(EthTransfer.from_trace(trace))
+        transfer = get_transfer(trace)
+        if transfer is not None:
+            transfers.append(transfer)
 
     return transfers
 
 
-def get_transfers(traces: List[ClassifiedTrace]) -> List[ERC20Transfer]:
-    transfers = []
+def get_eth_transfers(traces: List[ClassifiedTrace]) -> List[Transfer]:
+    transfers = get_transfers(traces)
 
-    for trace in traces:
-        if isinstance(trace, DecodedCallTrace):
-            transfer = get_erc20_transfer(trace)
-            if transfer is not None:
-                transfers.append(transfer)
-
-    return transfers
+    return [
+        transfer
+        for transfer in transfers
+        if transfer.token_address == ETH_TOKEN_ADDRESS
+    ]
 
 
-def get_erc20_transfer(trace: DecodedCallTrace) -> Optional[ERC20Transfer]:
-    if not isinstance(trace, DecodedCallTrace):
-        return None
+def get_transfer(trace: ClassifiedTrace) -> Optional[Transfer]:
+    if _is_simple_eth_transfer(trace):
+        return build_eth_transfer(trace)
 
+    if isinstance(trace, DecodedCallTrace):
+        return _build_erc20_transfer(trace)
+
+    return None
+
+
+def _is_simple_eth_transfer(trace: ClassifiedTrace) -> bool:
+    return (
+        trace.value is not None
+        and trace.value > 0
+        and "input" in trace.action
+        and trace.action["input"] == "0x"
+    )
+
+
+def build_eth_transfer(trace: ClassifiedTrace) -> Transfer:
+    return Transfer(
+        block_number=trace.block_number,
+        transaction_hash=trace.transaction_hash,
+        trace_address=trace.trace_address,
+        amount=trace.value,
+        to_address=trace.to_address,
+        from_address=trace.from_address,
+        token_address=ETH_TOKEN_ADDRESS,
+    )
+
+
+def _build_erc20_transfer(trace: DecodedCallTrace) -> Optional[Transfer]:
     classifier = get_classifier(trace)
     if classifier is not None and issubclass(classifier, TransferClassifier):
         return classifier.get_transfer(trace)
@@ -48,25 +74,22 @@ def get_child_transfers(
     transaction_hash: str,
     parent_trace_address: List[int],
     traces: List[ClassifiedTrace],
-) -> List[ERC20Transfer]:
+) -> List[Transfer]:
     child_transfers = []
 
     for child_trace in get_child_traces(transaction_hash, parent_trace_address, traces):
-        if child_trace.classification == Classification.transfer and isinstance(
-            child_trace, DecodedCallTrace
-        ):
-            transfer = get_erc20_transfer(child_trace)
-            if transfer is not None:
-                child_transfers.append(transfer)
+        transfer = get_transfer(child_trace)
+        if transfer is not None:
+            child_transfers.append(transfer)
 
     return child_transfers
 
 
 def filter_transfers(
-    transfers: Sequence[TransferGeneric],
+    transfers: Sequence[Transfer],
     to_address: Optional[str] = None,
     from_address: Optional[str] = None,
-) -> List[TransferGeneric]:
+) -> List[Transfer]:
     filtered_transfers = []
 
     for transfer in transfers:
@@ -82,8 +105,8 @@ def filter_transfers(
 
 
 def remove_child_transfers_of_transfers(
-    transfers: List[ERC20Transfer],
-) -> List[ERC20Transfer]:
+    transfers: List[Transfer],
+) -> List[Transfer]:
     updated_transfers = []
     transfer_addresses_by_transaction: Dict[str, List[List[int]]] = {}
 

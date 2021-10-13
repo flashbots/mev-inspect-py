@@ -3,13 +3,13 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     TransferClassifier,
 )
-from mev_inspect.schemas.transfers import ERC20Transfer
+from mev_inspect.schemas.transfers import Transfer
 
 
 class ERC20TransferClassifier(TransferClassifier):
     @staticmethod
-    def get_transfer(trace: DecodedCallTrace) -> ERC20Transfer:
-        return ERC20Transfer(
+    def get_transfer(trace: DecodedCallTrace) -> Transfer:
+        return Transfer(
             block_number=trace.block_number,
             transaction_hash=trace.transaction_hash,
             trace_address=trace.trace_address,

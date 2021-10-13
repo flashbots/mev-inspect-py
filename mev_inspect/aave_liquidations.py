@@ -11,8 +11,8 @@ from mev_inspect.schemas.classified_traces import (
     Protocol,
 )
 
-from mev_inspect.schemas.transfers import ERC20Transfer
 from mev_inspect.schemas.liquidations import Liquidation
+from mev_inspect.transfers import get_transfer
 
 AAVE_CONTRACT_ADDRESSES: List[str] = [
     # AAVE Proxy
@@ -77,10 +77,12 @@ def _get_liquidator_payback(
     for child in child_traces:
         if child.classification == Classification.transfer:
 
-            child_transfer = ERC20Transfer.from_trace(child)
+            child_transfer = get_transfer(child)
 
-            if (child_transfer.to_address == liquidator) and (
-                child.from_address in AAVE_CONTRACT_ADDRESSES
+            if (
+                child_transfer is not None
+                and child_transfer.to_address == liquidator
+                and child.from_address in AAVE_CONTRACT_ADDRESSES
             ):
                 return child_transfer.amount
 
