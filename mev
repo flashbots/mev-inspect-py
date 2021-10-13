@@ -1,3 +1,17 @@
-#!/bin/bash
+#!/bin/sh
 
-echo "hi"
+set -e
+
+case "$1" in
+  inspect)
+        kubectl exec -ti deploy/mev-inspect-deployment -- poetry run inspect-block $2
+	;;
+  test)
+        kubectl exec -ti deploy/mev-inspect-deployment -- poetry run pytest tests
+	;;
+  *)
+	echo "Usage: "$1" {inspect|test}"
+	exit 1
+esac
+
+exit 0
