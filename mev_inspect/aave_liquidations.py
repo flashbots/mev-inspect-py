@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from mev_inspect.traces import (
     get_child_traces,
@@ -11,16 +11,9 @@ from mev_inspect.schemas.classified_traces import (
     Protocol,
 )
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-from mev_inspect.schemas.transfers import ERC20Transfer, aTokenTransfer, Transfer
->>>>>>> Aave transfers
-=======
-from mev_inspect.schemas.transfers import ERC20Transfer, Transfer
->>>>>>> Aave transfers
-from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.transfers import get_transfer
+from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.liquidations import Liquidation
 
 AAVE_CONTRACT_ADDRESSES: List[str] = [
     # AAVE Proxy
@@ -93,18 +86,18 @@ def _get_payback_token_and_amount(
 
     """Look for and return liquidator payback from liquidation"""
     child: ClassifiedTrace
-    child_transfer: Transfer
-
+    child_transfer: Optional[Transfer]
     for child in child_traces:
 
         if child.classification == Classification.transfer and isinstance(
             child, DecodedCallTrace
         ):
 
-            child_transfer = ERC20Transfer.from_trace(child)
+            child_transfer = get_transfer(child)
 
             if (
-                child_transfer.to_address == liquidator
+                child_transfer is not None
+                and child_transfer.to_address == liquidator
                 and child.from_address in AAVE_CONTRACT_ADDRESSES
             ):
                 return child_transfer.token_address, child_transfer.amount
