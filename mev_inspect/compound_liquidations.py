@@ -35,35 +35,6 @@ def fetch_all_comp_markets(w3: Web3) -> Dict[str, str]:
     return c_token_mapping
 
 
-def fetch_underlying_ctoken_exchange_rate(
-    c_token_address: str, block_number: int, w3: Web3, comp_markets: Dict[str, str]
-) -> float:
-    comp_v2_ctoken_abi = get_raw_abi("CToken", Protocol.compound_v2)
-    ctoken_instance = w3.eth.contract(
-        address=Web3.toChecksumAddress(c_token_address), abi=comp_v2_ctoken_abi
-    )
-    raw_exchange_rate = ctoken_instance.functions.exchangeRateCurrent().call(
-        block_identifier=block_number
-    )
-    # format based on decimals in ctoken and the underlying token
-    # see "Interpreting Exchange Rates" https://compound.finance/docs#protocol-math
-    underlying_token_address = comp_markets[c_token_address.lower()]
-    decimals_in_underlying = fetch_erc20_token_decimals(underlying_token_address, w3)
-    decimals_in_ctoken = fetch_erc20_token_decimals(c_token_address, w3)
-    return raw_exchange_rate / (
-        10 ** (18 + decimals_in_underlying - decimals_in_ctoken)
-    )
-
-
-def fetch_erc20_token_decimals(token_address: str, w3: Web3) -> int:
-    token_abi = get_raw_abi("ERC20", None)
-    token_instance = w3.eth.contract(
-        address=Web3.toChecksumAddress(token_address), abi=token_abi
-    )
-    decimals = token_instance.functions.decimals().call()
-    return decimals
-
-
 def get_compound_liquidations(
     traces: List[ClassifiedTrace], collateral_by_c_token_address: Dict[str, str]
 ) -> List[Liquidation]:
