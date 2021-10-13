@@ -27,11 +27,11 @@ case "$1" in
   inspect)
         block_number=$2
         echo "Inspecting block $block_number"
-        kubectl exec -ti deploy/mev-inspect-deployment -- poetry run inspect-block $block_number
+        kubectl exec -ti deploy/chart-mev-inspect -- poetry run inspect-block $block_number
 	;;
   test)
         echo "Running tests"
-        kubectl exec -ti deploy/mev-inspect-deployment -- poetry run pytest tests
+        kubectl exec -ti deploy/chart-mev-inspect -- poetry run pytest tests
 	;;
   *)
 	echo "Usage: "$1" {inspect|test}"
