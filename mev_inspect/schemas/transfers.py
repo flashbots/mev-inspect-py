@@ -2,9 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-
 ETH_TOKEN_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-
 
 class Transfer(BaseModel):
     block_number: int
