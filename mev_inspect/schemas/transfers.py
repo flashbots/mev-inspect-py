@@ -12,3 +12,4 @@ class Transfer(BaseModel):
     to_address: str
     amount: int
     token_address: str
+
