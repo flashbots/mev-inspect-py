@@ -32,13 +32,22 @@ def get_eth_transfers(traces: List[ClassifiedTrace]) -> List[Transfer]:
 
 
 def get_transfer(trace: ClassifiedTrace) -> Optional[Transfer]:
-    if trace.value is not None and trace.value > 0:
+    if _is_simple_eth_transfer(trace):
         return build_eth_transfer(trace)
 
     if isinstance(trace, DecodedCallTrace):
         return _build_erc20_transfer(trace)
 
     return None
+
+
+def _is_simple_eth_transfer(trace: ClassifiedTrace) -> bool:
+    return (
+        trace.value is not None
+        and trace.value > 0
+        and "input" in trace.action
+        and trace.action["input"] == "0x"
+    )
 
 
 def build_eth_transfer(trace: ClassifiedTrace) -> Transfer:
