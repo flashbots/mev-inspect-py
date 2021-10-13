@@ -3,10 +3,16 @@
 set -e
 
 case "$1" in
+  backfill)
+        echo "Running backfill from block $2 to block $3"
+	;;
   inspect)
-        kubectl exec -ti deploy/mev-inspect-deployment -- poetry run inspect-block $2
+        block_number=$2
+        echo "Inspecting block $block_number"
+        kubectl exec -ti deploy/mev-inspect-deployment -- poetry run inspect-block $block_number
 	;;
   test)
+        echo "Running tests"
         kubectl exec -ti deploy/mev-inspect-deployment -- poetry run pytest tests
 	;;
   *)
