@@ -9,6 +9,7 @@ class Classification(Enum):
     swap = "swap"
     transfer = "transfer"
     liquidate = "liquidate"
+    seize = "seize"
 
 
 class Protocol(Enum):
@@ -20,6 +21,7 @@ class Protocol(Enum):
     curve = "curve"
     zero_ex = "0x"
     balancer_v1 = "balancer_v1"
+    compound_v2 = "compound_v2"
 
 
 class ClassifiedTrace(Trace):
