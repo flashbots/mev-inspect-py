@@ -11,6 +11,7 @@ from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.traces import get_traces_by_transaction_hash
 from mev_inspect.transfers import (
+    build_eth_transfer,
     get_child_transfers,
     get_transfer,
     filter_transfers,
@@ -72,7 +73,13 @@ def _parse_swap(
     if recipient_address is None:
         return None
 
-    transfers_to_pool = filter_transfers(prior_transfers, to_address=pool_address)
+    transfers_to_pool = []
+
+    if trace.value is not None and trace.value > 0:
+        transfers_to_pool = [build_eth_transfer(trace)]
+
+    if len(transfers_to_pool) == 0:
+        transfers_to_pool = filter_transfers(prior_transfers, to_address=pool_address)
 
     if len(transfers_to_pool) == 0:
         transfers_to_pool = filter_transfers(child_transfers, to_address=pool_address)
