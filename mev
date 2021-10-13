@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -e
+
+DB_NAME=mev_inspect
+
+function get_kube_db_secret(){
+    kubectl get secrets mev-inspect-db-credentials -o jsonpath="{.data.$1}" | base64 --decode
+}
+
+function db(){
+    host=$(get_kube_db_secret "host")
+    username=$(get_kube_db_secret "username")
+    password=$(get_kube_db_secret "password")
+
+    kubectl run -i --rm --tty postgres-client \
+        --env="PGPASSWORD=$password"  \
+        --image=jbergknoff/postgresql-client \
+        -- $DB_NAME --host=$host --user=$username
+}
+
+case "$1" in
+  db)
+        echo "Connecting to $DB_NAME"
+        db
+	;;
+  inspect)
+        block_number=$2
+        echo "Inspecting block $block_number"
+        kubectl exec -ti deploy/mev-inspect-deployment -- poetry run inspect-block $block_number
+	;;
+  test)
+        echo "Running tests"
+        kubectl exec -ti deploy/mev-inspect-deployment -- poetry run pytest tests
+	;;
+  *)
+	echo "Usage: "$1" {inspect|test}"
+	exit 1
+esac
+
+exit 0

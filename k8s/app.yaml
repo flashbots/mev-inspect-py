@@ -19,6 +19,11 @@ spec:
         image: mev-inspect-py
         command: [ "/app/entrypoint.sh" ]
         env:
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: mev-inspect-db-credentials
+              key: host
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
@@ -29,8 +34,6 @@ spec:
             secretKeyRef:
               name: mev-inspect-db-credentials
               key: password
-        - name: POSTGRES_HOST
-          value: postgresql
         - name: RPC_URL
           valueFrom:
             configMapKeyRef:
