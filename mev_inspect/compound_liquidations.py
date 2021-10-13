@@ -65,7 +65,7 @@ def fetch_erc20_token_decimals(token_address: str, w3: Web3) -> int:
 
 
 def get_compound_liquidations(
-    traces: List[ClassifiedTrace], comp_markets: Dict[str, str]
+    traces: List[ClassifiedTrace], collateral_by_c_token_address: Dict[str, str]
 ) -> List[Liquidation]:
 
     """Inspect list of classified traces and identify liquidation"""
@@ -103,12 +103,13 @@ def get_compound_liquidations(
                 elif (
                     trace.abi_name == "CToken"
                 ):  # cToken liquidations where liquidator pays back via token transfer
+                    c_token_address = trace.to_address
                     liquidations.append(
                         Liquidation(
                             liquidated_user=trace.inputs["borrower"],
-                            collateral_token_address=comp_markets[
-                                trace.to_address
-                            ],  # Find out what collateral is being provided by looking at to address (cToken)
+                            collateral_token_address=collateral_by_c_token_address[
+                                c_token_address
+                            ],
                             debt_token_address=c_token_collateral,
                             liquidator_user=seize_trace.inputs["liquidator"],
                             debt_purchase_amount=trace.inputs["repayAmount"],
