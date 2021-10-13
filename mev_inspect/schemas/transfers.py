@@ -2,7 +2,12 @@ from typing import List, TypeVar
 
 from pydantic import BaseModel
 
-from .classified_traces import Classification, ClassifiedTrace, Protocol
+from .classified_traces import (
+    Classification,
+    ClassifiedTrace,
+    DecodedCallTrace,
+    Protocol,
+)
 
 
 class Transfer(BaseModel):
@@ -31,6 +36,22 @@ class EthTransfer(Transfer):
         )
 
 
+class aTokenTransfer(Transfer):
+    token_address: str
+
+    @classmethod
+    def from_trace(cls, trace: DecodedCallTrace) -> "aTokenTransfer":
+        return cls(
+            block_number=trace.block_number,
+            transaction_hash=trace.transaction_hash,
+            trace_address=trace.trace_address,
+            amount=trace.inputs["value"],
+            to_address=trace.inputs["to"],
+            from_address=trace.inputs["from"],
+            token_address=trace.to_address,
+        )
+
+
 class ERC20Transfer(Transfer):
     token_address: str
 
@@ -38,6 +59,17 @@ class ERC20Transfer(Transfer):
     def from_trace(cls, trace: ClassifiedTrace) -> "ERC20Transfer":
         if trace.classification != Classification.transfer or trace.inputs is None:
             raise ValueError("Invalid transfer")
+
+        if trace.protocol == Protocol.aave:
+            return cls(
+                block_number=trace.block_number,
+                transaction_hash=trace.transaction_hash,
+                trace_address=trace.trace_address,
+                amount=trace.inputs["value"],
+                to_address=trace.inputs["to"],
+                from_address=trace.inputs["from"],
+                token_address=trace.to_address,
+            )
 
         if trace.protocol == Protocol.weth:
             return cls(
@@ -49,6 +81,7 @@ class ERC20Transfer(Transfer):
                 from_address=trace.from_address,
                 token_address=trace.to_address,
             )
+
         else:
             return cls(
                 block_number=trace.block_number,
