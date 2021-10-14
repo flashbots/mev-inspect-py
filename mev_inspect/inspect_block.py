@@ -24,6 +24,10 @@ from mev_inspect.crud.liquidations import (
     delete_liquidations_for_block,
     write_liquidations,
 )
+from mev_inspect.crud.atomicmatch import (
+        delete_atomicmatch_for_block,
+        write_atomicmatch,
+)
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers

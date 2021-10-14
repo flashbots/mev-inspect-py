@@ -41,6 +41,10 @@ class LiquidationClassifier(Classifier):
     def get_classification() -> Classification:
         return Classification.liquidate
 
+class AtomicMatchClassifier(Classifier):
+    @staticmethod
+    def get_classification() -> Classification:
+        return Classification.atomicmatch
 
 class SeizeClassifier(Classifier):
     @staticmethod

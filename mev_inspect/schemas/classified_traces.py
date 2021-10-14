@@ -10,6 +10,7 @@ class Classification(Enum):
     transfer = "transfer"
     liquidate = "liquidate"
     seize = "seize"
+    atomicmatch = "atomicmatch"
 
 
 class Protocol(Enum):
@@ -22,6 +23,7 @@ class Protocol(Enum):
     zero_ex = "0x"
     balancer_v1 = "balancer_v1"
     compound_v2 = "compound_v2"
+    opensea = "opensea"
 
 
 class ClassifiedTrace(Trace):
