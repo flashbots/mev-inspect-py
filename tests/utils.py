@@ -22,3 +22,10 @@ def load_comp_markets() -> Dict[str, str]:
     with open(comp_markets_path, "r") as markets_file:
         markets = json.load(markets_file)
         return markets
+
+
+def load_cream_markets() -> Dict[str, str]:
+    cream_markets_path = f"{THIS_FILE_DIRECTORY}/cream_markets.json"
+    with open(cream_markets_path, "r") as markets_file:
+        markets = json.load(markets_file)
+        return markets

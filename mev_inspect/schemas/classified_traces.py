@@ -22,6 +22,7 @@ class Protocol(Enum):
     zero_ex = "0x"
     balancer_v1 = "balancer_v1"
     compound_v2 = "compound_v2"
+    cream = "cream"
 
 
 class ClassifiedTrace(Trace):
