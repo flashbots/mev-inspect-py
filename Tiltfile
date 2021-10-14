@@ -27,5 +27,5 @@ docker_build_with_restart("mev-inspect-py", ".",
             trigger="./pyproject.toml"),
     ],
 )
-k8s_yaml("k8s/app.yaml")
-k8s_resource(workload="mev-inspect-deployment", resource_deps=["postgresql-postgresql"])
+k8s_yaml(helm('./k8s/mev-inspect', name='mev-inspect'))
+k8s_resource(workload="mev-inspect", resource_deps=["postgresql-postgresql"])

@@ -37,7 +37,7 @@ Example:
 export RPC_URL="http://111.111.111.111:8546"
 ```
 
-**Note: mev-inspect-py currently requires an RPC with support for OpenEthereum / Erigon traces (not geth 😔)**
+**Note: mev-inspect-py currently requires an RPC with support for Erigon traces and receipts (not geth 😔)**
 
 Next, start all services with:
 ```
@@ -48,7 +48,7 @@ Press "space" to see a browser of the services starting up
 
 On first startup, you'll need to apply database migrations. Apply with:
 ```
-kubectl exec deploy/mev-inspect-deployment -- alembic upgrade head
+kubectl exec deploy/mev-inspect -- alembic upgrade head
 ```
 
 ## Inspecting
@@ -57,21 +57,21 @@ kubectl exec deploy/mev-inspect-deployment -- alembic upgrade head
 
 Inspecting block [12914944](https://twitter.com/mevalphaleak/status/1420416437575901185)
 ```
-kubectl exec deploy/mev-inspect-deployment -- poetry run inspect-block 12914944
+kubectl exec deploy/mev-inspect -- poetry run inspect-block 12914944
 ```
 
 ### Inspect many blocks
 
 Inspecting blocks 12914944 to 12914954
 ```
-kubectl exec deploy/mev-inspect-deployment -- poetry run inspect-many-blocks 12914944 12914954
+kubectl exec deploy/mev-inspect -- poetry run inspect-many-blocks 12914944 12914954
 ```
 
 ### Inspect all incoming blocks
 
 Start a block listener with
 ```
-kubectl exec deploy/mev-inspect-deployment -- /app/listener start
+kubectl exec deploy/mev-inspect -- /app/listener start
 ```
 
 By default, it will pick up wherever you left off.
@@ -79,12 +79,12 @@ If running for the first time, listener starts at the latest block
 
 See logs for the listener with
 ```
-kubectl exec deploy/mev-inspect-deployment -- tail -f listener.log
+kubectl exec deploy/mev-inspect -- tail -f listener.log
 ```
 
 And stop the listener with
 ```
-kubectl exec deploy/mev-inspect-deployment -- /app/listener stop
+kubectl exec deploy/mev-inspect -- /app/listener stop
 ```
 
 ## Exploring
@@ -143,7 +143,7 @@ poetry run pre-commit install
 
 Run tests with
 ```
-kubectl exec deploy/mev-inspect-deployment -- poetry run pytest --cov=mev_inspect tests
+kubectl exec deploy/mev-inspect -- poetry run pytest --cov=mev_inspect tests
 ```
 
 ## FAQ
@@ -167,7 +167,7 @@ tilt up
 
 And rerun migrations to create the tables again
 ```
-kubectl exec deploy/mev-inspect-deployment -- alembic upgrade head
+kubectl exec deploy/mev-inspect -- alembic upgrade head
 ```
 
 ### I was using the docker-compose setup and want to switch to kube, now what?
