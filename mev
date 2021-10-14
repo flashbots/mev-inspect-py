@@ -24,6 +24,14 @@ case "$1" in
         echo "Connecting to $DB_NAME"
         db
 	;;
+  backfill)
+        start_block_number=$2
+        end_block_number=$3
+        n_workers=$4
+
+        echo "Backfilling from $start_block_number to $end_block_number with $n_workers workers"
+        python backfill.py $start_block_number $end_block_number $n_workers
+	;;
   inspect)
         block_number=$2
         echo "Inspecting block $block_number"
