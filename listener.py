@@ -19,6 +19,10 @@ logging.basicConfig(filename="listener.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+# lag to make sure the blocks we see are settled
+BLOCK_NUMBER_LAG = 5
+
+
 def run():
     rpc = os.getenv("RPC_URL")
     if rpc is None:
@@ -39,7 +43,9 @@ def run():
         logger.info(f"Latest block: {latest_block_number}")
         logger.info(f"Last written block: {last_written_block}")
 
-        if last_written_block is None or last_written_block < latest_block_number:
+        if (last_written_block is None) or (
+            last_written_block < (latest_block_number - BLOCK_NUMBER_LAG)
+        ):
             block_number = (
                 latest_block_number
                 if last_written_block is None

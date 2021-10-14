@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Optional
 
 from mev_inspect.schemas.blocks import TraceType
 from mev_inspect.schemas.classified_traces import (
     Classification,
     ClassifiedTrace,
-    CallTrace,
     DecodedCallTrace,
+    Protocol,
 )
 
 
@@ -18,7 +18,7 @@ def make_transfer_trace(
     token_address: str,
     amount: int,
 ):
-    return CallTrace(
+    return DecodedCallTrace(
         transaction_hash=transaction_hash,
         block_number=block_number,
         type=TraceType.call,
@@ -26,6 +26,9 @@ def make_transfer_trace(
         classification=Classification.transfer,
         from_address=from_address,
         to_address=token_address,
+        abi_name="ERC20",
+        function_name="transfer",
+        function_signature="transfer(address,uint256)",
         inputs={
             "recipient": to_address,
             "amount": amount,
@@ -43,6 +46,8 @@ def make_swap_trace(
     from_address: str,
     pool_address: str,
     abi_name: str,
+    function_signature: str,
+    protocol: Optional[Protocol],
     recipient_address: str,
     recipient_input_key: str,
 ):
@@ -56,8 +61,11 @@ def make_swap_trace(
         classification=Classification.swap,
         from_address=from_address,
         to_address=pool_address,
+        function_name="swap",
+        function_signature=function_signature,
         inputs={recipient_input_key: recipient_address},
         abi_name=abi_name,
+        protocol=protocol,
         block_hash=str(block_number),
     )
 

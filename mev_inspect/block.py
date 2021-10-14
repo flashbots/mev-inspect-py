@@ -82,4 +82,4 @@ def cache_block(cache_path: Path, block: Block):
 
 def _get_cache_path(block_number: int) -> Path:
     cache_directory_path = Path(cache_directory)
-    return cache_directory_path / f"{block_number}-new.json"
+    return cache_directory_path / f"{block_number}.json"

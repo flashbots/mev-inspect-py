@@ -1,14 +1,35 @@
 from mev_inspect.schemas.classified_traces import (
-    Classification,
-    ClassifierSpec,
     Protocol,
 )
+
+from mev_inspect.schemas.classifiers import (
+    ClassifierSpec,
+    DecodedCallTrace,
+    TransferClassifier,
+    LiquidationClassifier,
+)
+from mev_inspect.schemas.transfers import Transfer
+
+
+class AaveTransferClassifier(TransferClassifier):
+    @staticmethod
+    def get_transfer(trace: DecodedCallTrace) -> Transfer:
+        return Transfer(
+            block_number=trace.block_number,
+            transaction_hash=trace.transaction_hash,
+            trace_address=trace.trace_address,
+            amount=trace.inputs["value"],
+            to_address=trace.inputs["to"],
+            from_address=trace.inputs["from"],
+            token_address=trace.to_address,
+        )
+
 
 AAVE_SPEC = ClassifierSpec(
     abi_name="AaveLendingPool",
     protocol=Protocol.aave,
-    classifications={
-        "liquidationCall(address,address,address,uint256,bool)": Classification.liquidate,
+    classifiers={
+        "liquidationCall(address,address,address,uint256,bool)": LiquidationClassifier,
     },
 )
 
@@ -16,8 +37,8 @@ ATOKENS_SPEC = ClassifierSpec(
     abi_name="aTokens",
     protocol=Protocol.aave,
     classifications={
-        "transferOnLiquidation(address,address,uint256)": Classification.transfer,
-        "transferFrom(address,address,uint256)": Classification.transfer,
+        "transferOnLiquidation(address,address,uint256)": AaveTransferClassifier,
+        "transferFrom(address,address,uint256)": AaveTransferClassifier,
     },
 )
 

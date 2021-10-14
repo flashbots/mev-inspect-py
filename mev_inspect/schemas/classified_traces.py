@@ -1,17 +1,15 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel
-
 from .blocks import Trace
 
 
 class Classification(Enum):
     unknown = "unknown"
     swap = "swap"
-    burn = "burn"
     transfer = "transfer"
     liquidate = "liquidate"
+    seize = "seize"
 
 
 class Protocol(Enum):
@@ -23,6 +21,7 @@ class Protocol(Enum):
     curve = "curve"
     zero_ex = "0x"
     balancer_v1 = "balancer_v1"
+    compound_v2 = "compound_v2"
 
 
 class ClassifiedTrace(Trace):
@@ -62,12 +61,5 @@ class DecodedCallTrace(CallTrace):
     protocol: Optional[Protocol]
     gas: Optional[int]
     gas_used: Optional[int]
-    function_name: Optional[str]
-    function_signature: Optional[str]
-
-
-class ClassifierSpec(BaseModel):
-    abi_name: str
-    protocol: Optional[Protocol] = None
-    valid_contract_addresses: Optional[List[str]] = None
-    classifications: Dict[str, Classification] = {}
+    function_name: str
+    function_signature: str

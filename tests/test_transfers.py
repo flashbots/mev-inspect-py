@@ -1,4 +1,4 @@
-from mev_inspect.schemas.transfers import ERC20Transfer
+from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.transfers import remove_child_transfers_of_transfers
 
 
@@ -13,7 +13,7 @@ def test_remove_child_transfers_of_transfers(get_transaction_hashes, get_address
         third_token_address,
     ] = get_addresses(5)
 
-    outer_transfer = ERC20Transfer(
+    outer_transfer = Transfer(
         block_number=123,
         transaction_hash=transaction_hash,
         trace_address=[0],
@@ -23,7 +23,7 @@ def test_remove_child_transfers_of_transfers(get_transaction_hashes, get_address
         token_address=first_token_address,
     )
 
-    inner_transfer = ERC20Transfer(
+    inner_transfer = Transfer(
         **{
             **outer_transfer.dict(),
             **dict(
@@ -33,7 +33,7 @@ def test_remove_child_transfers_of_transfers(get_transaction_hashes, get_address
         }
     )
 
-    other_transfer = ERC20Transfer(
+    other_transfer = Transfer(
         block_number=123,
         transaction_hash=transaction_hash,
         trace_address=[1],
@@ -43,7 +43,7 @@ def test_remove_child_transfers_of_transfers(get_transaction_hashes, get_address
         token_address=third_token_address,
     )
 
-    separate_transaction_transfer = ERC20Transfer(
+    separate_transaction_transfer = Transfer(
         **{
             **inner_transfer.dict(),
             **dict(transaction_hash=other_transaction_hash),

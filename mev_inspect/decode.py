@@ -1,5 +1,7 @@
 from typing import Dict, Optional
 
+import eth_utils.abi
+
 from hexbytes import HexBytes
 from eth_abi import decode_abi
 from eth_abi.exceptions import InsufficientDataBytes, NonEmptyPaddingBytes
@@ -26,7 +28,12 @@ class ABIDecoder:
             return None
 
         names = [input.name for input in func.inputs]
-        types = [input.type for input in func.inputs]
+        types = [
+            input.type
+            if input.type != "tuple"
+            else eth_utils.abi.collapse_if_tuple(input.dict())
+            for input in func.inputs
+        ]
 
         try:
             decoded = decode_abi(types, params)
