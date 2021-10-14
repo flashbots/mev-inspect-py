@@ -36,7 +36,7 @@ AAVE_SPEC = ClassifierSpec(
 ATOKENS_SPEC = ClassifierSpec(
     abi_name="aTokens",
     protocol=Protocol.aave,
-    classifications={
+    classifiers={
         "transferOnLiquidation(address,address,uint256)": AaveTransferClassifier,
         "transferFrom(address,address,uint256)": AaveTransferClassifier,
     },
