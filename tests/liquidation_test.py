@@ -22,6 +22,7 @@ def test_single_weth_liquidation():
             debt_token_address="0xdac17f958d2ee523a2206206994597c13d831ec7",
             debt_purchase_amount=26503300291,
             received_amount=8182733924513576561,
+            received_token_address="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
             protocol=Protocol.aave,
             transaction_hash=transaction_hash,
             trace_address=[1, 1, 6],
@@ -52,9 +53,41 @@ def test_single_liquidation():
             debt_token_address="0xdac17f958d2ee523a2206206994597c13d831ec7",
             debt_purchase_amount=1069206535,
             received_amount=2657946947610159065393,
+            received_token_address="0x80fb784b7ed66730e8b1dbd9820afd29931aab03",
             protocol=Protocol.aave,
             transaction_hash=transaction_hash,
             trace_address=[0, 7, 1, 0, 6],
+            block_number=block_number,
+        )
+    ]
+
+    block = load_test_block(block_number)
+    trace_classifier = TraceClassifier()
+    classified_traces = trace_classifier.classify(block.traces)
+    result = get_aave_liquidations(classified_traces)
+
+    _assert_equal_list_of_liquidations(result, liquidations)
+
+
+def test_single_liquidation_with_atoken_payback():
+
+    transaction_hash = (
+        "0xde551a73e813f1a1e5c843ac2c6a0e40d71618f4040bb7d0cd7cf7b2b6cf4633"
+    )
+    block_number = 13376024
+
+    liquidations = [
+        Liquidation(
+            liquidated_user="0x3d2b6eacd1bca51af57ed8b3ff9ef0bd8ee8c56d",
+            liquidator_user="0x887668f2dc9612280243f2a6ef834cecf456654e",
+            collateral_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
+            debt_token_address="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            debt_purchase_amount=767615458043667978,
+            received_amount=113993647930952952550,
+            received_token_address="0xa06bc25b5805d5f8d82847d191cb4af5a3e873e0",
+            protocol=Protocol.aave,
+            transaction_hash=transaction_hash,
+            trace_address=[2],
             block_number=block_number,
         )
     ]
@@ -81,6 +114,7 @@ def test_multiple_liquidations_in_block():
         debt_token_address="0x4fabb145d64652a948d72533023f6e7a623c7c53",
         debt_purchase_amount=457700000000000000000,
         received_amount=10111753901939162887,
+        received_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
         protocol=Protocol.aave,
         transaction_hash=transaction1,
         trace_address=[],
@@ -94,6 +128,7 @@ def test_multiple_liquidations_in_block():
         debt_token_address="0x0000000000085d4780b73119b644ae5ecd22b376",
         debt_purchase_amount=497030000000000000000,
         received_amount=21996356316098208090,
+        received_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
         protocol=Protocol.aave,
         transaction_hash=transaction2,
         trace_address=[],
@@ -107,6 +142,7 @@ def test_multiple_liquidations_in_block():
         debt_token_address="0x57ab1ec28d129707052df4df418d58a2d46d5f51",
         debt_purchase_amount=447810000000000000000,
         received_amount=121531358145247546,
+        received_token_address="0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2",
         protocol=Protocol.aave,
         transaction_hash=transaction3,
         trace_address=[],

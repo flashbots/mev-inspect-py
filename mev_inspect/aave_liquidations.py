@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple, Optional
 
 from mev_inspect.traces import (
     get_child_traces,
@@ -11,8 +11,10 @@ from mev_inspect.schemas.classified_traces import (
     Protocol,
 )
 
-from mev_inspect.schemas.liquidations import Liquidation
+
 from mev_inspect.transfers import get_transfer
+from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.liquidations import Liquidation
 
 AAVE_CONTRACT_ADDRESSES: List[str] = [
     # AAVE Proxy
@@ -24,7 +26,10 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
     # AAVE V2 WETH
     "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
     # AAVE AMM Market DAI
-    "0x79bE75FFC64DD58e66787E4Eae470c8a1FD08ba4",
+    "0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4",
+    # AAVE i
+    "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
+    "0xbcca60bb61934080951369a648fb03df4f96263c",
 ]
 
 
@@ -52,7 +57,10 @@ def get_aave_liquidations(
                 trace.transaction_hash, trace.trace_address, traces
             )
 
-            received_amount = _get_liquidator_payback(child_traces, liquidator)
+            (
+                received_token_address,
+                received_amount,
+            ) = _get_payback_token_and_amount(trace, child_traces, liquidator)
 
             liquidations.append(
                 Liquidation(
@@ -63,6 +71,7 @@ def get_aave_liquidations(
                     debt_purchase_amount=trace.inputs["_purchaseAmount"],
                     protocol=Protocol.aave,
                     received_amount=received_amount,
+                    received_token_address=received_token_address,
                     transaction_hash=trace.transaction_hash,
                     trace_address=trace.trace_address,
                     block_number=trace.block_number,
@@ -71,19 +80,25 @@ def get_aave_liquidations(
     return liquidations
 
 
-def _get_liquidator_payback(
-    child_traces: List[ClassifiedTrace], liquidator: str
-) -> int:
-    for child in child_traces:
-        if child.classification == Classification.transfer:
+def _get_payback_token_and_amount(
+    liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
+) -> Tuple[str, int]:
 
-            child_transfer = get_transfer(child)
+    """Look for and return liquidator payback from liquidation"""
+
+    for child in child_traces:
+
+        if child.classification == Classification.transfer and isinstance(
+            child, DecodedCallTrace
+        ):
+
+            child_transfer: Optional[Transfer] = get_transfer(child)
 
             if (
                 child_transfer is not None
                 and child_transfer.to_address == liquidator
                 and child.from_address in AAVE_CONTRACT_ADDRESSES
             ):
-                return child_transfer.amount
+                return child_transfer.token_address, child_transfer.amount
 
-    return 0
+    return liquidation.inputs["_collateral"], 0
