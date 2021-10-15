@@ -86,8 +86,6 @@ def _get_payback_token_and_amount(
 ) -> Tuple[str, int]:
 
     """Look for and return liquidator payback from liquidation"""
-    child: ClassifiedTrace
-    child_transfer: Optional[Transfer]
 
     for child in child_traces:
 
@@ -95,7 +93,7 @@ def _get_payback_token_and_amount(
             child, DecodedCallTrace
         ):
 
-            child_transfer = get_transfer(child)
+            child_transfer: Optional[Transfer] = get_transfer(child)
 
             if (
                 child_transfer is not None
