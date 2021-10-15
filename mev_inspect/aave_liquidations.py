@@ -77,7 +77,6 @@ def get_aave_liquidations(
                     block_number=trace.block_number,
                 )
             )
-    print(liquidations)
     return liquidations
 
 
