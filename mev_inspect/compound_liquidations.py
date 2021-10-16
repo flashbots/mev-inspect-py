@@ -9,34 +9,44 @@ from mev_inspect.schemas.classified_traces import (
 )
 
 from mev_inspect.schemas.liquidations import Liquidation
-from mev_inspect.classifiers.specs import WETH_ADDRESS
 from mev_inspect.abi import get_raw_abi
+from mev_inspect.transfers import ETH_TOKEN_ADDRESS
 
 V2_COMPTROLLER_ADDRESS = "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"
 V2_C_ETHER = "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5"
+CREAM_COMPTROLLER_ADDRESS = "0x3d5BC3c8d13dcB8bF317092d84783c2697AE9258"
+CREAM_CR_ETHER = "0xD06527D5e56A3495252A528C4987003b712860eE"
 
 # helper, only queried once in the beginning (inspect_block)
-def fetch_all_comp_markets(w3: Web3) -> Dict[str, str]:
-    c_token_mapping = {}
-    comp_v2_comptroller_abi = get_raw_abi("Comptroller", Protocol.compound_v2)
-    comptroller_instance = w3.eth.contract(
-        address=V2_COMPTROLLER_ADDRESS, abi=comp_v2_comptroller_abi
-    )
+def fetch_all_underlying_markets(w3: Web3, protocol: Protocol) -> Dict[str, str]:
+    if protocol == Protocol.compound_v2:
+        c_ether = V2_C_ETHER
+        address = V2_COMPTROLLER_ADDRESS
+    elif protocol == Protocol.cream:
+        c_ether = CREAM_CR_ETHER
+        address = CREAM_COMPTROLLER_ADDRESS
+    else:
+        raise ValueError(f"No Comptroller found for {protocol}")
+    token_mapping = {}
+    comptroller_abi = get_raw_abi("Comptroller", Protocol.compound_v2)
+    comptroller_instance = w3.eth.contract(address=address, abi=comptroller_abi)
     markets = comptroller_instance.functions.getAllMarkets().call()
-    comp_v2_ctoken_abi = get_raw_abi("CToken", Protocol.compound_v2)
-    for c_token in markets:
+    token_abi = get_raw_abi("CToken", Protocol.compound_v2)
+    for token in markets:
         # make an exception for cETH (as it has no .underlying())
-        if c_token != V2_C_ETHER:
-            ctoken_instance = w3.eth.contract(address=c_token, abi=comp_v2_ctoken_abi)
-            underlying_token = ctoken_instance.functions.underlying().call()
-            c_token_mapping[
-                c_token.lower()
+        if token != c_ether:
+            token_instance = w3.eth.contract(address=token, abi=token_abi)
+            underlying_token = token_instance.functions.underlying().call()
+            token_mapping[
+                token.lower()
             ] = underlying_token.lower()  # make k:v lowercase for consistancy
-    return c_token_mapping
+    return token_mapping
 
 
 def get_compound_liquidations(
-    traces: List[ClassifiedTrace], collateral_by_c_token_address: Dict[str, str]
+    traces: List[ClassifiedTrace],
+    collateral_by_c_token_address: Dict[str, str],
+    collateral_by_cr_token_address: Dict[str, str],
 ) -> List[Liquidation]:
 
     """Inspect list of classified traces and identify liquidation"""
@@ -45,7 +55,10 @@ def get_compound_liquidations(
     for trace in traces:
         if (
             trace.classification == Classification.liquidate
-            and trace.protocol == Protocol.compound_v2
+            and (
+                trace.protocol == Protocol.compound_v2
+                or trace.protocol == Protocol.cream
+            )
             and trace.inputs is not None
             and trace.to_address is not None
         ):
@@ -54,17 +67,27 @@ def get_compound_liquidations(
                 trace.transaction_hash, trace.trace_address, traces
             )
             seize_trace = _get_seize_call(child_traces)
-            if seize_trace is not None and seize_trace.inputs is not None:
+            underlying_markets = {}
+            if trace.protocol == Protocol.compound_v2:
+                underlying_markets = collateral_by_c_token_address
+            elif trace.protocol == Protocol.cream:
+                underlying_markets = collateral_by_cr_token_address
+
+            if (
+                seize_trace is not None
+                and seize_trace.inputs is not None
+                and len(underlying_markets) != 0
+            ):
                 c_token_collateral = trace.inputs["cTokenCollateral"]
                 if trace.abi_name == "CEther":
                     liquidations.append(
                         Liquidation(
                             liquidated_user=trace.inputs["borrower"],
-                            collateral_token_address=WETH_ADDRESS,  # WETH since all cEther liquidations provide Ether
+                            collateral_token_address=ETH_TOKEN_ADDRESS,  # WETH since all cEther liquidations provide Ether
                             debt_token_address=c_token_collateral,
                             liquidator_user=seize_trace.inputs["liquidator"],
                             debt_purchase_amount=trace.value,
-                            protocol=Protocol.compound_v2,
+                            protocol=trace.protocol,
                             received_amount=seize_trace.inputs["seizeTokens"],
                             transaction_hash=trace.transaction_hash,
                             trace_address=trace.trace_address,
@@ -78,13 +101,13 @@ def get_compound_liquidations(
                     liquidations.append(
                         Liquidation(
                             liquidated_user=trace.inputs["borrower"],
-                            collateral_token_address=collateral_by_c_token_address[
+                            collateral_token_address=underlying_markets[
                                 c_token_address
                             ],
                             debt_token_address=c_token_collateral,
                             liquidator_user=seize_trace.inputs["liquidator"],
                             debt_purchase_amount=trace.inputs["repayAmount"],
-                            protocol=Protocol.compound_v2,
+                            protocol=trace.protocol,
                             received_amount=seize_trace.inputs["seizeTokens"],
                             transaction_hash=trace.transaction_hash,
                             trace_address=trace.trace_address,
