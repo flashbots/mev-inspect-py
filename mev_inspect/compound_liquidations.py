@@ -20,11 +20,13 @@ CREAM_CR_ETHER = "0xD06527D5e56A3495252A528C4987003b712860eE"
 # helper, only queried once in the beginning (inspect_block)
 def fetch_all_underlying_markets(w3: Web3, protocol: Protocol) -> Dict[str, str]:
     if protocol == Protocol.compound_v2:
-        C_ETHER = V2_C_ETHER
+        c_ether = V2_C_ETHER
         address = V2_COMPTROLLER_ADDRESS
     elif protocol == Protocol.cream:
-        C_ETHER = CREAM_CR_ETHER
+        c_ether = CREAM_CR_ETHER
         address = CREAM_COMPTROLLER_ADDRESS
+    else:
+        raise ValueError(f"No Comptroller found for {protocol}")
     token_mapping = {}
     comptroller_abi = get_raw_abi("Comptroller", Protocol.compound_v2)
     comptroller_instance = w3.eth.contract(address=address, abi=comptroller_abi)
@@ -32,7 +34,7 @@ def fetch_all_underlying_markets(w3: Web3, protocol: Protocol) -> Dict[str, str]
     token_abi = get_raw_abi("CToken", Protocol.compound_v2)
     for token in markets:
         # make an exception for cETH (as it has no .underlying())
-        if token != C_ETHER:
+        if token != c_ether:
             token_instance = w3.eth.contract(address=token, abi=token_abi)
             underlying_token = token_instance.functions.underlying().call()
             token_mapping[
