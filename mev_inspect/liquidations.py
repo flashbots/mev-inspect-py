@@ -4,10 +4,13 @@ from web3 import Web3
 from mev_inspect.aave_liquidations import get_aave_liquidations
 from mev_inspect.compound_liquidations import (
     get_compound_liquidations,
-    fetch_all_comp_markets,
-    fetch_all_cream_markets,
+    fetch_all_underlying_markets,
 )
-from mev_inspect.schemas.classified_traces import ClassifiedTrace, Classification
+from mev_inspect.schemas.classified_traces import (
+    ClassifiedTrace,
+    Classification,
+    Protocol,
+)
 from mev_inspect.schemas.liquidations import Liquidation
 
 
@@ -23,8 +26,8 @@ def get_liquidations(
 
     if has_liquidations:
         aave_liquidations = get_aave_liquidations(classified_traces)
-        comp_markets = fetch_all_comp_markets(w3)
-        cream_markets = fetch_all_cream_markets(w3)
+        comp_markets = fetch_all_underlying_markets(w3, Protocol.compound_v2)
+        cream_markets = fetch_all_underlying_markets(w3, Protocol.cream)
         compound_liquidations = get_compound_liquidations(
             classified_traces, comp_markets, cream_markets
         )

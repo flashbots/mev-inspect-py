@@ -18,7 +18,7 @@ def test_c_ether_liquidations():
         Liquidation(
             liquidated_user="0xb5535a3681cf8d5431b8acfd779e2f79677ecce9",
             liquidator_user="0xe0090ec6895c087a393f0e45f1f85098a6c33bef",
-            collateral_token_address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            collateral_token_address="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             debt_token_address="0x39aa39c021dfbae8fac545936693ac917d5e7563",
             debt_purchase_amount=268066492249420078,
             received_amount=4747650169097,
@@ -43,7 +43,7 @@ def test_c_ether_liquidations():
         Liquidation(
             liquidated_user="0x45df6f00166c3fb77dc16b9e47ff57bc6694e898",
             liquidator_user="0xe0090ec6895c087a393f0e45f1f85098a6c33bef",
-            collateral_token_address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            collateral_token_address="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             debt_token_address="0x35a18000230da775cac24873d00ff85bccded550",
             debt_purchase_amount=414547860568297082,
             received_amount=321973320649,
@@ -69,7 +69,7 @@ def test_c_ether_liquidations():
         Liquidation(
             liquidated_user="0xacbcf5d2970eef25f02a27e9d9cd31027b058b9b",
             liquidator_user="0xe0090ec6895c087a393f0e45f1f85098a6c33bef",
-            collateral_token_address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            collateral_token_address="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             debt_token_address="0x35a18000230da775cac24873d00ff85bccded550",
             debt_purchase_amount=1106497772527562662,
             received_amount=910895850496,
