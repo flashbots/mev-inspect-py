@@ -1,9 +1,11 @@
 repos:
--   repo: https://github.com/ambv/black
-    rev: 20.8b1
+-   repo: local
     hooks:
-    - id: black
-      language_version: python3.9
+    - id: system
+      name: Black
+      entry: poetry run black .
+      pass_filenames: false
+      language: system
 -   repo: local
     hooks:
     - id: pylint

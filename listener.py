@@ -9,7 +9,7 @@ from mev_inspect.crud.latest_block_update import (
     find_latest_block_update,
     update_latest_block,
 )
-from mev_inspect.db import get_session
+from mev_inspect.db import get_inspect_session
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
 from mev_inspect.signal_handler import GracefulKiller
@@ -32,7 +32,7 @@ def run():
 
     killer = GracefulKiller()
 
-    db_session = get_session()
+    db_session = get_inspect_session()
     base_provider = get_base_provider(rpc)
     w3 = Web3(base_provider)
 
