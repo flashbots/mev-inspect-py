@@ -45,11 +45,18 @@ def fetch_block(
     w3,
     base_provider,
     block_number: int,
-    trace_db_session: Optional[orm.Session],  # pylint: disable=unused-argument
+    trace_db_session: Optional[orm.Session],
 ) -> Block:
     block_json = w3.eth.get_block(block_number)
     receipts_json = base_provider.make_request("eth_getBlockReceipts", [block_number])
-    traces_json = w3.parity.trace_block(block_number)
+
+    traces_json: Optional[List[dict]] = None
+
+    if trace_db_session is not None:
+        traces_json = find_traces(trace_db_session, block_number)
+
+    if traces_json is None:
+        traces_json = w3.parity.trace_block(block_number)
 
     receipts: List[Receipt] = [
         Receipt(**receipt) for receipt in receipts_json["result"]
@@ -64,6 +71,22 @@ def fetch_block(
         traces=traces,
         receipts=receipts,
     )
+
+
+def find_traces(
+    trace_db_session: orm.Session,
+    block_number: int,
+) -> Optional[List[dict]]:
+    result = trace_db_session.execute(
+        "SELECT raw_traces FROM block_traces WHERE block_number = :block_number",
+        params={"block_number": block_number},
+    ).one_or_none()
+
+    if result is None:
+        return None
+    else:
+        (raw_traces,) = result
+        return raw_traces
 
 
 def get_transaction_hashes(calls: List[Trace]) -> List[str]:
