@@ -2,7 +2,7 @@ repos:
 -   repo: local
     hooks:
     - id: system
-      name: Black
+      name: black
       entry: poetry run black .
       pass_filenames: false
       language: system

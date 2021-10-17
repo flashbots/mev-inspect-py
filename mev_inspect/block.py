@@ -1,6 +1,7 @@
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
+from sqlalchemy import orm
 from web3 import Web3
 
 from mev_inspect.fees import fetch_base_fee_per_gas
@@ -16,28 +17,36 @@ def get_latest_block_number(w3: Web3) -> int:
 
 
 def create_from_block_number(
-    base_provider, w3: Web3, block_number: int, should_cache: bool
+    base_provider,
+    w3: Web3,
+    block_number: int,
+    should_cache: bool,
+    trace_db_session: Optional[orm.Session],
 ) -> Block:
     if not should_cache:
-        return fetch_block(w3, base_provider, block_number)
+        return fetch_block(w3, base_provider, block_number, trace_db_session)
 
     cache_path = _get_cache_path(block_number)
 
     if cache_path.is_file():
         print(f"Cache for block {block_number} exists, " "loading data from cache")
-
         return Block.parse_file(cache_path)
     else:
         print(f"Cache for block {block_number} did not exist, getting data")
 
-        block = fetch_block(w3, base_provider, block_number)
+        block = fetch_block(w3, base_provider, block_number, trace_db_session)
 
         cache_block(cache_path, block)
 
         return block
 
 
-def fetch_block(w3, base_provider, block_number: int) -> Block:
+def fetch_block(
+    w3,
+    base_provider,
+    block_number: int,
+    trace_db_session: Optional[orm.Session],  # pylint: disable=unused-argument
+) -> Block:
     block_json = w3.eth.get_block(block_number)
     receipts_json = base_provider.make_request("eth_getBlockReceipts", [block_number])
     traces_json = w3.parity.trace_block(block_number)
