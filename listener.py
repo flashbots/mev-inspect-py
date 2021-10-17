@@ -9,7 +9,8 @@ from mev_inspect.crud.latest_block_update import (
     find_latest_block_update,
     update_latest_block,
 )
-from mev_inspect.db import get_inspect_session
+from mev_inspect.classifiers.trace import TraceClassifier
+from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
 from mev_inspect.signal_handler import GracefulKiller
@@ -17,7 +18,6 @@ from mev_inspect.signal_handler import GracefulKiller
 
 logging.basicConfig(filename="listener.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 # lag to make sure the blocks we see are settled
 BLOCK_NUMBER_LAG = 5
@@ -32,14 +32,17 @@ def run():
 
     killer = GracefulKiller()
 
-    db_session = get_inspect_session()
+    inspect_db_session = get_inspect_session()
+    trace_db_session = get_trace_session()
+    trace_classifier = TraceClassifier()
+
     base_provider = get_base_provider(rpc)
     w3 = Web3(base_provider)
 
     latest_block_number = get_latest_block_number(w3)
 
     while not killer.kill_now:
-        last_written_block = find_latest_block_update(db_session)
+        last_written_block = find_latest_block_update(inspect_db_session)
         logger.info(f"Latest block: {latest_block_number}")
         logger.info(f"Last written block: {last_written_block}")
 
@@ -55,14 +58,16 @@ def run():
             logger.info(f"Writing block: {block_number}")
 
             inspect_block(
-                db_session,
+                inspect_db_session,
                 base_provider,
                 w3,
+                trace_classifier,
                 block_number,
                 should_write_classified_traces=False,
                 should_cache=False,
+                trace_db_session=trace_db_session,
             )
-            update_latest_block(db_session, block_number)
+            update_latest_block(inspect_db_session, block_number)
         else:
             time.sleep(5)
             latest_block_number = get_latest_block_number(w3)
@@ -71,4 +76,7 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    try:
+        run()
+    except Exception as e:
+        logger.error(e)
