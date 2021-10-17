@@ -29,6 +29,7 @@ from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
 from mev_inspect.liquidations import get_liquidations
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +43,10 @@ def inspect_block(
     should_write_classified_traces: bool = True,
 ):
     block = create_from_block_number(
-        base_provider, w3, block_number, should_cache,
+        base_provider,
+        w3,
+        block_number,
+        should_cache,
     )
 
     logger.info(f"Total traces: {len(block.traces)}")

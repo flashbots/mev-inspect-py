@@ -45,7 +45,6 @@ def inspect_block_command(block_number: int, rpc: str, cache: bool):
     )
 
 
-
 @cli.command()
 @click.argument("after_block", type=int)
 @click.argument("before_block", type=int)
