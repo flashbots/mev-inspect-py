@@ -5,12 +5,12 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from mev_inspect.db import get_sqlalchemy_database_uri
+from mev_inspect.db import get_inspect_database_uri
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", get_sqlalchemy_database_uri())
+config.set_main_option("sqlalchemy.url", get_inspect_database_uri())
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

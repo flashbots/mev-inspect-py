@@ -19,6 +19,13 @@ k8s_yaml(secret_from_dict("mev-inspect-db-credentials", inputs = {
     "host": "postgresql",
 }))
 
+# if using https://github.com/taarushv/trace-db
+# k8s_yaml(secret_from_dict("trace-db-credentials", inputs = {
+#     "username" : "username",
+#     "password": "password",
+#     "host": "trace-db-postgresql",
+# }))
+
 docker_build_with_restart("mev-inspect-py", ".",
     entrypoint="/app/entrypoint.sh",
     live_update=[
