@@ -2,12 +2,16 @@ from typing import Dict, Optional
 
 import eth_utils.abi
 
-from hexbytes import HexBytes
 from eth_abi import decode_abi
 from eth_abi.exceptions import InsufficientDataBytes, NonEmptyPaddingBytes
+from hexbytes._utils import hexstr_to_bytes
 
 from mev_inspect.schemas.abi import ABI, ABIFunctionDescription
 from mev_inspect.schemas.call_data import CallData
+
+
+# 0x + 8 characters
+SELECTOR_LENGTH = 10
 
 
 class ABIDecoder:
@@ -19,8 +23,7 @@ class ABIDecoder:
         }
 
     def decode(self, data: str) -> Optional[CallData]:
-        hex_data = HexBytes(data)
-        selector, params = hex_data[:4], hex_data[4:]
+        selector, params = data[:SELECTOR_LENGTH], data[SELECTOR_LENGTH:]
 
         func = self._functions_by_selector.get(selector)
 
@@ -36,7 +39,7 @@ class ABIDecoder:
         ]
 
         try:
-            decoded = decode_abi(types, params)
+            decoded = decode_abi(types, hexstr_to_bytes(params))
         except (InsufficientDataBytes, NonEmptyPaddingBytes):
             return None
 

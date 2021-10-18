@@ -3,7 +3,6 @@ from typing import List, Optional, Union
 from typing_extensions import Literal
 
 import eth_utils.abi
-from hexbytes import HexBytes
 from pydantic import BaseModel
 from web3 import Web3
 
@@ -42,9 +41,9 @@ class ABIFunctionDescription(BaseModel):
     name: str
     inputs: List[ABIDescriptionInput]
 
-    def get_selector(self) -> HexBytes:
+    def get_selector(self) -> str:
         signature = self.get_signature()
-        return Web3.sha3(text=signature)[0:4]
+        return Web3.sha3(text=signature)[0:4].hex()
 
     def get_signature(self) -> str:
         joined_input_types = ",".join(

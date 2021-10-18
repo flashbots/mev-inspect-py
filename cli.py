@@ -5,6 +5,7 @@ import sys
 import click
 from web3 import Web3
 
+from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.db import get_session
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
@@ -29,11 +30,19 @@ def inspect_block_command(block_number: int, rpc: str, cache: bool):
     db_session = get_session()
     base_provider = get_base_provider(rpc)
     w3 = Web3(base_provider)
+    trace_classifier = TraceClassifier()
 
     if not cache:
         logger.info("Skipping cache")
 
-    inspect_block(db_session, base_provider, w3, block_number, should_cache=cache)
+    inspect_block(
+        db_session,
+        base_provider,
+        w3,
+        trace_classifier,
+        block_number,
+        should_cache=cache,
+    )
 
 
 @cli.command()
@@ -48,6 +57,7 @@ def inspect_many_blocks_command(
     db_session = get_session()
     base_provider = get_base_provider(rpc)
     w3 = Web3(base_provider)
+    trace_classifier = TraceClassifier()
 
     if not cache:
         logger.info("Skipping cache")
@@ -65,6 +75,7 @@ def inspect_many_blocks_command(
             db_session,
             base_provider,
             w3,
+            trace_classifier,
             block_number,
             should_write_classified_traces=False,
             should_cache=cache,
