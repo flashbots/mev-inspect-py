@@ -9,7 +9,6 @@ from mev_inspect.schemas.classifiers import (
 
 
 class OneInchFillOrderProtocolSwapClassifier(SwapClassifier):
-
     @staticmethod
     def get_swap_recipient(trace: DecodedCallTrace) -> str:
         return trace.from_address
