@@ -41,7 +41,6 @@ def inspect_block(
     w3: Web3,
     trace_clasifier: TraceClassifier,
     block_number: int,
-    should_cache: bool,
     trace_db_session: Optional[orm.Session],
     should_write_classified_traces: bool = True,
 ):
@@ -49,7 +48,6 @@ def inspect_block(
         base_provider,
         w3,
         block_number,
-        should_cache,
         trace_db_session,
     )
 

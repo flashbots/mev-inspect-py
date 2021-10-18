@@ -43,7 +43,6 @@ def inspect_block_command(block_number: int, rpc: str, cache: bool):
         w3,
         trace_classifier,
         block_number,
-        should_cache=cache,
         trace_db_session=trace_db_session,
     )
 
@@ -83,7 +82,6 @@ def inspect_many_blocks_command(
             trace_classifier,
             block_number,
             should_write_classified_traces=False,
-            should_cache=cache,
             trace_db_session=trace_db_session,
         )
 

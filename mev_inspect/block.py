@@ -20,43 +20,27 @@ def create_from_block_number(
     base_provider,
     w3: Web3,
     block_number: int,
-    should_cache: bool,
     trace_db_session: Optional[orm.Session],
 ) -> Block:
-    if not should_cache:
-        return fetch_block(w3, base_provider, block_number, trace_db_session)
+    block: Optional[Block] = None
 
-    cache_path = _get_cache_path(block_number)
+    if trace_db_session is not None:
+        block = _find_block(trace_db_session, block_number)
 
-    if cache_path.is_file():
-        print(f"Cache for block {block_number} exists, " "loading data from cache")
-        return Block.parse_file(cache_path)
+    if block is None:
+        return _fetch_block(w3, base_provider, block_number)
     else:
-        print(f"Cache for block {block_number} did not exist, getting data")
-
-        block = fetch_block(w3, base_provider, block_number, trace_db_session)
-
-        cache_block(cache_path, block)
-
         return block
 
 
-def fetch_block(
+def _fetch_block(
     w3,
     base_provider,
     block_number: int,
-    trace_db_session: Optional[orm.Session],
 ) -> Block:
     block_json = w3.eth.get_block(block_number)
     receipts_json = base_provider.make_request("eth_getBlockReceipts", [block_number])
-
-    traces_json: Optional[List[dict]] = None
-
-    if trace_db_session is not None:
-        traces_json = find_traces(trace_db_session, block_number)
-
-    if traces_json is None:
-        traces_json = w3.parity.trace_block(block_number)
+    traces_json = w3.parity.trace_block(block_number)
 
     receipts: List[Receipt] = [
         Receipt(**receipt) for receipt in receipts_json["result"]
@@ -73,10 +57,35 @@ def fetch_block(
     )
 
 
-def find_traces(
+def _find_block(
     trace_db_session: orm.Session,
     block_number: int,
-) -> Optional[List[dict]]:
+) -> Optional[Block]:
+    traces = _find_traces(trace_db_session, block_number)
+    receipts = _find_receipts(trace_db_session, block_number)
+    base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
+
+    if traces is None or receipts is None or base_fee_per_gas is None:
+        return None
+
+    miner_address = _get_miner_address_from_traces(traces)
+
+    if miner_address is None:
+        return None
+
+    return Block(
+        block_number=block_number,
+        miner=miner_address,
+        base_fee_per_gas=base_fee_per_gas,
+        traces=traces,
+        receipts=receipts,
+    )
+
+
+def _find_traces(
+    trace_db_session: orm.Session,
+    block_number: int,
+) -> Optional[List[Trace]]:
     result = trace_db_session.execute(
         "SELECT raw_traces FROM block_traces WHERE block_number = :block_number",
         params={"block_number": block_number},
@@ -85,8 +94,48 @@ def find_traces(
     if result is None:
         return None
     else:
-        (raw_traces,) = result
-        return raw_traces
+        (traces_json,) = result
+        return [Trace(**trace_json) for trace_json in traces_json]
+
+
+def _find_receipts(
+    trace_db_session: orm.Session,
+    block_number: int,
+) -> Optional[List[Receipt]]:
+    result = trace_db_session.execute(
+        "SELECT raw_receipts FROM block_receipts WHERE block_number = :block_number",
+        params={"block_number": block_number},
+    ).one_or_none()
+
+    if result is None:
+        return None
+    else:
+        (receipts_json,) = result
+        return [Receipt(**receipt) for receipt in receipts_json]
+
+
+def _find_base_fee(
+    trace_db_session: orm.Session,
+    block_number: int,
+) -> Optional[int]:
+    result = trace_db_session.execute(
+        "SELECT base_fee_in_wei FROM base_fee WHERE block_number = :block_number",
+        params={"block_number": block_number},
+    ).one_or_none()
+
+    if result is None:
+        return None
+    else:
+        (base_fee,) = result
+        return base_fee
+
+
+def _get_miner_address_from_traces(traces: List[Trace]) -> Optional[str]:
+    for trace in traces:
+        if trace.type == TraceType.reward:
+            return trace.action["author"]
+
+    return None
 
 
 def get_transaction_hashes(calls: List[Trace]) -> List[str]:
