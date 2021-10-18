@@ -63,7 +63,6 @@ def run():
                 w3,
                 trace_classifier,
                 block_number,
-                should_write_classified_traces=False,
                 trace_db_session=trace_db_session,
             )
             update_latest_block(inspect_db_session, block_number)

@@ -81,7 +81,6 @@ def inspect_many_blocks_command(
             w3,
             trace_classifier,
             block_number,
-            should_write_classified_traces=False,
             trace_db_session=trace_db_session,
         )
 
