@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from mev_inspect.classifiers.specs import get_classifier
-from mev_inspect.schemas.classified_traces import (
+from mev_inspect.schemas.traces import (
     ClassifiedTrace,
     Classification,
     DecodedCallTrace,

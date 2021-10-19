@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Tuple, Type
 
-from mev_inspect.schemas.classified_traces import DecodedCallTrace, Protocol
+from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
 from mev_inspect.schemas.classifiers import ClassifierSpec, Classifier
 
 from .aave import AAVE_CLASSIFIER_SPECS

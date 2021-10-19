@@ -4,8 +4,8 @@ from typing import Optional
 
 from pydantic import parse_obj_as
 
-from mev_inspect.schemas import ABI
-from mev_inspect.schemas.classified_traces import Protocol
+from mev_inspect.schemas.abi import ABI
+from mev_inspect.schemas.traces import Protocol
 
 
 THIS_FILE_DIRECTORY = Path(__file__).parents[0]

@@ -4,7 +4,7 @@ from mev_inspect.traces import (
     get_child_traces,
     is_child_of_any_address,
 )
-from mev_inspect.schemas.classified_traces import (
+from mev_inspect.schemas.traces import (
     ClassifiedTrace,
     DecodedCallTrace,
     Classification,

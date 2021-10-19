@@ -4,7 +4,7 @@ from mev_inspect.classifiers.specs.uniswap import (
     UNISWAP_V2_PAIR_ABI_NAME,
     UNISWAP_V3_POOL_ABI_NAME,
 )
-from mev_inspect.schemas.classified_traces import Protocol
+from mev_inspect.schemas.traces import Protocol
 
 from .helpers import (
     make_unknown_trace,

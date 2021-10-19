@@ -1,7 +1,28 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from .blocks import Trace
+from .utils import CamelModel
+
+
+class TraceType(Enum):
+    call = "call"
+    create = "create"
+    delegate_call = "delegateCall"
+    reward = "reward"
+    suicide = "suicide"
+
+
+class Trace(CamelModel):
+    action: dict
+    block_hash: str
+    block_number: int
+    result: Optional[dict]
+    subtraces: int
+    trace_address: List[int]
+    transaction_hash: Optional[str]
+    transaction_position: Optional[int]
+    type: TraceType
+    error: Optional[str]
 
 
 class Classification(Enum):
