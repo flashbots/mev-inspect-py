@@ -19,7 +19,7 @@ class Trace(CamelModel):
     result: Optional[dict]
     subtraces: int
     trace_address: List[int]
-    transaction_hash: str
+    transaction_hash: Optional[str]
     transaction_position: Optional[int]
     type: TraceType
     error: Optional[str]
