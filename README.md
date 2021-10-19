@@ -20,13 +20,14 @@ mev-inspect-py is built to run on kubernetes locally and in production.
 ### Dependencies
 
 - [docker](https://www.docker.com/products/docker-desktop)
-- [kind](https://kind.sigs.k8s.io/docs/user/quick-start)
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start), or a similar tool for running local Kubernetes clusters
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [helm](https://helm.sh/docs/intro/install/)
+- [tilt](https://docs.tilt.dev/install.html)
 
 ### Set up
 
-Ceate a new cluster with:
+Create a new cluster with:
 
 ```
 kind create cluster
