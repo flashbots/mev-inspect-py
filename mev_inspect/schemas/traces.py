@@ -19,7 +19,7 @@ class Trace(CamelModel):
     result: Optional[dict]
     subtraces: int
     trace_address: List[int]
-    transaction_hash: Optional[str]
+    transaction_hash: str
     transaction_position: Optional[int]
     type: TraceType
     error: Optional[str]
@@ -47,11 +47,7 @@ class Protocol(Enum):
 
 
 class ClassifiedTrace(Trace):
-    transaction_hash: str
-    block_number: int
-    trace_address: List[int]
     classification: Classification
-    error: Optional[str]
     to_address: Optional[str]
     from_address: Optional[str]
     gas: Optional[int]
