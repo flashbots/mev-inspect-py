@@ -16,7 +16,7 @@ def get_latest_block_number(w3: Web3) -> int:
     return int(w3.eth.get_block("latest")["number"])
 
 
-def create_from_block_number(
+async def create_from_block_number(
     base_provider,
     w3: Web3,
     block_number: int,
@@ -28,25 +28,27 @@ def create_from_block_number(
         block = _find_block(trace_db_session, block_number)
 
     if block is None:
-        return _fetch_block(w3, base_provider, block_number)
+        block = await _fetch_block(w3, base_provider, block_number)
+        return block
     else:
         return block
 
 
-def _fetch_block(
+async def _fetch_block(
     w3,
     base_provider,
     block_number: int,
 ) -> Block:
-    block_json = w3.eth.get_block(block_number)
-    receipts_json = base_provider.make_request("eth_getBlockReceipts", [block_number])
-    traces_json = w3.parity.trace_block(block_number)
-
+    block_json = await w3.eth.get_block(block_number)
+    receipts_json = await base_provider.make_request(
+        "eth_getBlockReceipts", [block_number]
+    )
+    traces_json = await base_provider.make_request("trace_block", [block_number])
     receipts: List[Receipt] = [
         Receipt(**receipt) for receipt in receipts_json["result"]
     ]
-    traces = [Trace(**trace_json) for trace_json in traces_json]
-    base_fee_per_gas = fetch_base_fee_per_gas(w3, block_number)
+    traces = [Trace(**trace_json) for trace_json in traces_json["result"]]
+    base_fee_per_gas = await fetch_base_fee_per_gas(w3, block_number)
 
     return Block(
         block_number=block_number,

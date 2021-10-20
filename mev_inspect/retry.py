@@ -20,7 +20,7 @@ from web3.types import (
 )
 
 
-def exception_retry_with_backoff_middleware(
+async def exception_retry_with_backoff_middleware(
     make_request: Callable[[RPCEndpoint, Any], RPCResponse],
     web3: Web3,  # pylint: disable=unused-argument
     errors: Collection[Type[BaseException]],
@@ -51,9 +51,9 @@ def exception_retry_with_backoff_middleware(
     return middleware
 
 
-def http_retry_with_backoff_request_middleware(
+async def http_retry_with_backoff_request_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], web3: Web3
 ) -> Callable[[RPCEndpoint, Any], Any]:
-    return exception_retry_with_backoff_middleware(
+    return await exception_retry_with_backoff_middleware(
         make_request, web3, (ConnectionError, HTTPError, Timeout, TooManyRedirects)
     )
