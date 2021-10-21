@@ -98,6 +98,28 @@ And stop the listener with:
 ./mev listener stop
 ```
 
+### Backfilling
+
+For larger backfills, you can inspect many blocks in parallel using kubernetes
+
+To inspect blocks 12914944 to 12915044 divided across 10 worker pods:
+```
+./mev backfill 12914944 12915044 10
+```
+
+You can see worker pods spin up then complete by watching the status of all pods
+```
+watch kubectl get pods
+```
+
+To watch the logs for a given pod, take its pod name using the above, then run:
+```
+kubectl logs -f pod/mev-inspect-backfill-abcdefg
+```
+
+(where `mev-inspect-backfill-abcdefg` is your actual pod name)
+
+
 ### Exploring
 
 All inspect output data is stored in Postgres.
