@@ -64,7 +64,7 @@ kubectl exec deploy/mev-inspect -- alembic upgrade head
 Inspecting block [12914944](https://twitter.com/mevalphaleak/status/1420416437575901185):
 
 ```
-kubectl exec deploy/mev-inspect -- poetry run inspect-block 12914944
+./mev inspect 12914944
 ```
 
 ### Inspect many blocks
@@ -72,7 +72,7 @@ kubectl exec deploy/mev-inspect -- poetry run inspect-block 12914944
 Inspecting blocks 12914944 to 12914954:
 
 ```
-kubectl exec deploy/mev-inspect -- poetry run inspect-many-blocks 12914944 12914954
+./mev inspect-many 12914944 12914954
 ```
 
 ### Inspect all incoming blocks
@@ -80,7 +80,7 @@ kubectl exec deploy/mev-inspect -- poetry run inspect-many-blocks 12914944 12914
 Start a block listener with:
 
 ```
-kubectl exec deploy/mev-inspect -- /app/listener start
+./mev listener start
 ```
 
 By default, it will pick up wherever you left off.
@@ -89,13 +89,13 @@ If running for the first time, listener starts at the latest block.
 See logs for the listener with:
 
 ```
-kubectl exec deploy/mev-inspect -- tail -f listener.log
+./mev listener logs
 ```
 
 And stop the listener with:
 
 ```
-kubectl exec deploy/mev-inspect -- /app/listener stop
+./mev listener stop
 ```
 
 ### Exploring
@@ -105,7 +105,7 @@ All inspect output data is stored in Postgres.
 To connect to the local Postgres database for querying, launch a client container with:
 
 ```
-kubectl run -i --rm --tty postgres-client --env="PGPASSWORD=password" --image=jbergknoff/postgresql-client -- mev_inspect --host=postgresql --user=postgres
+./mev db
 ```
 
 When you see the prompt:
