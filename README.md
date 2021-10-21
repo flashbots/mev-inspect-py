@@ -86,10 +86,10 @@ Start a block listener with:
 By default, it will pick up wherever you left off.
 If running for the first time, listener starts at the latest block.
 
-See logs for the listener with:
+Tail logs for the listener with:
 
 ```
-./mev listener logs
+./mev listener tail
 ```
 
 And stop the listener with:
