@@ -1,7 +1,10 @@
 import asyncio
 import logging
 import os
+import signal
 import sys
+import traceback
+from asyncio import CancelledError
 from functools import wraps
 
 import click
@@ -12,7 +15,6 @@ from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
-from mev_inspect.retry import http_retry_with_backoff_request_middleware
 
 RPC_URL_ENV = "RPC_URL"
 
@@ -31,11 +33,17 @@ def coro(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         loop = asyncio.get_event_loop()
+
+        def cancel_task_callback():
+            for task in asyncio.all_tasks():
+                task.cancel()
+
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, cancel_task_callback)
         try:
             loop.run_until_complete(f(*args, **kwargs))
         finally:
             loop.run_until_complete(loop.shutdown_asyncgens())
-            loop.close()
 
     return wrapper
 
@@ -95,11 +103,7 @@ async def inspect_many_blocks_command(
     trace_db_session = get_trace_session()
 
     base_provider = get_base_provider(rpc, request_timeout=request_timeout)
-    w3 = Web3(
-        base_provider,
-        modules={"eth": (AsyncEth,)},
-        middlewares=[http_retry_with_backoff_request_middleware],
-    )
+    w3 = Web3(base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
 
     trace_classifier = TraceClassifier()
 
@@ -122,7 +126,13 @@ async def inspect_many_blocks_command(
             )
         )
     logger.info(f"Gathered {len(tasks)} blocks to inspect")
-    await asyncio.gather(*tasks)
+    try:
+        await asyncio.gather(*tasks)
+    except CancelledError:
+        logger.info("Requested to exit, cleaning up...")
+    except Exception as e:
+        logger.error(f"Existed due to {type(e)}")
+        traceback.print_exc()
 
 
 async def safe_inspect_block(
