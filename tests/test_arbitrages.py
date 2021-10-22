@@ -2,7 +2,7 @@ from typing import List
 
 from mev_inspect.arbitrages import get_arbitrages, _get_all_routes
 from mev_inspect.schemas.swaps import Swap
-from mev_inspect.swaps import (
+from mev_inspect.classifiers.specs.uniswap import (
     UNISWAP_V2_PAIR_ABI_NAME,
     UNISWAP_V3_POOL_ABI_NAME,
 )

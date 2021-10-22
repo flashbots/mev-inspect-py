@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mev-inspect.fullname" . }}
+  labels:
+    {{- include "mev-inspect.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "mev-inspect.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "mev-inspect.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            exec:
+              command:
+              - ls
+              - /
+            initialDelaySeconds: 20
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: mev-inspect-db-credentials
+                key: host
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: mev-inspect-db-credentials
+                key: username
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mev-inspect-db-credentials
+                key: password
+          - name: TRACE_DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: trace-db-credentials
+                key: host
+                optional: true
+          - name: TRACE_DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: trace-db-credentials
+                key: username
+                optional: true
+          - name: TRACE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: trace-db-credentials
+                key: password
+                optional: true
+          - name: RPC_URL
+            valueFrom:
+              configMapKeyRef:
+                name: mev-inspect-rpc
+                key: url
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

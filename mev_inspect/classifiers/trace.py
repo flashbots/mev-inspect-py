@@ -67,8 +67,11 @@ class TraceClassifier:
 
             if call_data is not None:
                 signature = call_data.function_signature
-                classification = spec.classifications.get(
-                    signature, Classification.unknown
+                classifier = spec.classifiers.get(signature)
+                classification = (
+                    Classification.unknown
+                    if classifier is None
+                    else classifier.get_classification()
                 )
 
                 return DecodedCallTrace(
