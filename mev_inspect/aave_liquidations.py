@@ -100,12 +100,16 @@ def _get_payback_token_and_amount(
                     child_transfer.to_address == liquidator
                     and child.from_address in AAVE_CONTRACT_ADDRESSES
                 ):
+
                     return child_transfer.token_address, child_transfer.amount
 
                 elif (
-                    child_transfer.token_address
+                    child_transfer.to_address == liquidator
+                    and child.from_address in AAVE_CONTRACT_ADDRESSES
+                    and child_transfer.token_address
                     == "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
                 ):
+
                     return child_transfer.token_address, child.value
 
     return liquidation.inputs["_collateral"], 0
