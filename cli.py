@@ -4,6 +4,7 @@ import sys
 
 import click
 from web3 import Web3
+from web3.middleware import geth_poa_middleware
 
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.db import get_inspect_session, get_trace_session
@@ -26,12 +27,15 @@ def cli():
 @click.argument("block_number", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
 @click.option("--cache/--no-cache", default=True)
-def inspect_block_command(block_number: int, rpc: str, cache: bool):
+@click.option("--geth/--no-geth", default=False)
+def inspect_block_command(block_number: int, rpc: str, cache: bool, geth: bool):
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
 
     base_provider = get_base_provider(rpc)
     w3 = Web3(base_provider)
+    if geth:
+        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     trace_classifier = TraceClassifier()
 
     if not cache:
@@ -41,6 +45,7 @@ def inspect_block_command(block_number: int, rpc: str, cache: bool):
         inspect_db_session,
         base_provider,
         w3,
+        geth,
         trace_classifier,
         block_number,
         trace_db_session=trace_db_session,
@@ -52,8 +57,9 @@ def inspect_block_command(block_number: int, rpc: str, cache: bool):
 @click.argument("before_block", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
 @click.option("--cache/--no-cache", default=True)
+@click.option("--geth/--no-geth", default=False)
 def inspect_many_blocks_command(
-    after_block: int, before_block: int, rpc: str, cache: bool
+    after_block: int, before_block: int, rpc: str, cache: bool, geth: bool
 ):
 
     inspect_db_session = get_inspect_session()
@@ -61,6 +67,8 @@ def inspect_many_blocks_command(
 
     base_provider = get_base_provider(rpc)
     w3 = Web3(base_provider)
+    if geth:
+        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     trace_classifier = TraceClassifier()
 
     if not cache:
@@ -79,6 +87,7 @@ def inspect_many_blocks_command(
             inspect_db_session,
             base_provider,
             w3,
+            geth,
             trace_classifier,
             block_number,
             trace_db_session=trace_db_session,

@@ -39,6 +39,7 @@ def inspect_block(
     inspect_db_session: orm.Session,
     base_provider,
     w3: Web3,
+    geth: bool,
     trace_clasifier: TraceClassifier,
     block_number: int,
     trace_db_session: Optional[orm.Session],
@@ -47,6 +48,7 @@ def inspect_block(
     block = create_from_block_number(
         base_provider,
         w3,
+        geth,
         block_number,
         trace_db_session,
     )
