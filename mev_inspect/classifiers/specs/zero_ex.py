@@ -3,7 +3,15 @@ from mev_inspect.schemas.classified_traces import (
 )
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
+    DecodedCallTrace,
+    SwapClassifier,
 )
+
+
+class ZeroXSwapClassifier(SwapClassifier):
+    @staticmethod
+    def get_swap_recipient(trace: DecodedCallTrace) -> str:
+        return trace.from_address
 
 
 ZEROX_CONTRACT_SPECS = [
@@ -154,6 +162,9 @@ ZEROX_GENERIC_SPECS = [
     ClassifierSpec(
         abi_name="IUniswapFeature",
         protocol=Protocol.zero_ex,
+        classifiers={
+            "sellToUniswap(address,uint256,uint256,bool)": ZeroXSwapClassifier,
+        },
     ),
     ClassifierSpec(
         abi_name="IUniswapV3Feature",
