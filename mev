@@ -44,7 +44,8 @@ case "$1" in
   fetch)
       block_number=$2
       echo "Fetching block $block_number"
-      kubectl exec exec -ti deploy/mev-inspect -- poetry run fetch-block $block_number
+      kubectl exec -ti deploy/mev-inspect -- poetry run fetch-block $block_number
+  ;;
   *)
 	echo "Usage: "$1" {inspect|test}"
 	exit 1
