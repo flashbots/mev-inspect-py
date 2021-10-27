@@ -1,6 +1,6 @@
 from typing import List
 
-from mev_inspect.schemas.classified_traces import ClassifiedTrace
+from mev_inspect.schemas.traces import ClassifiedTrace
 from mev_inspect.traces import is_child_trace_address, get_child_traces
 
 from .helpers import make_many_unknown_traces

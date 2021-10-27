@@ -1,7 +1,7 @@
 from typing import List
 
 from mev_inspect.aave_liquidations import get_aave_liquidations
-from mev_inspect.schemas.classified_traces import (
+from mev_inspect.schemas.traces import (
     ClassifiedTrace,
     Classification,
 )

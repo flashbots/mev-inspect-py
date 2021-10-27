@@ -2,7 +2,7 @@ from typing import List
 
 from mev_inspect.aave_liquidations import get_aave_liquidations
 from mev_inspect.schemas.liquidations import Liquidation
-from mev_inspect.schemas.classified_traces import Protocol
+from mev_inspect.schemas.traces import Protocol
 from mev_inspect.classifiers.trace import TraceClassifier
 from tests.utils import load_test_block
 
