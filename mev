@@ -51,6 +51,11 @@ case "$1" in
         echo "Running tests"
         kubectl exec -ti deploy/mev-inspect -- poetry run pytest tests
 	;;
+  fetch)
+      block_number=$2
+      echo "Fetching block $block_number"
+      kubectl exec -ti deploy/mev-inspect -- poetry run fetch-block $block_number
+  ;;
   *)
 	echo "Usage: "$1" {db|backfill|inspect|test}"
 	exit 1
