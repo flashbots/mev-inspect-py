@@ -33,8 +33,6 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
     "0xbcca60bb61934080951369a648fb03df4f96263c",
 ]
 
-ETH_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-
 
 def get_aave_liquidations(
     traces: List[ClassifiedTrace],
