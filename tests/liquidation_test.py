@@ -102,6 +102,64 @@ def test_single_liquidation_with_atoken_payback():
 
 def test_multiple_liquidations_in_block():
 
+    transaction1 = "0xedd062c3a728db4b114f2e83cac281d19a9f753e36afa8a35cdbdf1e1dd5d017"
+    transaction2 = "0x18492f250cf4735bd67a21c6cc26b7d9c59cf2fb077356dc924f36bc68a810e5"
+    transaction3 = "0x191b05b28ebaf460e38e90ac6a801681b500f169041ae83a45b32803ef2ec98c"
+    block_number = 12498502
+
+    liquidation1 = Liquidation(
+        liquidated_user="0x6c6541ae8a7c6a6f968124a5ff2feac8f0c7875b",
+        liquidator_user="0x7185e240d8e9e2d692cbc68d30eecf965e9a7feb",
+        collateral_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
+        debt_token_address="0x4fabb145d64652a948d72533023f6e7a623c7c53",
+        debt_purchase_amount=457700000000000000000,
+        received_amount=10111753901939162887,
+        received_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
+        protocol=Protocol.aave,
+        transaction_hash=transaction1,
+        trace_address=[],
+        block_number=block_number,
+    )
+
+    liquidation2 = Liquidation(
+        liquidated_user="0x6c6541ae8a7c6a6f968124a5ff2feac8f0c7875b",
+        liquidator_user="0x7185e240d8e9e2d692cbc68d30eecf965e9a7feb",
+        collateral_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
+        debt_token_address="0x0000000000085d4780b73119b644ae5ecd22b376",
+        debt_purchase_amount=497030000000000000000,
+        received_amount=21996356316098208090,
+        received_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
+        protocol=Protocol.aave,
+        transaction_hash=transaction2,
+        trace_address=[],
+        block_number=block_number,
+    )
+
+    liquidation3 = Liquidation(
+        liquidated_user="0xda874f844389df33c0fad140df4970fe1b366726",
+        liquidator_user="0x7185e240d8e9e2d692cbc68d30eecf965e9a7feb",
+        collateral_token_address="0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2",
+        debt_token_address="0x57ab1ec28d129707052df4df418d58a2d46d5f51",
+        debt_purchase_amount=447810000000000000000,
+        received_amount=121531358145247546,
+        received_token_address="0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2",
+        protocol=Protocol.aave,
+        transaction_hash=transaction3,
+        trace_address=[],
+        block_number=block_number,
+    )
+
+    block = load_test_block(block_number)
+    trace_classifier = TraceClassifier()
+    classified_traces = trace_classifier.classify(block.traces)
+    result = get_aave_liquidations(classified_traces)
+    liquidations = [liquidation1, liquidation2, liquidation3]
+
+    _assert_equal_list_of_liquidations(result, liquidations)
+
+
+def test_liquidations_with_eth_transfer():
+
     transaction_hash = (
         "0xf687fedbc4bbc25adb3ef3a35c20c38fb7d35d86d7633d5061d2e3c4f86311b7"
     )
