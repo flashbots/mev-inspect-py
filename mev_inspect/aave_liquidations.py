@@ -33,6 +33,8 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
     "0xbcca60bb61934080951369a648fb03df4f96263c",
 ]
 
+ETH_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+
 
 def get_aave_liquidations(
     traces: List[ClassifiedTrace],
@@ -99,6 +101,7 @@ def _get_payback_token_and_amount(
                 if (
                     child_transfer.to_address == liquidator
                     and child.from_address in AAVE_CONTRACT_ADDRESSES
+                    and child_transfer.token_address != ETH_TOKEN_ADDRESS
                 ):
 
                     return child_transfer.token_address, child_transfer.amount
@@ -106,8 +109,7 @@ def _get_payback_token_and_amount(
                 elif (
                     child_transfer.to_address == liquidator
                     and child.from_address in AAVE_CONTRACT_ADDRESSES
-                    and child_transfer.token_address
-                    == "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    and child_transfer.token_address == ETH_TOKEN_ADDRESS
                 ):
 
                     return child_transfer.token_address, child.value
