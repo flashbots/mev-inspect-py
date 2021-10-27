@@ -63,7 +63,7 @@ def fetch_block_command(block_number: int, rpc: str):
         trace_db_session=trace_db_session,
     )
 
-    print(block)
+    print(block.json())
 
 
 @cli.command()
