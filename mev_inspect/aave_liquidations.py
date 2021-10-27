@@ -96,7 +96,7 @@ def _get_payback_token_and_amount(
 
             child_transfer: Optional[Transfer] = get_transfer(child)
 
-            if child_transfer:
+            if child_transfer is not None:
 
                 if (
                     child_transfer.to_address == liquidator
