@@ -84,7 +84,7 @@ def get_aave_liquidations(
 
 def _get_payback_token_and_amount(
     liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
-) -> Tuple[str, Optional[int]]:
+) -> Tuple[str, int]:
 
     """Look for and return liquidator payback from liquidation"""
 
