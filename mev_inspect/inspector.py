@@ -7,6 +7,7 @@ from asyncio import CancelledError
 from web3 import Web3
 from web3.eth import AsyncEth
 
+from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspect_block import inspect_block
@@ -20,7 +21,7 @@ class MEVInspector:
     def __init__(
         self,
         rpc: str,
-        cache: bool,
+        cache: bool = False,
         max_concurrency: int = 1,
         request_timeout: int = 300,
     ):
@@ -33,6 +34,14 @@ class MEVInspector:
         self.w3 = Web3(self.base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
         self.trace_classifier = TraceClassifier()
         self.max_concurrency = asyncio.Semaphore(max_concurrency)
+
+    async def create_from_block(self, block_number: int):
+        return await create_from_block_number(
+            base_provider=self.base_provider,
+            w3=self.w3,
+            block_number=block_number,
+            trace_db_session=self.trace_db_session,
+        )
 
     async def inspect_single_block(self, block: int):
         return await inspect_block(

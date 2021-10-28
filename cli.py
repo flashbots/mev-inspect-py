@@ -1,8 +1,6 @@
 import asyncio
-import logging
 import os
 import signal
-import sys
 from functools import wraps
 
 import click
@@ -10,9 +8,6 @@ import click
 from mev_inspect.inspector import MEVInspector
 
 RPC_URL_ENV = "RPC_URL"
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 @click.group()
@@ -47,6 +42,16 @@ def coro(f):
 async def inspect_block_command(block_number: int, rpc: str, cache: bool):
     inspector = MEVInspector(rpc=rpc, cache=cache)
     await inspector.inspect_single_block(block=block_number)
+
+
+@cli.command()
+@click.argument("block_number", type=int)
+@click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
+@coro
+async def fetch_block_command(block_number: int, rpc: str):
+    inspector = MEVInspector(rpc=rpc)
+    block = await inspector.create_from_block(block_number=block_number)
+    print(block.json())
 
 
 @cli.command()

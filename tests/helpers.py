@@ -1,11 +1,11 @@
 from typing import List, Optional
 
-from mev_inspect.schemas.blocks import TraceType
-from mev_inspect.schemas.classified_traces import (
+from mev_inspect.schemas.traces import (
     Classification,
     ClassifiedTrace,
     DecodedCallTrace,
     Protocol,
+    TraceType,
 )
 
 

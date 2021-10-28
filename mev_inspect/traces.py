@@ -1,7 +1,7 @@
 from itertools import groupby
 from typing import Dict, List
 
-from mev_inspect.schemas.classified_traces import ClassifiedTrace
+from mev_inspect.schemas.traces import ClassifiedTrace
 
 
 def is_child_trace_address(

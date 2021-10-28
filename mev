@@ -24,6 +24,9 @@ case "$1" in
         echo "Connecting to $DB_NAME"
         db
 	;;
+  listener)
+        ./listener $2
+	;;
   backfill)
         start_block_number=$2
         end_block_number=$3
@@ -37,12 +40,24 @@ case "$1" in
         echo "Inspecting block $block_number"
         kubectl exec -ti deploy/mev-inspect -- poetry run inspect-block $block_number
 	;;
+  inspect-many)
+        start_block_number=$2
+        end_block_number=$3
+        echo "Inspecting from block $start_block_number to $end_block_number"
+        kubectl exec -ti deploy/mev-inspect -- \
+            poetry run inspect-many-blocks $start_block_number $end_block_number
+	;;
   test)
         echo "Running tests"
         kubectl exec -ti deploy/mev-inspect -- poetry run pytest tests
 	;;
+  fetch)
+      block_number=$2
+      echo "Fetching block $block_number"
+      kubectl exec -ti deploy/mev-inspect -- poetry run fetch-block $block_number
+  ;;
   *)
-	echo "Usage: "$1" {inspect|test}"
+	echo "Usage: "$1" {db|backfill|inspect|test}"
 	exit 1
 esac
 

@@ -8,8 +8,9 @@ from sqlalchemy import orm
 from web3 import Web3
 
 from mev_inspect.fees import fetch_base_fee_per_gas
-from mev_inspect.schemas import Block, Trace, TraceType
+from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.receipts import Receipt
+from mev_inspect.schemas.traces import Trace, TraceType
 
 
 cache_directory = "./cache"

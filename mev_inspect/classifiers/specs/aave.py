@@ -1,13 +1,10 @@
-from mev_inspect.schemas.classified_traces import (
-    Protocol,
-)
-
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     DecodedCallTrace,
     TransferClassifier,
     LiquidationClassifier,
 )
+from mev_inspect.schemas.traces import Protocol
 from mev_inspect.schemas.transfers import Transfer
 
 
