@@ -2,6 +2,7 @@ from mev_inspect.compound_liquidations import get_compound_liquidations
 from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.traces import Protocol
 from mev_inspect.classifiers.trace import TraceClassifier
+from mev_inspect.transfers import ETH_TOKEN_ADDRESS
 from tests.utils import load_test_block, load_comp_markets, load_cream_markets
 
 comp_markets = load_comp_markets()
@@ -18,7 +19,7 @@ def test_c_ether_liquidations():
         Liquidation(
             liquidated_user="0xb5535a3681cf8d5431b8acfd779e2f79677ecce9",
             liquidator_user="0xe0090ec6895c087a393f0e45f1f85098a6c33bef",
-            collateral_token_address="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            collateral_token_address=ETH_TOKEN_ADDRESS,
             debt_token_address="0x39aa39c021dfbae8fac545936693ac917d5e7563",
             debt_purchase_amount=268066492249420078,
             received_amount=4747650169097,
@@ -43,7 +44,7 @@ def test_c_ether_liquidations():
         Liquidation(
             liquidated_user="0x45df6f00166c3fb77dc16b9e47ff57bc6694e898",
             liquidator_user="0xe0090ec6895c087a393f0e45f1f85098a6c33bef",
-            collateral_token_address="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            collateral_token_address=ETH_TOKEN_ADDRESS,
             debt_token_address="0x35a18000230da775cac24873d00ff85bccded550",
             debt_purchase_amount=414547860568297082,
             received_amount=321973320649,
@@ -69,7 +70,7 @@ def test_c_ether_liquidations():
         Liquidation(
             liquidated_user="0xacbcf5d2970eef25f02a27e9d9cd31027b058b9b",
             liquidator_user="0xe0090ec6895c087a393f0e45f1f85098a6c33bef",
-            collateral_token_address="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            collateral_token_address=ETH_TOKEN_ADDRESS,
             debt_token_address="0x35a18000230da775cac24873d00ff85bccded550",
             debt_purchase_amount=1106497772527562662,
             received_amount=910895850496,

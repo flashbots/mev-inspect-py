@@ -4,6 +4,7 @@ from mev_inspect.aave_liquidations import get_aave_liquidations
 from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.traces import Protocol
 from mev_inspect.classifiers.trace import TraceClassifier
+from mev_inspect.transfers import ETH_TOKEN_ADDRESS
 from tests.utils import load_test_block
 
 
@@ -154,6 +155,50 @@ def test_multiple_liquidations_in_block():
     classified_traces = trace_classifier.classify(block.traces)
     result = get_aave_liquidations(classified_traces)
     liquidations = [liquidation1, liquidation2, liquidation3]
+
+    _assert_equal_list_of_liquidations(result, liquidations)
+
+
+def test_liquidations_with_eth_transfer():
+
+    transaction_hash = (
+        "0xf687fedbc4bbc25adb3ef3a35c20c38fb7d35d86d7633d5061d2e3c4f86311b7"
+    )
+    block_number = 13302365
+
+    liquidation1 = Liquidation(
+        liquidated_user="0xad346c7762f74c78da86d2941c6eb546e316fbd0",
+        liquidator_user="0x27239549dd40e1d60f5b80b0c4196923745b1fd2",
+        collateral_token_address=ETH_TOKEN_ADDRESS,
+        debt_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
+        debt_purchase_amount=1809152000000000000,
+        received_amount=15636807387264000,
+        received_token_address=ETH_TOKEN_ADDRESS,
+        protocol=Protocol.aave,
+        transaction_hash=transaction_hash,
+        trace_address=[2, 3, 2],
+        block_number=block_number,
+    )
+
+    liquidation2 = Liquidation(
+        liquidated_user="0xad346c7762f74c78da86d2941c6eb546e316fbd0",
+        liquidator_user="0x27239549dd40e1d60f5b80b0c4196923745b1fd2",
+        collateral_token_address=ETH_TOKEN_ADDRESS,
+        debt_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
+        debt_purchase_amount=1809152000000000000,
+        received_amount=8995273139160873,
+        received_token_address=ETH_TOKEN_ADDRESS,
+        protocol=Protocol.aave,
+        transaction_hash=transaction_hash,
+        trace_address=[2, 4, 2],
+        block_number=block_number,
+    )
+
+    block = load_test_block(block_number)
+    trace_classifier = TraceClassifier()
+    classified_traces = trace_classifier.classify(block.traces)
+    result = get_aave_liquidations(classified_traces)
+    liquidations = [liquidation1, liquidation2]
 
     _assert_equal_list_of_liquidations(result, liquidations)
 
