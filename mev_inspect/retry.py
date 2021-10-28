@@ -11,6 +11,12 @@ from typing import (
 )
 from asyncio.exceptions import TimeoutError
 
+from aiohttp.client_exceptions import (
+    ClientOSError,
+    ServerDisconnectedError,
+    ServerTimeoutError,
+    ClientResponseError,
+)
 from requests.exceptions import (
     ConnectionError,
     HTTPError,
@@ -24,6 +30,14 @@ from web3.types import (
     RPCResponse,
 )
 
+
+request_exceptions = (ConnectionError, HTTPError, Timeout, TooManyRedirects)
+aiohttp_exceptions = (
+    ClientOSError,
+    ServerDisconnectedError,
+    ServerTimeoutError,
+    ClientResponseError,
+)
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -74,5 +88,5 @@ async def http_retry_with_backoff_request_middleware(
     return await exception_retry_with_backoff_middleware(
         make_request,
         web3,
-        (ConnectionError, HTTPError, Timeout, TooManyRedirects, TimeoutError),
+        (request_exceptions + aiohttp_exceptions + (TimeoutError,)),
     )

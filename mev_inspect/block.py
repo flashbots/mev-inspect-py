@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import sys
 from pathlib import Path
 from typing import List, Optional
 
@@ -11,6 +13,8 @@ from mev_inspect.schemas.receipts import Receipt
 
 
 cache_directory = "./cache"
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def get_latest_block_number(w3: Web3) -> int:
@@ -47,10 +51,17 @@ async def _fetch_block(
         fetch_base_fee_per_gas(w3, block_number),
     )
 
-    receipts: List[Receipt] = [
-        Receipt(**receipt) for receipt in receipts_json["result"]
-    ]
-    traces = [Trace(**trace_json) for trace_json in traces_json["result"]]
+    try:
+        receipts: List[Receipt] = [
+            Receipt(**receipt) for receipt in receipts_json["result"]
+        ]
+        traces = [Trace(**trace_json) for trace_json in traces_json["result"]]
+    except KeyError as e:
+        logger.warning(
+            f"Failed to create objects from block: {block_number}: {e}, retrying in 5..."
+        )
+        await asyncio.sleep(5)
+        return await _fetch_block(w3, base_provider, block_number)
 
     return Block(
         block_number=block_number,

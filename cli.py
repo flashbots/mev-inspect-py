@@ -3,25 +3,16 @@ import logging
 import os
 import signal
 import sys
-import traceback
-from asyncio import CancelledError
 from functools import wraps
 
 import click
-from web3 import Web3
-from web3.eth import AsyncEth
 
-from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.db import get_inspect_session, get_trace_session
-from mev_inspect.inspect_block import inspect_block
-from mev_inspect.provider import get_base_provider
+from mev_inspect.inspector import MEVInspector
 
 RPC_URL_ENV = "RPC_URL"
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-semaphore: asyncio.Semaphore
 
 
 @click.group()
@@ -54,24 +45,8 @@ def coro(f):
 @click.option("--cache/--no-cache", default=True)
 @coro
 async def inspect_block_command(block_number: int, rpc: str, cache: bool):
-    inspect_db_session = get_inspect_session()
-    trace_db_session = get_trace_session()
-
-    base_provider = get_base_provider(rpc)
-    w3 = Web3(base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
-    trace_classifier = TraceClassifier()
-
-    if not cache:
-        logger.info("Skipping cache")
-
-    await inspect_block(
-        inspect_db_session,
-        base_provider,
-        w3,
-        trace_classifier,
-        block_number,
-        trace_db_session=trace_db_session,
-    )
+    inspector = MEVInspector(rpc=rpc, cache=cache)
+    await inspector.inspect_single_block(block=block_number)
 
 
 @cli.command()
@@ -97,61 +72,15 @@ async def inspect_many_blocks_command(
     max_concurrency: int,
     request_timeout: int,
 ):
-    global semaphore  # pylint: disable=global-statement
-    semaphore = asyncio.Semaphore(max_concurrency)
-    inspect_db_session = get_inspect_session()
-    trace_db_session = get_trace_session()
-
-    base_provider = get_base_provider(rpc, request_timeout=request_timeout)
-    w3 = Web3(base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
-
-    trace_classifier = TraceClassifier()
-
-    if not cache:
-        logger.info("Skipping cache")
-
-    tasks = []
-
-    for block_number in range(after_block, before_block):
-        tasks.append(
-            asyncio.ensure_future(
-                safe_inspect_block(
-                    inspect_db_session,
-                    base_provider,
-                    w3,
-                    trace_classifier,
-                    block_number,
-                    trace_db_session,
-                )
-            )
-        )
-    logger.info(f"Gathered {len(tasks)} blocks to inspect")
-    try:
-        await asyncio.gather(*tasks)
-    except CancelledError:
-        logger.info("Requested to exit, cleaning up...")
-    except Exception as e:
-        logger.error(f"Existed due to {type(e)}")
-        traceback.print_exc()
-
-
-async def safe_inspect_block(
-    inspect_db_session,
-    base_provider,
-    w3,
-    trace_classifier,
-    block_number,
-    trace_db_session,
-):
-    async with semaphore:
-        return await inspect_block(
-            inspect_db_session,
-            base_provider,
-            w3,
-            trace_classifier,
-            block_number,
-            trace_db_session=trace_db_session,
-        )
+    inspector = MEVInspector(
+        rpc=rpc,
+        cache=cache,
+        max_concurrency=max_concurrency,
+        request_timeout=request_timeout,
+    )
+    await inspector.inspect_many_blocks(
+        after_block=after_block, before_block=before_block
+    )
 
 
 def get_rpc_url() -> str:
