@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel
-from mev_inspect.schemas.classified_traces import Protocol
+from mev_inspect.schemas.traces import Protocol
 
 
 class Liquidation(BaseModel):

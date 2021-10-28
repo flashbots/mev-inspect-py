@@ -1,7 +1,7 @@
 import asyncio
 import logging
-import os
 import sys
+import os
 from functools import wraps
 
 import click
@@ -12,6 +12,8 @@ from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
+from mev_inspect.block import create_from_block_number
+
 from mev_inspect.retry import http_retry_with_backoff_request_middleware
 
 RPC_URL_ENV = "RPC_URL"
@@ -64,6 +66,25 @@ async def inspect_block_command(block_number: int, rpc: str, cache: bool):
         block_number,
         trace_db_session=trace_db_session,
     )
+
+
+@cli.command()
+@click.argument("block_number", type=int)
+@click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
+@coro
+async def fetch_block_command(block_number: int, rpc: str):
+    base_provider = get_base_provider(rpc)
+    w3 = Web3(base_provider)
+    trace_db_session = get_trace_session()
+
+    block = await create_from_block_number(
+        base_provider,
+        w3,
+        block_number,
+        trace_db_session=trace_db_session,
+    )
+
+    print(block.json())
 
 
 @cli.command()

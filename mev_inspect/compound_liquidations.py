@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 from web3 import Web3
 
 from mev_inspect.traces import get_child_traces
-from mev_inspect.schemas.classified_traces import (
+from mev_inspect.schemas.traces import (
     ClassifiedTrace,
     Classification,
     Protocol,

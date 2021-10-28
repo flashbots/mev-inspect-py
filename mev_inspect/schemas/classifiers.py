@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
-from .classified_traces import Classification, DecodedCallTrace, Protocol
+from .traces import Classification, DecodedCallTrace, Protocol
 from .transfers import Transfer
 
 

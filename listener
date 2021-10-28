@@ -25,6 +25,9 @@ case "$1" in
 	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
         echo "."
 	;;
+  tail)
+        tail -f listener.log
+	;;
   restart)
         echo -n "Restarting daemon: "$NAME
 	start-stop-daemon --stop --quiet --oknodo --retry 30 --pidfile $PIDFILE
@@ -40,7 +43,7 @@ case "$1" in
     ;;
 
   *)
-	echo "Usage: "$1" {start|stop|restart}"
+	echo "Usage: "$1" {start|stop|restart|tail}"
 	exit 1
 esac
 

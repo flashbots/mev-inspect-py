@@ -11,7 +11,7 @@ from mev_inspect.crud.arbitrages import (
     delete_arbitrages_for_block,
     write_arbitrages,
 )
-from mev_inspect.crud.classified_traces import (
+from mev_inspect.crud.traces import (
     delete_classified_traces_for_block,
     write_classified_traces,
 )
