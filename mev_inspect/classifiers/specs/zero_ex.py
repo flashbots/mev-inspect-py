@@ -169,6 +169,12 @@ ZEROX_GENERIC_SPECS = [
     ClassifierSpec(
         abi_name="IUniswapV3Feature",
         protocol=Protocol.zero_ex,
+        classifiers={
+            "sellTokenForTokenToUniswapV3(bytes,uint256,uint256,address)": ZeroXSwapClassifier,
+            "sellTokenForEthToUniswapV3(bytes,uint256,uint256,address)": ZeroXSwapClassifier,
+            "sellEthForTokenToUniswapV3(bytes,uint256,address)": ZeroXSwapClassifier,
+            "_sellHeldTokenForTokenToUniswapV3(bytes,uint256,uint256,address)": ZeroXSwapClassifier,
+        },
     ),
     ClassifierSpec(
         abi_name="IBootstrapFeature",
