@@ -40,11 +40,7 @@ async def create_from_block_number(
         return block
 
 
-async def _fetch_block(
-    w3,
-    base_provider,
-    block_number: int,
-) -> Block:
+async def _fetch_block(w3, base_provider, block_number: int, retries: int = 0) -> Block:
     block_json, receipts_json, traces_json, base_fee_per_gas = await asyncio.gather(
         w3.eth.get_block(block_number),
         base_provider.make_request("eth_getBlockReceipts", [block_number]),
@@ -59,10 +55,13 @@ async def _fetch_block(
         traces = [Trace(**trace_json) for trace_json in traces_json["result"]]
     except KeyError as e:
         logger.warning(
-            f"Failed to create objects from block: {block_number}: {e}, retrying in 5..."
+            f"Failed to create objects from block: {block_number}: {e}, retrying: {retries + 1} / 3"
         )
-        await asyncio.sleep(5)
-        return await _fetch_block(w3, base_provider, block_number)
+        if retries < 3:
+            await asyncio.sleep(5)
+            return await _fetch_block(w3, base_provider, block_number, retries)
+        else:
+            raise
 
     return Block(
         block_number=block_number,
