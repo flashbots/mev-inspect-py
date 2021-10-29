@@ -6,6 +6,7 @@ from mev_inspect.traces import (
 )
 from mev_inspect.schemas.traces import (
     ClassifiedTrace,
+    CallTrace,
     DecodedCallTrace,
     Classification,
     Protocol,
@@ -77,6 +78,7 @@ def get_aave_liquidations(
                     block_number=trace.block_number,
                 )
             )
+
     return liquidations
 
 
@@ -88,17 +90,17 @@ def _get_payback_token_and_amount(
 
     for child in child_traces:
 
-        if child.classification == Classification.transfer and isinstance(
-            child, DecodedCallTrace
-        ):
+        if isinstance(child, CallTrace):
 
             child_transfer: Optional[Transfer] = get_transfer(child)
 
-            if (
-                child_transfer is not None
-                and child_transfer.to_address == liquidator
-                and child.from_address in AAVE_CONTRACT_ADDRESSES
-            ):
-                return child_transfer.token_address, child_transfer.amount
+            if child_transfer is not None:
+
+                if (
+                    child_transfer.to_address == liquidator
+                    and child.from_address in AAVE_CONTRACT_ADDRESSES
+                ):
+
+                    return child_transfer.token_address, child_transfer.amount
 
     return liquidation.inputs["_collateral"], 0
