@@ -11,7 +11,7 @@ from mev_inspect.schemas.classifiers import (
 class ZeroXSwapClassifier(SwapClassifier):
     @staticmethod
     def get_swap_recipient(trace: DecodedCallTrace) -> str:
-        return trace.from_address
+        return trace.inputs["recipient"]
 
 
 ZEROX_CONTRACT_SPECS = [
@@ -158,6 +158,9 @@ ZEROX_GENERIC_SPECS = [
     ClassifierSpec(
         abi_name="ITransformERC20Feature",
         protocol=Protocol.zero_ex,
+        classifiers={
+            "transformERC20(address,address,uint256,uint256,tuple)": ZeroXSwapClassifier
+        },
     ),
     ClassifierSpec(
         abi_name="IUniswapFeature",
