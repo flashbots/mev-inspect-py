@@ -1,3 +1,6 @@
+import asyncio
+import logging
+import sys
 from pathlib import Path
 from typing import List, Optional
 
@@ -11,13 +14,15 @@ from mev_inspect.schemas.traces import Trace, TraceType
 
 
 cache_directory = "./cache"
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def get_latest_block_number(w3: Web3) -> int:
     return int(w3.eth.get_block("latest")["number"])
 
 
-def create_from_block_number(
+async def create_from_block_number(
     base_provider,
     w3: Web3,
     block_number: int,
@@ -29,25 +34,34 @@ def create_from_block_number(
         block = _find_block(trace_db_session, block_number)
 
     if block is None:
-        return _fetch_block(w3, base_provider, block_number)
+        block = await _fetch_block(w3, base_provider, block_number)
+        return block
     else:
         return block
 
 
-def _fetch_block(
-    w3,
-    base_provider,
-    block_number: int,
-) -> Block:
-    block_json = w3.eth.get_block(block_number)
-    receipts_json = base_provider.make_request("eth_getBlockReceipts", [block_number])
-    traces_json = w3.parity.trace_block(block_number)
+async def _fetch_block(w3, base_provider, block_number: int, retries: int = 0) -> Block:
+    block_json, receipts_json, traces_json, base_fee_per_gas = await asyncio.gather(
+        w3.eth.get_block(block_number),
+        base_provider.make_request("eth_getBlockReceipts", [block_number]),
+        base_provider.make_request("trace_block", [block_number]),
+        fetch_base_fee_per_gas(w3, block_number),
+    )
 
-    receipts: List[Receipt] = [
-        Receipt(**receipt) for receipt in receipts_json["result"]
-    ]
-    traces = [Trace(**trace_json) for trace_json in traces_json]
-    base_fee_per_gas = fetch_base_fee_per_gas(w3, block_number)
+    try:
+        receipts: List[Receipt] = [
+            Receipt(**receipt) for receipt in receipts_json["result"]
+        ]
+        traces = [Trace(**trace_json) for trace_json in traces_json["result"]]
+    except KeyError as e:
+        logger.warning(
+            f"Failed to create objects from block: {block_number}: {e}, retrying: {retries + 1} / 3"
+        )
+        if retries < 3:
+            await asyncio.sleep(5)
+            return await _fetch_block(w3, base_provider, block_number, retries)
+        else:
+            raise
 
     return Block(
         block_number=block_number,

@@ -1,21 +1,13 @@
+import asyncio
 import os
-import logging
-import sys
+import signal
+from functools import wraps
 
 import click
-from web3 import Web3
 
-from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.db import get_inspect_session, get_trace_session
-from mev_inspect.inspect_block import inspect_block
-from mev_inspect.provider import get_base_provider
-from mev_inspect.block import create_from_block_number
-
+from mev_inspect.inspector import MEVInspector
 
 RPC_URL_ENV = "RPC_URL"
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 @click.group()
@@ -23,46 +15,42 @@ def cli():
     pass
 
 
+def coro(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        loop = asyncio.get_event_loop()
+
+        def cancel_task_callback():
+            for task in asyncio.all_tasks():
+                task.cancel()
+
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, cancel_task_callback)
+        try:
+            loop.run_until_complete(f(*args, **kwargs))
+        finally:
+            loop.run_until_complete(loop.shutdown_asyncgens())
+
+    return wrapper
+
+
 @cli.command()
 @click.argument("block_number", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
 @click.option("--cache/--no-cache", default=True)
-def inspect_block_command(block_number: int, rpc: str, cache: bool):
-    inspect_db_session = get_inspect_session()
-    trace_db_session = get_trace_session()
-
-    base_provider = get_base_provider(rpc)
-    w3 = Web3(base_provider)
-    trace_classifier = TraceClassifier()
-
-    if not cache:
-        logger.info("Skipping cache")
-
-    inspect_block(
-        inspect_db_session,
-        base_provider,
-        w3,
-        trace_classifier,
-        block_number,
-        trace_db_session=trace_db_session,
-    )
+@coro
+async def inspect_block_command(block_number: int, rpc: str, cache: bool):
+    inspector = MEVInspector(rpc=rpc, cache=cache)
+    await inspector.inspect_single_block(block=block_number)
 
 
 @cli.command()
 @click.argument("block_number", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
-def fetch_block_command(block_number: int, rpc: str):
-    base_provider = get_base_provider(rpc)
-    w3 = Web3(base_provider)
-    trace_db_session = get_trace_session()
-
-    block = create_from_block_number(
-        base_provider,
-        w3,
-        block_number,
-        trace_db_session=trace_db_session,
-    )
-
+@coro
+async def fetch_block_command(block_number: int, rpc: str):
+    inspector = MEVInspector(rpc=rpc)
+    block = await inspector.create_from_block(block_number=block_number)
     print(block.json())
 
 
@@ -71,37 +59,33 @@ def fetch_block_command(block_number: int, rpc: str):
 @click.argument("before_block", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
 @click.option("--cache/--no-cache", default=True)
-def inspect_many_blocks_command(
-    after_block: int, before_block: int, rpc: str, cache: bool
+@click.option(
+    "--max-concurrency",
+    type=int,
+    help="maximum number of concurrent connections",
+    default=5,
+)
+@click.option(
+    "--request-timeout", type=int, help="timeout for requests to nodes", default=500
+)
+@coro
+async def inspect_many_blocks_command(
+    after_block: int,
+    before_block: int,
+    rpc: str,
+    cache: bool,
+    max_concurrency: int,
+    request_timeout: int,
 ):
-
-    inspect_db_session = get_inspect_session()
-    trace_db_session = get_trace_session()
-
-    base_provider = get_base_provider(rpc)
-    w3 = Web3(base_provider)
-    trace_classifier = TraceClassifier()
-
-    if not cache:
-        logger.info("Skipping cache")
-
-    for i, block_number in enumerate(range(after_block, before_block)):
-        block_message = (
-            f"Running for {block_number} ({i+1}/{before_block - after_block})"
-        )
-        dashes = "-" * len(block_message)
-        logger.info(dashes)
-        logger.info(block_message)
-        logger.info(dashes)
-
-        inspect_block(
-            inspect_db_session,
-            base_provider,
-            w3,
-            trace_classifier,
-            block_number,
-            trace_db_session=trace_db_session,
-        )
+    inspector = MEVInspector(
+        rpc=rpc,
+        cache=cache,
+        max_concurrency=max_concurrency,
+        request_timeout=request_timeout,
+    )
+    await inspector.inspect_many_blocks(
+        after_block=after_block, before_block=before_block
+    )
 
 
 def get_rpc_url() -> str:
