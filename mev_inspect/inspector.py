@@ -21,13 +21,9 @@ class MEVInspector:
     def __init__(
         self,
         rpc: str,
-        cache: bool = False,
         max_concurrency: int = 1,
         request_timeout: int = 300,
     ):
-        if not cache:
-            logger.info("Skipping cache")
-
         self.inspect_db_session = get_inspect_session()
         self.trace_db_session = get_trace_session()
         self.base_provider = get_base_provider(rpc, request_timeout=request_timeout)

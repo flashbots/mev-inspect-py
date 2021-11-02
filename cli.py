@@ -37,10 +37,9 @@ def coro(f):
 @cli.command()
 @click.argument("block_number", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
-@click.option("--cache/--no-cache", default=True)
 @coro
-async def inspect_block_command(block_number: int, rpc: str, cache: bool):
-    inspector = MEVInspector(rpc=rpc, cache=cache)
+async def inspect_block_command(block_number: int, rpc: str):
+    inspector = MEVInspector(rpc=rpc)
     await inspector.inspect_single_block(block=block_number)
 
 
@@ -58,7 +57,6 @@ async def fetch_block_command(block_number: int, rpc: str):
 @click.argument("after_block", type=int)
 @click.argument("before_block", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
-@click.option("--cache/--no-cache", default=True)
 @click.option(
     "--max-concurrency",
     type=int,
@@ -73,13 +71,11 @@ async def inspect_many_blocks_command(
     after_block: int,
     before_block: int,
     rpc: str,
-    cache: bool,
     max_concurrency: int,
     request_timeout: int,
 ):
     inspector = MEVInspector(
         rpc=rpc,
-        cache=cache,
         max_concurrency=max_concurrency,
         request_timeout=request_timeout,
     )
