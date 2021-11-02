@@ -56,6 +56,10 @@ case "$1" in
       echo "Fetching block $block_number"
       kubectl exec -ti deploy/mev-inspect -- poetry run fetch-block $block_number
   ;;
+  exec)
+        shift
+        kubectl exec -ti deploy/mev-inspect -- $@
+  ;;
   *)
 	echo "Usage: "$1" {db|backfill|inspect|test}"
 	exit 1

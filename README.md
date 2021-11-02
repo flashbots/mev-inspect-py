@@ -54,7 +54,7 @@ Press "space" to see a browser of the services starting up.
 On first startup, you'll need to apply database migrations with:
 
 ```
-kubectl exec deploy/mev-inspect -- alembic upgrade head
+./mev exec alembic upgrade head
 ```
 
 ## Usage
@@ -181,7 +181,7 @@ tilt up
 And rerun migrations to create the tables again:
 
 ```
-kubectl exec deploy/mev-inspect -- alembic upgrade head
+./mev exec alembic upgrade head
 ```
 
 ### I was using the docker-compose setup and want to switch to kube, now what?
