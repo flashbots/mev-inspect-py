@@ -35,13 +35,16 @@ kind create cluster
 
 Set an environment variable `RPC_URL` to an RPC for fetching blocks.
 
+mev-inspect-py currently requires a node with support for Erigon traces and receipts (not geth yet 😔).
+
+[pokt.network](pokt.network)'s "Ethereum Mainnet Archival with trace calls" is a good free option.
+
 Example:
 
 ```
 export RPC_URL="http://111.111.111.111:8546"
 ```
 
-**Note**: mev-inspect-py currently requires an RPC of a full archive node with support for Erigon traces and receipts (not geth 😔).
 
 Next, start all services with:
 
