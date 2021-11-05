@@ -4,9 +4,10 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-from sqlalchemy import orm
+from sqlalchemy.ext.asyncio import AsyncSession
 from web3 import Web3
 
+from mev_inspect.crud.blocks import find_block
 from mev_inspect.fees import fetch_base_fee_per_gas
 from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.receipts import Receipt
@@ -26,12 +27,12 @@ async def create_from_block_number(
     base_provider,
     w3: Web3,
     block_number: int,
-    trace_db_session: Optional[orm.Session],
+    trace_db_session: Optional[AsyncSession],
 ) -> Block:
     block: Optional[Block] = None
 
     if trace_db_session is not None:
-        block = _find_block(trace_db_session, block_number)
+        block = await find_block(trace_db_session, block_number)
 
     if block is None:
         block = await _fetch_block(w3, base_provider, block_number)
@@ -70,87 +71,6 @@ async def _fetch_block(w3, base_provider, block_number: int, retries: int = 0) -
         traces=traces,
         receipts=receipts,
     )
-
-
-def _find_block(
-    trace_db_session: orm.Session,
-    block_number: int,
-) -> Optional[Block]:
-    traces = _find_traces(trace_db_session, block_number)
-    receipts = _find_receipts(trace_db_session, block_number)
-    base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
-
-    if traces is None or receipts is None or base_fee_per_gas is None:
-        return None
-
-    miner_address = _get_miner_address_from_traces(traces)
-
-    if miner_address is None:
-        return None
-
-    return Block(
-        block_number=block_number,
-        miner=miner_address,
-        base_fee_per_gas=base_fee_per_gas,
-        traces=traces,
-        receipts=receipts,
-    )
-
-
-def _find_traces(
-    trace_db_session: orm.Session,
-    block_number: int,
-) -> Optional[List[Trace]]:
-    result = trace_db_session.execute(
-        "SELECT raw_traces FROM block_traces WHERE block_number = :block_number",
-        params={"block_number": block_number},
-    ).one_or_none()
-
-    if result is None:
-        return None
-    else:
-        (traces_json,) = result
-        return [Trace(**trace_json) for trace_json in traces_json]
-
-
-def _find_receipts(
-    trace_db_session: orm.Session,
-    block_number: int,
-) -> Optional[List[Receipt]]:
-    result = trace_db_session.execute(
-        "SELECT raw_receipts FROM block_receipts WHERE block_number = :block_number",
-        params={"block_number": block_number},
-    ).one_or_none()
-
-    if result is None:
-        return None
-    else:
-        (receipts_json,) = result
-        return [Receipt(**receipt) for receipt in receipts_json]
-
-
-def _find_base_fee(
-    trace_db_session: orm.Session,
-    block_number: int,
-) -> Optional[int]:
-    result = trace_db_session.execute(
-        "SELECT base_fee_in_wei FROM base_fee WHERE block_number = :block_number",
-        params={"block_number": block_number},
-    ).one_or_none()
-
-    if result is None:
-        return None
-    else:
-        (base_fee,) = result
-        return base_fee
-
-
-def _get_miner_address_from_traces(traces: List[Trace]) -> Optional[str]:
-    for trace in traces:
-        if trace.type == TraceType.reward:
-            return trace.action["author"]
-
-    return None
 
 
 def get_transaction_hashes(calls: List[Trace]) -> List[str]:

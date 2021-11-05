@@ -5,12 +5,13 @@ import time
 from web3 import Web3
 
 from mev_inspect.block import get_latest_block_number
+from mev_inspect.concurrency import coro
 from mev_inspect.crud.latest_block_update import (
     find_latest_block_update,
     update_latest_block,
 )
 from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.db import get_inspect_session, get_trace_session
+from mev_inspect.db import get_inspect_sessionmaker, get_trace_sessionmaker
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
 from mev_inspect.signal_handler import GracefulKiller
@@ -23,7 +24,8 @@ logger = logging.getLogger(__name__)
 BLOCK_NUMBER_LAG = 5
 
 
-def run():
+@coro
+async def run():
     rpc = os.getenv("RPC_URL")
     if rpc is None:
         raise RuntimeError("Missing environment variable RPC_URL")
@@ -32,8 +34,14 @@ def run():
 
     killer = GracefulKiller()
 
-    inspect_db_session = get_inspect_session()
-    trace_db_session = get_trace_session()
+    inspect_db_sessionmaker = get_inspect_sessionmaker()
+    trace_db_sessionmaker = get_trace_sessionmaker()
+
+    inspect_db_session = inspect_db_sessionmaker()
+    trace_db_session = (
+        trace_db_sessionmaker() if trace_db_sessionmaker is not None else None
+    )
+
     trace_classifier = TraceClassifier()
 
     base_provider = get_base_provider(rpc)

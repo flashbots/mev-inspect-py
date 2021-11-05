@@ -5,20 +5,20 @@ from mev_inspect.models.miner_payments import MinerPaymentModel
 from mev_inspect.schemas.miner_payments import MinerPayment
 
 
-def delete_miner_payments_for_block(
+async def delete_miner_payments_for_block(
     db_session,
     block_number: int,
 ) -> None:
-    (
+    await (
         db_session.query(MinerPaymentModel)
         .filter(MinerPaymentModel.block_number == block_number)
         .delete()
     )
 
-    db_session.commit()
+    await db_session.commit()
 
 
-def write_miner_payments(
+async def write_miner_payments(
     db_session,
     miner_payments: List[MinerPayment],
 ) -> None:
@@ -27,5 +27,5 @@ def write_miner_payments(
         for miner_payment in miner_payments
     ]
 
-    db_session.bulk_save_objects(models)
-    db_session.commit()
+    await db_session.bulk_save_objects(models)
+    await db_session.commit()

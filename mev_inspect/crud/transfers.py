@@ -5,7 +5,7 @@ from mev_inspect.models.transfers import TransferModel
 from mev_inspect.schemas.transfers import Transfer
 
 
-def delete_transfers_for_block(
+async def delete_transfers_for_block(
     db_session,
     block_number: int,
 ) -> None:
@@ -18,7 +18,7 @@ def delete_transfers_for_block(
     db_session.commit()
 
 
-def write_transfers(
+async def write_transfers(
     db_session,
     transfers: List[Transfer],
 ) -> None:

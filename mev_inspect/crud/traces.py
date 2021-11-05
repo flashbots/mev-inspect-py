@@ -1,25 +1,25 @@
 import json
 from typing import List
 
+from sqlalchemy import delete
+
 from mev_inspect.models.traces import ClassifiedTraceModel
 from mev_inspect.schemas.traces import ClassifiedTrace
 
 
-def delete_classified_traces_for_block(
-    db_session,
+async def delete_classified_traces_for_block(
+    inspect_db_session,
     block_number: int,
 ) -> None:
-    (
-        db_session.query(ClassifiedTraceModel)
-        .filter(ClassifiedTraceModel.block_number == block_number)
-        .delete()
+    statement = delete(ClassifiedTraceModel).where(
+        ClassifiedTraceModel.block_number == block_number
     )
+    await inspect_db_session.execute(statement)
+    await inspect_db_session.commit()
 
-    db_session.commit()
 
-
-def write_classified_traces(
-    db_session,
+async def write_classified_traces(
+    inspect_db_session,
     classified_traces: List[ClassifiedTrace],
 ) -> None:
     models = []
@@ -46,5 +46,5 @@ def write_classified_traces(
             )
         )
 
-    db_session.bulk_save_objects(models)
-    db_session.commit()
+    inspect_db_session.add_all(models)
+    await inspect_db_session.commit()

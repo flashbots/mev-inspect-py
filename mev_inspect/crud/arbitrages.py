@@ -5,20 +5,20 @@ from mev_inspect.models.arbitrages import ArbitrageModel
 from mev_inspect.schemas.arbitrages import Arbitrage
 
 
-def delete_arbitrages_for_block(
+async def delete_arbitrages_for_block(
     db_session,
     block_number: int,
 ) -> None:
-    (
+    await (
         db_session.query(ArbitrageModel)
         .filter(ArbitrageModel.block_number == block_number)
         .delete()
     )
 
-    db_session.commit()
+    await db_session.commit()
 
 
-def write_arbitrages(
+async def write_arbitrages(
     db_session,
     arbitrages: List[Arbitrage],
 ) -> None:
@@ -50,8 +50,8 @@ def write_arbitrages(
             )
 
     if len(arbitrage_models) > 0:
-        db_session.bulk_save_objects(arbitrage_models)
-        db_session.execute(
+        await db_session.bulk_save_objects(arbitrage_models)
+        await db_session.execute(
             """
             INSERT INTO arbitrage_swaps
             (arbitrage_id, swap_transaction_hash, swap_trace_address)
@@ -61,4 +61,4 @@ def write_arbitrages(
             params=swap_arbitrage_ids,
         )
 
-        db_session.commit()
+        await db_session.commit()
