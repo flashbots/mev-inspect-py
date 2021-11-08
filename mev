@@ -25,7 +25,7 @@ case "$1" in
         db
 	;;
   listener)
-        ./listener $2
+        kubectl exec -ti deploy/mev-inspect -- ./listener $2
 	;;
   backfill)
         start_block_number=$2
