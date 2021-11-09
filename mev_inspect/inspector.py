@@ -3,13 +3,14 @@ import logging
 import sys
 import traceback
 from asyncio import CancelledError
+from typing import Optional
 
+from sqlalchemy import orm
 from web3 import Web3
 from web3.eth import AsyncEth
 
 from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
 
@@ -21,11 +22,13 @@ class MEVInspector:
     def __init__(
         self,
         rpc: str,
+        inspect_db_session: orm.Session,
+        trace_db_session: Optional[orm.Session],
         max_concurrency: int = 1,
         request_timeout: int = 300,
     ):
-        self.inspect_db_session = get_inspect_session()
-        self.trace_db_session = get_trace_session()
+        self.inspect_db_session = inspect_db_session
+        self.trace_db_session = trace_db_session
         self.base_provider = get_base_provider(rpc, request_timeout=request_timeout)
         self.w3 = Web3(self.base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
         self.trace_classifier = TraceClassifier()
