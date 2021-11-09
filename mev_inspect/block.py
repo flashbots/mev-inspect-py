@@ -11,6 +11,7 @@ from mev_inspect.fees import fetch_base_fee_per_gas
 from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.receipts import Receipt
 from mev_inspect.schemas.traces import Trace, TraceType
+from mev_inspect.utils import hex_to_int
 
 
 cache_directory = "./cache"
@@ -18,8 +19,13 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def get_latest_block_number(w3: Web3) -> int:
-    return int(w3.eth.get_block("latest")["number"])
+async def get_latest_block_number(base_provider) -> int:
+    latest_block = await base_provider.make_request(
+        "eth_getBlockByNumber",
+        ["latest", False],
+    )
+
+    return hex_to_int(latest_block["result"]["number"])
 
 
 async def create_from_block_number(

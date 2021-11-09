@@ -1,17 +1,15 @@
+import asyncio
 import logging
 import os
-import time
-
-from web3 import Web3
 
 from mev_inspect.block import get_latest_block_number
+from mev_inspect.concurrency import coro
 from mev_inspect.crud.latest_block_update import (
     find_latest_block_update,
     update_latest_block,
 )
-from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.db import get_inspect_session, get_trace_session
-from mev_inspect.inspect_block import inspect_block
+from mev_inspect.inspector import MEVInspector
 from mev_inspect.provider import get_base_provider
 from mev_inspect.signal_handler import GracefulKiller
 
@@ -23,7 +21,8 @@ logger = logging.getLogger(__name__)
 BLOCK_NUMBER_LAG = 5
 
 
-def run():
+@coro
+async def run():
     rpc = os.getenv("RPC_URL")
     if rpc is None:
         raise RuntimeError("Missing environment variable RPC_URL")
@@ -34,21 +33,23 @@ def run():
 
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
-    trace_classifier = TraceClassifier()
+
+    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session)
 
     base_provider = get_base_provider(rpc)
-    w3 = Web3(base_provider)
 
-    latest_block_number = get_latest_block_number(w3)
+    latest_block_number = await get_latest_block_number(base_provider)
 
     while not killer.kill_now:
         last_written_block = find_latest_block_update(inspect_db_session)
         logger.info(f"Latest block: {latest_block_number}")
         logger.info(f"Last written block: {last_written_block}")
 
-        if (last_written_block is None) or (
-            last_written_block < (latest_block_number - BLOCK_NUMBER_LAG)
-        ):
+        if last_written_block is None:
+            # maintain lag if no blocks written yet
+            last_written_block = latest_block_number - 1
+
+        if last_written_block < (latest_block_number - BLOCK_NUMBER_LAG):
             block_number = (
                 latest_block_number
                 if last_written_block is None
@@ -57,18 +58,11 @@ def run():
 
             logger.info(f"Writing block: {block_number}")
 
-            inspect_block(
-                inspect_db_session,
-                base_provider,
-                w3,
-                trace_classifier,
-                block_number,
-                trace_db_session=trace_db_session,
-            )
+            await inspector.inspect_single_block(block=block_number)
             update_latest_block(inspect_db_session, block_number)
         else:
-            time.sleep(5)
-            latest_block_number = get_latest_block_number(w3)
+            await asyncio.sleep(5)
+            latest_block_number = await get_latest_block_number(base_provider)
 
     logger.info("Stopping...")
 
