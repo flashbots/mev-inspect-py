@@ -20,15 +20,10 @@ FILL_ORDER_SIGNATURE = (
 )
 
 
-FILL_ORDER_SIGNATURE = (
-    "fillOrder((uint256,address,address,bytes,bytes,bytes,bytes,bytes,bytes,bytes),"
-    "bytes,uint256,uint256,uint256)"
-)
-
 ONE_INCH_LIMIT_ORDER_PROTOCOL_SPEC = ClassifierSpec(
     abi_name="1inchLimitOrderProtocol",
     protocol=Protocol.one_inch,
-    classifications={
+    classifiers={
         FILL_ORDER_SIGNATURE: OneInchFillOrderProtocolSwapClassifier,
     },
 )
