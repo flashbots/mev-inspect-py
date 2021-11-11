@@ -44,6 +44,7 @@ class Protocol(Enum):
     balancer_v1 = "balancer_v1"
     compound_v2 = "compound_v2"
     cream = "cream"
+    cryptopunks = "cryptopunks"
 
 
 class ClassifiedTrace(Trace):
