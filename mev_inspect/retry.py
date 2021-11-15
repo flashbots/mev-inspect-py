@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import random
-import sys
 from typing import (
     Any,
     Callable,
@@ -39,7 +38,6 @@ aiohttp_exceptions = (
     ClientResponseError,
 )
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

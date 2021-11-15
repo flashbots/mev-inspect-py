@@ -16,7 +16,7 @@ from mev_inspect.provider import get_base_provider
 from mev_inspect.signal_handler import GracefulKiller
 
 
-logging.basicConfig(filename="listener.log", level=logging.INFO)
+logging.basicConfig(filename="listener.log", filemode="a", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # lag to make sure the blocks we see are settled
