@@ -1,3 +1,5 @@
+from typing import Optional, List
+
 from mev_inspect.schemas.traces import (
     DecodedCallTrace,
     Protocol,
@@ -6,7 +8,12 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-
+from mev_inspect.schemas.swaps import Swap
+from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.transfers import (
+    build_eth_transfer,
+    filter_transfers,
+)
 
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
 UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
@@ -14,20 +21,126 @@ UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
 
 class UniswapV3SwapClassifier(SwapClassifier):
     @staticmethod
-    def get_swap_recipient(trace: DecodedCallTrace) -> str:
+    def parse_swap(
+        trace: DecodedCallTrace,
+        prior_transfers: List[Transfer],
+        child_transfers: List[Transfer],
+    ) -> Optional[Swap]:
+        pool_address = trace.to_address
+
         if trace.inputs is not None and "recipient" in trace.inputs:
-            return trace.inputs["recipient"]
+            recipient_address = trace.inputs["recipient"]
         else:
-            return trace.from_address
+            recipient_address = trace.from_address
+
+        if recipient_address is None:
+            return None
+
+        transfers_to_pool = []
+
+        if trace.value is not None and trace.value > 0:
+            transfers_to_pool = [build_eth_transfer(trace)]
+
+        if len(transfers_to_pool) == 0:
+            transfers_to_pool = filter_transfers(
+                prior_transfers, to_address=pool_address
+            )
+
+        if len(transfers_to_pool) == 0:
+            transfers_to_pool = filter_transfers(
+                child_transfers, to_address=pool_address
+            )
+
+        if len(transfers_to_pool) == 0:
+            return None
+
+        transfers_from_pool_to_recipient = filter_transfers(
+            child_transfers, to_address=recipient_address, from_address=pool_address
+        )
+
+        if len(transfers_from_pool_to_recipient) != 1:
+            return None
+
+        transfer_in = transfers_to_pool[-1]
+        transfer_out = transfers_from_pool_to_recipient[0]
+
+        return Swap(
+            abi_name=trace.abi_name,
+            transaction_hash=trace.transaction_hash,
+            block_number=trace.block_number,
+            trace_address=trace.trace_address,
+            pool_address=pool_address,
+            protocol=trace.protocol,
+            from_address=transfer_in.from_address,
+            to_address=transfer_out.to_address,
+            token_in_address=transfer_in.token_address,
+            token_in_amount=transfer_in.amount,
+            token_out_address=transfer_out.token_address,
+            token_out_amount=transfer_out.amount,
+            error=trace.error,
+        )
 
 
 class UniswapV2SwapClassifier(SwapClassifier):
     @staticmethod
-    def get_swap_recipient(trace: DecodedCallTrace) -> str:
+    def parse_swap(
+        trace: DecodedCallTrace,
+        prior_transfers: List[Transfer],
+        child_transfers: List[Transfer],
+    ) -> Optional[Swap]:
+        pool_address = trace.to_address
+
         if trace.inputs is not None and "to" in trace.inputs:
-            return trace.inputs["to"]
+            recipient_address = trace.inputs["to"]
         else:
-            return trace.from_address
+            recipient_address = trace.from_address
+
+        if recipient_address is None:
+            return None
+
+        transfers_to_pool = []
+
+        if trace.value is not None and trace.value > 0:
+            transfers_to_pool = [build_eth_transfer(trace)]
+
+        if len(transfers_to_pool) == 0:
+            transfers_to_pool = filter_transfers(
+                prior_transfers, to_address=pool_address
+            )
+
+        if len(transfers_to_pool) == 0:
+            transfers_to_pool = filter_transfers(
+                child_transfers, to_address=pool_address
+            )
+
+        if len(transfers_to_pool) == 0:
+            return None
+
+        transfers_from_pool_to_recipient = filter_transfers(
+            child_transfers, to_address=recipient_address, from_address=pool_address
+        )
+
+        if len(transfers_from_pool_to_recipient) != 1:
+            return None
+
+        transfer_in = transfers_to_pool[-1]
+        transfer_out = transfers_from_pool_to_recipient[0]
+
+        return Swap(
+            abi_name=trace.abi_name,
+            transaction_hash=trace.transaction_hash,
+            block_number=trace.block_number,
+            trace_address=trace.trace_address,
+            pool_address=pool_address,
+            protocol=trace.protocol,
+            from_address=transfer_in.from_address,
+            to_address=transfer_out.to_address,
+            token_in_address=transfer_in.token_address,
+            token_in_amount=transfer_in.amount,
+            token_out_address=transfer_out.token_address,
+            token_out_amount=transfer_out.amount,
+            error=trace.error,
+        )
 
 
 UNISWAP_V3_CONTRACT_SPECS = [
@@ -127,7 +240,7 @@ UNISWAPPY_V2_PAIR_SPEC = ClassifierSpec(
     },
 )
 
-UNISWAP_CLASSIFIER_SPECS = [
+UNISWAP_CLASSIFIER_SPECS: List = [
     *UNISWAP_V3_CONTRACT_SPECS,
     *UNISWAPPY_V2_CONTRACT_SPECS,
     *UNISWAP_V3_GENERAL_SPECS,
