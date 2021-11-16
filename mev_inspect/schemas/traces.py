@@ -31,6 +31,8 @@ class Classification(Enum):
     transfer = "transfer"
     liquidate = "liquidate"
     seize = "seize"
+    punk_bid = "punk_bid"
+    punk_accept_bid = "punk_accept_bid"
 
 
 class Protocol(Enum):
