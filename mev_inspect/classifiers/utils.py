@@ -8,15 +8,11 @@ from mev_inspect.schemas.traces import DecodedCallTrace, ClassifiedTrace
 
 def create_swap_from_transfers(
     trace: DecodedCallTrace,
+    recipient_address: str,
     prior_transfers: List[Transfer],
     child_transfers: List[Transfer],
 ) -> Optional[Swap]:
     pool_address = trace.to_address
-
-    if trace.inputs is not None and "to" in trace.inputs:
-        recipient_address = trace.inputs["to"]
-    else:
-        recipient_address = trace.from_address
 
     if recipient_address is None:
         return None

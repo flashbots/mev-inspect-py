@@ -24,7 +24,14 @@ class UniswapV3SwapClassifier(SwapClassifier):
         child_transfers: List[Transfer],
     ) -> Optional[Swap]:
 
-        swap = create_swap_from_transfers(trace, prior_transfers, child_transfers)
+        if trace.inputs is not None and "recipient" in trace.inputs:
+            recipient_address = trace.inputs["recipient"]
+        else:
+            recipient_address = trace.from_address
+
+        swap = create_swap_from_transfers(
+            trace, recipient_address, prior_transfers, child_transfers
+        )
         return swap
 
 
@@ -36,7 +43,14 @@ class UniswapV2SwapClassifier(SwapClassifier):
         child_transfers: List[Transfer],
     ) -> Optional[Swap]:
 
-        swap = create_swap_from_transfers(trace, prior_transfers, child_transfers)
+        if trace.inputs is not None and "to" in trace.inputs:
+            recipient_address = trace.inputs["to"]
+        else:
+            recipient_address = trace.from_address
+
+        swap = create_swap_from_transfers(
+            trace, recipient_address, prior_transfers, child_transfers
+        )
         return swap
 
 
