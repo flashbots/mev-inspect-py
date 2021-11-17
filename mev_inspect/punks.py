@@ -5,12 +5,12 @@ from mev_inspect.schemas.traces import (
     Classification,
     DecodedCallTrace,
 )
-from mev_inspect.schemas.punk_bid import Punk_Bid
-from mev_inspect.schemas.punk_accept_bid import Punk_Accept_Bid
+from mev_inspect.schemas.punk_bid import PunkBid
+from mev_inspect.schemas.punk_accept_bid import PunkAcceptBid
 from mev_inspect.traces import get_traces_by_transaction_hash
 
 
-def get_punk_accept_bids(traces: List[ClassifiedTrace]) -> List[Punk_Accept_Bid]:
+def get_punk_accept_bids(traces: List[ClassifiedTrace]) -> List[PunkAcceptBid]:
     punk_accept_bids = []
 
     for _, transaction_traces in get_traces_by_transaction_hash(traces).items():
@@ -23,7 +23,7 @@ def get_punk_accept_bids(traces: List[ClassifiedTrace]) -> List[Punk_Accept_Bid]
 
 def _get_punk_accept_bids_for_transaction(
     traces: List[ClassifiedTrace],
-) -> List[Punk_Accept_Bid]:
+) -> List[PunkAcceptBid]:
     ordered_traces = list(sorted(traces, key=lambda t: t.trace_address))
 
     punk_accept_bids = []
@@ -33,7 +33,7 @@ def _get_punk_accept_bids_for_transaction(
             continue
 
         elif trace.classification == Classification.punk_accept_bid:
-            punk_accept_bid = Punk_Accept_Bid(
+            punk_accept_bid = PunkAcceptBid(
                 block_number=trace.block_number,
                 transaction_hash=trace.transaction_hash,
                 trace_address=trace.trace_address,
@@ -47,7 +47,7 @@ def _get_punk_accept_bids_for_transaction(
     return punk_accept_bids
 
 
-def get_punk_bids(traces: List[ClassifiedTrace]) -> List[Punk_Bid]:
+def get_punk_bids(traces: List[ClassifiedTrace]) -> List[PunkBid]:
     punk_bids = []
 
     for _, transaction_traces in get_traces_by_transaction_hash(traces).items():
@@ -56,7 +56,7 @@ def get_punk_bids(traces: List[ClassifiedTrace]) -> List[Punk_Bid]:
     return punk_bids
 
 
-def _get_punk_bids_for_transaction(traces: List[ClassifiedTrace]) -> List[Punk_Bid]:
+def _get_punk_bids_for_transaction(traces: List[ClassifiedTrace]) -> List[PunkBid]:
     ordered_traces = list(sorted(traces, key=lambda t: t.trace_address))
 
     punk_bids = []
@@ -66,7 +66,7 @@ def _get_punk_bids_for_transaction(traces: List[ClassifiedTrace]) -> List[Punk_B
             continue
 
         elif trace.classification == Classification.punk_bid:
-            punk_bid = Punk_Bid(
+            punk_bid = PunkBid(
                 transaction_hash=trace.transaction_hash,
                 block_number=trace.block_number,
                 trace_address=trace.trace_address,

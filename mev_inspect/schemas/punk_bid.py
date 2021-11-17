@@ -2,7 +2,8 @@ from typing import List
 
 from pydantic import BaseModel
 
-class Punk_Bid(BaseModel):
+
+class PunkBid(BaseModel):
     block_number: int
     transaction_hash: str
     trace_address: List[int]
