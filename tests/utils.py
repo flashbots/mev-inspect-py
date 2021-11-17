@@ -14,7 +14,7 @@ def load_test_block(block_number: int) -> Block:
 
     with open(block_path, "r") as block_file:
         block_json = json.load(block_file)
-        return Block(**block_json)
+        return Block(**block_json, block_timestamp=0)
 
 
 def load_comp_markets() -> Dict[str, str]:
