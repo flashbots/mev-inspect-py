@@ -88,7 +88,12 @@ def _find_block(
     receipts = _find_receipts(trace_db_session, block_number)
     base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
 
-    if traces is None or receipts is None or base_fee_per_gas is None:
+    if (
+        block_timestamp is None
+        or traces is None
+        or receipts is None
+        or base_fee_per_gas is None
+    ):
         return None
 
     miner_address = _get_miner_address_from_traces(traces)
