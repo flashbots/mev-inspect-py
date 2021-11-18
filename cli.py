@@ -79,6 +79,12 @@ async def inspect_many_blocks_command(
     )
 
 
+@cli.command()
+@coro
+async def fetch_all_prices():
+    print("fetching")
+
+
 def get_rpc_url() -> str:
     return os.environ["RPC_URL"]
 

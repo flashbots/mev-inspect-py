@@ -56,6 +56,22 @@ case "$1" in
       echo "Fetching block $block_number"
       kubectl exec -ti deploy/mev-inspect -- poetry run fetch-block $block_number
   ;;
+  prices)
+        shift
+        case "$1" in
+          fetch-latest)
+                echo "running fetch-latest"
+            ;;
+          fetch-all)
+                echo "running fetch-all"
+                kubectl exec -ti deploy/mev-inspect -- \
+                    poetry run fetch-all-prices
+            ;;
+          *)
+            echo "prices usage: "$1" {fetch-latest|fetch-all}"
+            exit 1
+        esac
+  ;;
   exec)
         shift
         kubectl exec -ti deploy/mev-inspect -- $@
