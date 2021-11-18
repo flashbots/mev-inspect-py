@@ -1,4 +1,6 @@
+import logging
 import os
+import sys
 
 import click
 
@@ -7,6 +9,8 @@ from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 
 RPC_URL_ENV = "RPC_URL"
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 @click.group()

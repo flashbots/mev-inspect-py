@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import sys
-from pathlib import Path
 from typing import List, Optional
 
 from sqlalchemy import orm
@@ -14,8 +12,6 @@ from mev_inspect.schemas.traces import Trace, TraceType
 from mev_inspect.utils import hex_to_int
 
 
-cache_directory = "./cache"
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -171,17 +167,3 @@ def get_transaction_hashes(calls: List[Trace]) -> List[str]:
                 result.append(call.transaction_hash)
 
     return result
-
-
-def cache_block(cache_path: Path, block: Block):
-    write_mode = "w" if cache_path.is_file() else "x"
-
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(cache_path, mode=write_mode) as cache_file:
-        cache_file.write(block.json())
-
-
-def _get_cache_path(block_number: int) -> Path:
-    cache_directory_path = Path(cache_directory)
-    return cache_directory_path / f"{block_number}.json"

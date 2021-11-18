@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import sys
 import traceback
 from asyncio import CancelledError
 from typing import Optional
@@ -14,7 +13,6 @@ from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
