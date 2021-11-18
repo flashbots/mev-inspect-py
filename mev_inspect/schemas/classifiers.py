@@ -33,11 +33,6 @@ class SwapClassifier(Classifier):
 
     @staticmethod
     @abstractmethod
-    def get_swap_recipient(trace: DecodedCallTrace) -> str:
-        raise NotImplementedError()
-
-    @staticmethod
-    @abstractmethod
     def parse_swap(
         trace: DecodedCallTrace,
         prior_transfers: List[Transfer],
