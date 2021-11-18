@@ -9,7 +9,7 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-from mev_inspect.classifiers.utils import create_swap_from_transfers
+from mev_inspect.classifiers.swaps import create_swap_from_transfers
 
 BALANCER_V1_POOL_ABI_NAME = "BPool"
 

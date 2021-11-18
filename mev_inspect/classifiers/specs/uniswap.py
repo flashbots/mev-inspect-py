@@ -9,7 +9,7 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-from mev_inspect.classifiers.utils import create_swap_from_transfers
+from mev_inspect.classifiers.swaps import create_swap_from_transfers
 
 
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
