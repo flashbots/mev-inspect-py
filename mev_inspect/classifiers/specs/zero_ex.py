@@ -1,9 +1,61 @@
+from typing import Optional, List
+from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import (
+    DecodedCallTrace,
     Protocol,
 )
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
+    SwapClassifier,
 )
+
+
+class ZeroExSwapClassifier(SwapClassifier):
+    @staticmethod
+    def parse_swap(
+        trace: DecodedCallTrace,
+        prior_transfers: List[Transfer],
+        child_transfers: List[Transfer],
+    ) -> Optional[Swap]:
+
+        token_in_amount: int = 0
+        taker_address: str
+
+        order: List = trace.inputs["order"]
+
+        if "taker" in trace.inputs:
+            taker_address = trace.inputs["taker"]
+        else:
+            taker_address = order[5]
+
+        token_in_address: str = order[0]
+        token_out_address: str = order[1]
+
+        token_out_amount: int = trace.inputs["takerTokenFillAmount"]
+
+        pool_address = trace.to_address
+
+        for transfer in child_transfers:
+            if transfer.to_address == taker_address:
+                token_in_amount = transfer.amount
+
+        return Swap(
+            abi_name=trace.abi_name,
+            transaction_hash=trace.transaction_hash,
+            block_number=trace.block_number,
+            trace_address=trace.trace_address,
+            pool_address=pool_address,
+            protocol=trace.protocol,
+            from_address=trace.from_address,
+            to_address=trace.to_address,
+            token_in_address=token_in_address,
+            token_in_amount=token_in_amount,
+            token_out_address=token_out_address,
+            token_out_amount=token_out_amount,
+            error=trace.error,
+        )
+
 
 ZEROX_CONTRACT_SPECS = [
     ClassifierSpec(
@@ -121,6 +173,10 @@ ZEROX_GENERIC_SPECS = [
     ClassifierSpec(
         abi_name="INativeOrdersFeature",
         protocol=Protocol.zero_ex,
+        classifiers={
+            "fillOrKillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
+            "fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
+        },
     ),
     ClassifierSpec(
         abi_name="IOtcOrdersFeature",
