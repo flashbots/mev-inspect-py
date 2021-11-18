@@ -67,6 +67,7 @@ async def _fetch_block(w3, base_provider, block_number: int, retries: int = 0) -
 
     return Block(
         block_number=block_number,
+        block_timestamp=block_json["timestamp"],
         miner=block_json["miner"],
         base_fee_per_gas=base_fee_per_gas,
         traces=traces,
@@ -78,11 +79,17 @@ def _find_block(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[Block]:
+    block_timestamp = _find_block_timestamp(trace_db_session, block_number)
     traces = _find_traces(trace_db_session, block_number)
     receipts = _find_receipts(trace_db_session, block_number)
     base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
 
-    if traces is None or receipts is None or base_fee_per_gas is None:
+    if (
+        block_timestamp is None
+        or traces is None
+        or receipts is None
+        or base_fee_per_gas is None
+    ):
         return None
 
     miner_address = _get_miner_address_from_traces(traces)
@@ -92,11 +99,28 @@ def _find_block(
 
     return Block(
         block_number=block_number,
+        block_timestamp=block_timestamp,
         miner=miner_address,
         base_fee_per_gas=base_fee_per_gas,
         traces=traces,
         receipts=receipts,
     )
+
+
+def _find_block_timestamp(
+    trace_db_session: orm.Session,
+    block_number: int,
+) -> Optional[int]:
+    result = trace_db_session.execute(
+        "SELECT block_timestamp FROM block_timestamps WHERE block_number = :block_number",
+        params={"block_number": block_number},
+    ).one_or_none()
+
+    if result is None:
+        return None
+    else:
+        (block_timestamp,) = result
+        return block_timestamp
 
 
 def _find_traces(

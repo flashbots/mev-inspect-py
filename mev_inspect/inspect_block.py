@@ -11,6 +11,10 @@ from mev_inspect.crud.arbitrages import (
     delete_arbitrages_for_block,
     write_arbitrages,
 )
+from mev_inspect.crud.blocks import (
+    delete_block,
+    write_block,
+)
 from mev_inspect.crud.traces import (
     delete_classified_traces_for_block,
     write_classified_traces,
@@ -52,6 +56,9 @@ async def inspect_block(
     )
 
     logger.info(f"Block: {block_number} -- Total traces: {len(block.traces)}")
+
+    delete_block(inspect_db_session, block_number)
+    write_block(inspect_db_session, block)
 
     total_transactions = len(
         set(t.transaction_hash for t in block.traces if t.transaction_hash is not None)
