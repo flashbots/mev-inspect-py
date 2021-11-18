@@ -60,7 +60,7 @@ case "$1" in
         shift
         case "$1" in
           fetch-all)
-                echo "running fetch-all"
+                echo "Running price fetch-all"
                 kubectl exec -ti deploy/mev-inspect -- \
                     poetry run fetch-all-prices
             ;;

@@ -13,6 +13,7 @@ from mev_inspect.prices import fetch_all_supported_prices
 RPC_URL_ENV = "RPC_URL"
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @click.group()
@@ -86,10 +87,10 @@ async def inspect_many_blocks_command(
 async def fetch_all_prices():
     inspect_db_session = get_inspect_session()
 
-    print("Fetching prices")
+    logger.info("Fetching prices")
     prices = await fetch_all_supported_prices()
 
-    print("Writing prices")
+    logger.info("Writing prices")
     write_prices(inspect_db_session, prices)
 
 
