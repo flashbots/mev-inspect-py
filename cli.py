@@ -5,6 +5,7 @@ import sys
 import click
 
 from mev_inspect.concurrency import coro
+from mev_inspect.crud.prices import write_prices
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.prices import fetch_all_supported_prices
@@ -83,9 +84,13 @@ async def inspect_many_blocks_command(
 @cli.command()
 @coro
 async def fetch_all_prices():
-    print("fetching")
+    inspect_db_session = get_inspect_session()
+
+    print("Fetching prices")
     prices = await fetch_all_supported_prices()
-    print(prices[0])
+
+    print("Writing prices")
+    write_prices(inspect_db_session, prices)
 
 
 def get_rpc_url() -> str:

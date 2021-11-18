@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
 class Price(BaseModel):
     token_address: str
-    timestamp_seconds: int
+    timestamp: datetime
     usd_price: float

@@ -21,7 +21,7 @@ async def fetch_all_supported_prices() -> List[Price]:
             price = Price(
                 token_address=token_address,
                 usd_price=usd_price,
-                timestamp_seconds=timestamp_seconds,
+                timestamp=timestamp_seconds,
             )
 
             prices.append(price)
