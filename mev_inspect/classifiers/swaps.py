@@ -14,9 +14,6 @@ def create_swap_from_transfers(
 ) -> Optional[Swap]:
     pool_address = trace.to_address
 
-    if recipient_address is None:
-        return None
-
     transfers_to_pool = []
 
     if trace.value is not None and trace.value > 0:
