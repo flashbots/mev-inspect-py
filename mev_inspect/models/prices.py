@@ -4,7 +4,7 @@ from .base import Base
 
 
 class PriceModel(Base):
-    __tablename__ = "usd_prices"
+    __tablename__ = "prices"
 
     timestamp = Column(TIMESTAMP, nullable=False, primary_key=True)
     usd_price = Column(Numeric, nullable=False)
