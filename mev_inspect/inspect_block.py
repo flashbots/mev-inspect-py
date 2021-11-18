@@ -43,7 +43,7 @@ async def inspect_block(
     inspect_db_session: orm.Session,
     base_provider,
     w3: Web3,
-    trace_clasifier: TraceClassifier,
+    trace_classifier: TraceClassifier,
     block_number: int,
     trace_db_session: Optional[orm.Session],
     should_write_classified_traces: bool = True,
@@ -65,7 +65,7 @@ async def inspect_block(
     )
     logger.info(f"Block: {block_number} -- Total transactions: {total_transactions}")
 
-    classified_traces = trace_clasifier.classify(block.traces)
+    classified_traces = trace_classifier.classify(block.traces)
     logger.info(
         f"Block: {block_number} -- Returned {len(classified_traces)} classified traces"
     )
