@@ -1,7 +1,7 @@
 """Create usd_prices table
 
 Revision ID: d540242ae368
-Revises: 04a3bb3740c3
+Revises: 2c90b2b8a80b
 Create Date: 2021-11-18 04:30:06.802857
 
 """
@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     op.create_table(
-        "usd_prices",
+        "prices",
         sa.Column("timestamp", sa.TIMESTAMP),
         sa.Column("usd_price", sa.Numeric, nullable=False),
         sa.Column("token_address", sa.String(256), nullable=False),
@@ -27,4 +27,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table("usd_prices")
+    op.drop_table("prices")
