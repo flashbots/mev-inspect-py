@@ -24,10 +24,7 @@ class UniswapV3SwapClassifier(SwapClassifier):
         child_transfers: List[Transfer],
     ) -> Optional[Swap]:
 
-        if "recipient" in trace.inputs:
-            recipient_address = trace.inputs["recipient"]
-        else:
-            recipient_address = trace.from_address
+        recipient_address = trace.inputs.get("recipient", trace.from_address)
 
         swap = create_swap_from_transfers(
             trace, recipient_address, prior_transfers, child_transfers
@@ -43,10 +40,7 @@ class UniswapV2SwapClassifier(SwapClassifier):
         child_transfers: List[Transfer],
     ) -> Optional[Swap]:
 
-        if "to" in trace.inputs:
-            recipient_address = trace.inputs["to"]
-        else:
-            recipient_address = trace.from_address
+        recipient_address = trace.inputs.get("to", trace.from_address)
 
         swap = create_swap_from_transfers(
             trace, recipient_address, prior_transfers, child_transfers
