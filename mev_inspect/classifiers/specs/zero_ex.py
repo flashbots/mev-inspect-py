@@ -5,7 +5,6 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
 )
 
-
 ZEROX_CONTRACT_SPECS = [
     ClassifierSpec(
         abi_name="exchangeProxy",

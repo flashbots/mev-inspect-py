@@ -1,3 +1,6 @@
+from typing import Optional, List
+from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import (
     DecodedCallTrace,
     Protocol,
@@ -6,6 +9,7 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
+from mev_inspect.classifiers.swaps import create_swap_from_transfers
 
 
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
@@ -14,20 +18,34 @@ UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
 
 class UniswapV3SwapClassifier(SwapClassifier):
     @staticmethod
-    def get_swap_recipient(trace: DecodedCallTrace) -> str:
-        if trace.inputs is not None and "recipient" in trace.inputs:
-            return trace.inputs["recipient"]
-        else:
-            return trace.from_address
+    def parse_swap(
+        trace: DecodedCallTrace,
+        prior_transfers: List[Transfer],
+        child_transfers: List[Transfer],
+    ) -> Optional[Swap]:
+
+        recipient_address = trace.inputs.get("recipient", trace.from_address)
+
+        swap = create_swap_from_transfers(
+            trace, recipient_address, prior_transfers, child_transfers
+        )
+        return swap
 
 
 class UniswapV2SwapClassifier(SwapClassifier):
     @staticmethod
-    def get_swap_recipient(trace: DecodedCallTrace) -> str:
-        if trace.inputs is not None and "to" in trace.inputs:
-            return trace.inputs["to"]
-        else:
-            return trace.from_address
+    def parse_swap(
+        trace: DecodedCallTrace,
+        prior_transfers: List[Transfer],
+        child_transfers: List[Transfer],
+    ) -> Optional[Swap]:
+
+        recipient_address = trace.inputs.get("to", trace.from_address)
+
+        swap = create_swap_from_transfers(
+            trace, recipient_address, prior_transfers, child_transfers
+        )
+        return swap
 
 
 UNISWAP_V3_CONTRACT_SPECS = [
@@ -127,7 +145,7 @@ UNISWAPPY_V2_PAIR_SPEC = ClassifierSpec(
     },
 )
 
-UNISWAP_CLASSIFIER_SPECS = [
+UNISWAP_CLASSIFIER_SPECS: List = [
     *UNISWAP_V3_CONTRACT_SPECS,
     *UNISWAPPY_V2_CONTRACT_SPECS,
     *UNISWAP_V3_GENERAL_SPECS,

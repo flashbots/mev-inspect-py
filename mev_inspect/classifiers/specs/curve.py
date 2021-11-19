@@ -1,18 +1,32 @@
+from typing import Optional, List
+from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import (
     Protocol,
+    DecodedCallTrace,
 )
 
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
-    DecodedCallTrace,
     SwapClassifier,
 )
+from mev_inspect.classifiers.swaps import create_swap_from_transfers
 
 
 class CurveSwapClassifier(SwapClassifier):
     @staticmethod
-    def get_swap_recipient(trace: DecodedCallTrace) -> str:
-        return trace.from_address
+    def parse_swap(
+        trace: DecodedCallTrace,
+        prior_transfers: List[Transfer],
+        child_transfers: List[Transfer],
+    ) -> Optional[Swap]:
+
+        recipient_address = trace.from_address
+
+        swap = create_swap_from_transfers(
+            trace, recipient_address, prior_transfers, child_transfers
+        )
+        return swap
 
 
 CURVE_BASE_POOLS = [

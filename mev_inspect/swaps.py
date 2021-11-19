@@ -11,10 +11,8 @@ from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.traces import get_traces_by_transaction_hash
 from mev_inspect.transfers import (
-    build_eth_transfer,
     get_child_transfers,
     get_transfer,
-    filter_transfers,
     remove_child_transfers_of_transfers,
 )
 
@@ -67,56 +65,8 @@ def _parse_swap(
     prior_transfers: List[Transfer],
     child_transfers: List[Transfer],
 ) -> Optional[Swap]:
-    pool_address = trace.to_address
-    recipient_address = _get_recipient_address(trace)
 
-    if recipient_address is None:
-        return None
-
-    transfers_to_pool = []
-
-    if trace.value is not None and trace.value > 0:
-        transfers_to_pool = [build_eth_transfer(trace)]
-
-    if len(transfers_to_pool) == 0:
-        transfers_to_pool = filter_transfers(prior_transfers, to_address=pool_address)
-
-    if len(transfers_to_pool) == 0:
-        transfers_to_pool = filter_transfers(child_transfers, to_address=pool_address)
-
-    if len(transfers_to_pool) == 0:
-        return None
-
-    transfers_from_pool_to_recipient = filter_transfers(
-        child_transfers, to_address=recipient_address, from_address=pool_address
-    )
-
-    if len(transfers_from_pool_to_recipient) != 1:
-        return None
-
-    transfer_in = transfers_to_pool[-1]
-    transfer_out = transfers_from_pool_to_recipient[0]
-
-    return Swap(
-        abi_name=trace.abi_name,
-        transaction_hash=trace.transaction_hash,
-        block_number=trace.block_number,
-        trace_address=trace.trace_address,
-        pool_address=pool_address,
-        protocol=trace.protocol,
-        from_address=transfer_in.from_address,
-        to_address=transfer_out.to_address,
-        token_in_address=transfer_in.token_address,
-        token_in_amount=transfer_in.amount,
-        token_out_address=transfer_out.token_address,
-        token_out_amount=transfer_out.amount,
-        error=trace.error,
-    )
-
-
-def _get_recipient_address(trace: DecodedCallTrace) -> Optional[str]:
     classifier = get_classifier(trace)
     if classifier is not None and issubclass(classifier, SwapClassifier):
-        return classifier.get_swap_recipient(trace)
-
+        return classifier.parse_swap(trace, prior_transfers, child_transfers)
     return None

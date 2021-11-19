@@ -1,3 +1,6 @@
+from typing import Optional, List
+from mev_inspect.schemas.transfers import Transfer
+from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import (
     DecodedCallTrace,
     Protocol,
@@ -6,15 +9,25 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-
+from mev_inspect.classifiers.swaps import create_swap_from_transfers
 
 BALANCER_V1_POOL_ABI_NAME = "BPool"
 
 
 class BalancerSwapClassifier(SwapClassifier):
     @staticmethod
-    def get_swap_recipient(trace: DecodedCallTrace) -> str:
-        return trace.from_address
+    def parse_swap(
+        trace: DecodedCallTrace,
+        prior_transfers: List[Transfer],
+        child_transfers: List[Transfer],
+    ) -> Optional[Swap]:
+
+        recipient_address = trace.from_address
+
+        swap = create_swap_from_transfers(
+            trace, recipient_address, prior_transfers, child_transfers
+        )
+        return swap
 
 
 BALANCER_V1_SPECS = [
