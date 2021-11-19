@@ -13,8 +13,8 @@ CRYPTO_PUNKS_SPEC = ClassifierSpec(
     protocol=Protocol.cryptopunks,
     valid_contract_addresses=["0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB"],
     classifiers={
-        "enterBidForPunk(uint)": PunkBidClassifier,
-        "acceptBidForPunk(uint,uint)": PunkBidAcceptanceClassifier,
+        "enterBidForPunk(uint256)": PunkBidClassifier,
+        "acceptBidForPunk(uint256,uint256)": PunkBidAcceptanceClassifier,
     },
 )
 
