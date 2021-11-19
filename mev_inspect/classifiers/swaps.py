@@ -43,7 +43,7 @@ def create_swap_from_transfers(
         transaction_hash=trace.transaction_hash,
         block_number=trace.block_number,
         trace_address=trace.trace_address,
-        pool_address=pool_address,
+        contract_address=pool_address,
         protocol=trace.protocol,
         from_address=transfer_in.from_address,
         to_address=transfer_out.to_address,
