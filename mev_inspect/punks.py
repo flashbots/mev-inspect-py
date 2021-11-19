@@ -1,6 +1,4 @@
 from typing import List
-from mev_inspect.schemas import punk_accept_bid
-
 from mev_inspect.schemas.traces import (
     ClassifiedTrace,
     Classification,
@@ -8,7 +6,32 @@ from mev_inspect.schemas.traces import (
 )
 from mev_inspect.schemas.punk_bid import PunkBid
 from mev_inspect.schemas.punk_accept_bid import PunkBidAcceptance
+from mev_inspect.schemas.punk_snipe import PunkSnipe
 from mev_inspect.traces import get_traces_by_transaction_hash
+
+
+def get_punk_snipes(
+    punk_bids: List[PunkBid], punk_bid_acceptances: List[PunkBidAcceptance]
+) -> List[PunkSnipe]:
+    punk_snipe_list = []
+
+    for punk_bid in punk_bids:
+        for punk_bid_acceptance in punk_bid_acceptances:
+            if punk_bid.punk_index == punk_bid_acceptance.punk_index:
+                if punk_bid.amount > punk_bid_acceptance.min_price:
+                    punk_snipe = PunkSnipe(
+                        block_number=punk_bid.block_number,
+                        transaction_hash=punk_bid.transaction_hash,
+                        trace_address=punk_bid.trace_address,
+                        from_address=punk_bid.from_address,
+                        punk_index=punk_bid.punk_index,
+                        min_acceptance_price=punk_bid_acceptance.min_price,
+                        acceptance_price=punk_bid.amount,
+                    )
+
+                    punk_snipe_list.append(punk_snipe)
+
+    return punk_snipe_list
 
 
 def get_punk_bid_acceptances(traces: List[ClassifiedTrace]) -> List[PunkBidAcceptance]:
@@ -39,8 +62,8 @@ def _get_punk_bid_acceptances_for_transaction(
                 transaction_hash=trace.transaction_hash,
                 trace_address=trace.trace_address,
                 from_address=trace.from_address,
-                punk_index=trace.inputs["punk_index"],
-                min_price=trace.inputs["min_price"],
+                punk_index=trace.inputs["punkIndex"],
+                min_price=trace.inputs["minPrice"],
             )
 
             punk_bid_acceptances.append(punk_accept_bid)
@@ -72,8 +95,8 @@ def _get_punk_bids_for_transaction(traces: List[ClassifiedTrace]) -> List[PunkBi
                 block_number=trace.block_number,
                 trace_address=trace.trace_address,
                 from_address=trace.from_address,
-                punk_index=trace.inputs["punk_index"],
-                value=trace.value,
+                punk_index=trace.inputs["punkIndex"],
+                amount=trace.value,
             )
 
             punk_bids.append(punk_bid)

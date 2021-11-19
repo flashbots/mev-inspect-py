@@ -27,7 +27,8 @@ from mev_inspect.crud.liquidations import (
     write_liquidations,
 )
 from mev_inspect.miner_payments import get_miner_payments
-from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids
+from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_snipes
+from mev_inspect.schemas import punk_snipe
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
 from mev_inspect.liquidations import get_liquidations
@@ -93,10 +94,10 @@ async def inspect_block(
     write_liquidations(inspect_db_session, liquidations)
 
     punk_bids = get_punk_bids(classified_traces)
-    logger.info(f"Block: {block_number} -- Found {len(punk_bids)} punk bids")
-
     punk_bid_acceptances = get_punk_bid_acceptances(classified_traces)
-    logger.info(f"Block: {block_number} -- Found {len(punk_bid_acceptances)} punk bids")
+
+    punk_snipes = get_punk_snipes(punk_bids, punk_bid_acceptances)
+    logger.info(f"Block: {block_number} -- Found {len(punk_snipes)} punk snipes")
 
     miner_payments = get_miner_payments(
         block.miner, block.base_fee_per_gas, classified_traces, block.receipts
