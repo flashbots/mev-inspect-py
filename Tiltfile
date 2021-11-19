@@ -31,15 +31,19 @@ k8s_yaml(secret_from_dict("mev-inspect-db-credentials", inputs = {
 # }))
 
 docker_build_with_restart("mev-inspect-py", ".",
-    entrypoint="/app/entrypoint.sh",
+    entrypoint="poetry",
     live_update=[
         sync(".", "/app"),
         run("cd /app && poetry install",
             trigger="./pyproject.toml"),
     ],
+    platform='linux/arm64',
 )
 k8s_yaml(helm('./k8s/mev-inspect', name='mev-inspect'))
 k8s_resource(workload="mev-inspect", resource_deps=["postgresql-postgresql"])
+
+k8s_yaml(helm('./k8s/mev-inspect-prices', name='mev-inspect-prices'))
+k8s_resource(workload="mev-inspect-prices", resource_deps=["postgresql-postgresql"])
 
 local_resource(
     'pg-port-forward',
