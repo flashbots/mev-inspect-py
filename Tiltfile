@@ -30,14 +30,12 @@ k8s_yaml(secret_from_dict("mev-inspect-db-credentials", inputs = {
 #     "host": "trace-db-postgresql",
 # }))
 
-docker_build_with_restart("mev-inspect-py", ".",
-    entrypoint="poetry",
+docker_build("mev-inspect-py", ".",
     live_update=[
         sync(".", "/app"),
         run("cd /app && poetry install",
             trigger="./pyproject.toml"),
     ],
-    platform='linux/arm64',
 )
 k8s_yaml(helm('./k8s/mev-inspect', name='mev-inspect'))
 k8s_resource(workload="mev-inspect", resource_deps=["postgresql-postgresql"])
