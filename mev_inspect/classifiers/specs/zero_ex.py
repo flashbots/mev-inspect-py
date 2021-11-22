@@ -52,7 +52,7 @@ class ZeroExSwapClassifier(SwapClassifier):
             block_number=trace.block_number,
             trace_address=trace.trace_address,
             contract_address=contract_address,
-            protocol=trace.protocol,
+            protocol=Protocol.zero_ex,
             from_address=trace.from_address,
             to_address=trace.to_address,
             token_in_address=token_in_address,
