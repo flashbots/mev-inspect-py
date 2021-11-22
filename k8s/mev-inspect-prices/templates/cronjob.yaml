@@ -3,9 +3,8 @@ kind: CronJob
 metadata:
   name: {{ include "mev-inspect-prices.fullname" . }}
 spec:
-  completions: 1
-  ttlSecondsAfterFinished: 5
   schedule: "*/1 * * * *"
+  successfulJobsHistoryLimit: 0
   jobTemplate:
     spec:
       template:
@@ -33,4 +32,4 @@ spec:
                   secretKeyRef:
                     name: mev-inspect-db-credentials
                     key: password
-          restartPolicy: OnFailure
+          restartPolicy: Never
