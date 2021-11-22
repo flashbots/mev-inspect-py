@@ -10,7 +10,7 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-from mev_inspect.classifiers.swaps import create_swap_from_transfers
+from mev_inspect.classifiers.helpers import create_swap_from_transfers
 
 
 class CurveSwapClassifier(SwapClassifier):
