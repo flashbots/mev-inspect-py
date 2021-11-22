@@ -86,7 +86,7 @@ def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, Swap]]:
     - not swap[start].from_address in all_pool_addresses
     - not swap[end].to_address in all_pool_addresses
     """
-    pool_addrs = [swap.pool_address for swap in swaps]
+    pool_addrs = [swap.contract_address for swap in swaps]
     valid_start_ends: List[Tuple[Swap, Swap]] = []
     for potential_start_swap in swaps:
         for potential_end_swap in swaps:
@@ -116,8 +116,8 @@ def _get_all_routes(
     routes: List[List[Swap]] = []
     for potential_next_swap in other_swaps:
         if start_swap.token_out_address == potential_next_swap.token_in_address and (
-            start_swap.pool_address == potential_next_swap.from_address
-            or start_swap.to_address == potential_next_swap.pool_address
+            start_swap.contract_address == potential_next_swap.from_address
+            or start_swap.to_address == potential_next_swap.contract_address
             or start_swap.to_address == potential_next_swap.from_address
         ):
             remaining_swaps = [
