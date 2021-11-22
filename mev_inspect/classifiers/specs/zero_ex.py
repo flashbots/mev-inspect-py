@@ -9,7 +9,10 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-from mev_inspect.classifiers.helpers import get_amount_transferred_to_address
+from mev_inspect.classifiers.helpers import (
+    get_amount_transferred_to_address,
+    get_amount_transferred_by_token_address,
+)
 
 
 class ZeroExSwapClassifier(SwapClassifier):
@@ -38,21 +41,28 @@ class ZeroExSwapClassifier(SwapClassifier):
 
         else:
 
-            raise NotImplementedError
+            raise RuntimeError(
+                f"Unknown 0x orderbook function: {trace.function_signature}"
+            )
 
         token_out_amount = trace.inputs["takerTokenFillAmount"]
-        token_in_amount = get_amount_transferred_to_address(
-            taker_address, child_transfers
-        )
 
-        contract_address = trace.to_address
+        if taker_address == "0x0000000000000000000000000000000000000000":
+            token_in_amount = get_amount_transferred_by_token_address(
+                token_in_address, child_transfers
+            )
+
+        else:
+            token_in_amount = get_amount_transferred_to_address(
+                taker_address, child_transfers
+            )
 
         return Swap(
             abi_name=trace.abi_name,
             transaction_hash=trace.transaction_hash,
             block_number=trace.block_number,
             trace_address=trace.trace_address,
-            contract_address=contract_address,
+            contract_address=trace.to_address,
             protocol=Protocol.zero_ex,
             from_address=trace.from_address,
             to_address=trace.to_address,
@@ -183,6 +193,7 @@ ZEROX_GENERIC_SPECS = [
         classifiers={
             "fillOrKillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
             "fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
+            "fillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
         },
     ),
     ClassifierSpec(

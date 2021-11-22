@@ -91,3 +91,12 @@ def get_amount_transferred_to_address(address: str, transfers: List[Transfer]) -
         if transfer.to_address == address:
             return transfer.amount
     return 0
+
+
+def get_amount_transferred_by_token_address(
+    token_address: str, transfers: List[Transfer]
+) -> int:
+    for transfer in transfers:
+        if transfer.token_address == token_address:
+            return transfer.amount
+    return 0
