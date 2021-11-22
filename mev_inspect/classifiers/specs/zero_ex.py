@@ -9,6 +9,7 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
+from mev_inspect.classifiers.helpers import get_amount_transferred_to_address
 
 
 class ZeroExSwapClassifier(SwapClassifier):
@@ -40,11 +41,11 @@ class ZeroExSwapClassifier(SwapClassifier):
             raise NotImplementedError
 
         token_out_amount = trace.inputs["takerTokenFillAmount"]
-        contract_address = trace.to_address
+        token_in_amount = get_amount_transferred_to_address(
+            taker_address, child_transfers
+        )
 
-        for transfer in child_transfers:
-            if transfer.to_address == taker_address:
-                token_in_amount = transfer.amount
+        contract_address = trace.to_address
 
         return Swap(
             abi_name=trace.abi_name,

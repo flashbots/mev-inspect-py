@@ -84,3 +84,10 @@ def _filter_transfers(
         filtered_transfers.append(transfer)
 
     return filtered_transfers
+
+
+def get_amount_transferred_to_address(address: str, transfers: List[Transfer]) -> int:
+    for transfer in transfers:
+        if transfer.to_address == address:
+            return transfer.amount
+    return 0
