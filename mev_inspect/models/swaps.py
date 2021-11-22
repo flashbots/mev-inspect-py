@@ -11,7 +11,7 @@ class SwapModel(Base):
     block_number = Column(Numeric, nullable=False)
     trace_address = Column(ARRAY(Integer), nullable=False)
     protocol = Column(String, nullable=True)
-    pool_address = Column(String, nullable=False)
+    contract_address = Column(String, nullable=False)
     from_address = Column(String, nullable=False)
     to_address = Column(String, nullable=False)
     token_in_address = Column(String, nullable=False)
