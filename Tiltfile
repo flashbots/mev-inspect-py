@@ -1,5 +1,4 @@
 load("ext://helm_remote", "helm_remote")
-load("ext://restart_process", "docker_build_with_restart")
 load("ext://secret", "secret_from_dict")
 load("ext://configmap", "configmap_from_dict")
 
