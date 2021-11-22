@@ -1,4 +1,3 @@
-import pdb
 from typing import Optional, List
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.schemas.swaps import Swap
@@ -46,8 +45,6 @@ class ZeroExSwapClassifier(SwapClassifier):
         for transfer in child_transfers:
             if transfer.to_address == taker_address:
                 token_in_amount = transfer.amount
-
-        pdb.set_trace()
 
         return Swap(
             abi_name=trace.abi_name,
