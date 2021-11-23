@@ -3,6 +3,8 @@ import os
 import sys
 
 import click
+from web3 import Web3
+from web3.middleware import geth_poa_middleware
 
 from mev_inspect.concurrency import coro
 from mev_inspect.db import get_inspect_session, get_trace_session
@@ -21,12 +23,13 @@ def cli():
 @cli.command()
 @click.argument("block_number", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
+@click.option("--geth/--no-geth", default=False)
 @coro
-async def inspect_block_command(block_number: int, rpc: str):
+async def inspect_block_command(block_number: int, rpc: str, geth: bool):
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
 
-    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session)
+    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session, geth)
     await inspector.inspect_single_block(block=block_number)
 
 
@@ -38,7 +41,7 @@ async def fetch_block_command(block_number: int, rpc: str):
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
 
-    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session)
+    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session, false)
     block = await inspector.create_from_block(block_number=block_number)
     print(block.json())
 
@@ -47,6 +50,8 @@ async def fetch_block_command(block_number: int, rpc: str):
 @click.argument("after_block", type=int)
 @click.argument("before_block", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
+@click.option("--geth/--no-geth", default=False)
+
 @click.option(
     "--max-concurrency",
     type=int,
@@ -63,21 +68,21 @@ async def inspect_many_blocks_command(
     rpc: str,
     max_concurrency: int,
     request_timeout: int,
+    geth: bool
 ):
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
-
     inspector = MEVInspector(
         rpc,
         inspect_db_session,
         trace_db_session,
         max_concurrency=max_concurrency,
         request_timeout=request_timeout,
+        geth
     )
     await inspector.inspect_many_blocks(
         after_block=after_block, before_block=before_block
     )
-
 
 def get_rpc_url() -> str:
     return os.environ["RPC_URL"]
