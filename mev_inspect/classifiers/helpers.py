@@ -5,6 +5,7 @@ from mev_inspect.schemas.transfers import Transfer, ETH_TOKEN_ADDRESS
 
 from mev_inspect.schemas.traces import DecodedCallTrace, ClassifiedTrace
 
+ANY_TAKER_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 RFQ_SIGNATURES = [
     "fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
@@ -114,6 +115,8 @@ def is_valid_0x_swap(
             f"0x orderbook function {trace.function_signature} is not supported"
         )
 
+    # 3. The swap should not be a child of previous swaps in the block
+
     return True
 
 
@@ -121,9 +124,7 @@ def _get_taker_token_in_amount(
     taker_address: str, token_in_address: str, child_transfers: List[Transfer]
 ) -> int:
 
-    ANY_TAKER = "0x0000000000000000000000000000000000000000"
-
-    if taker_address == ANY_TAKER:
+    if taker_address == ANY_TAKER_ADDRESS:
         for transfer in child_transfers:
             if transfer.token_address == token_in_address:
                 return transfer.amount

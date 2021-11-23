@@ -34,6 +34,7 @@ def test_fillLimitOrder_swap():
     result = get_swaps(classified_traces)
 
     assert swap in result
+    assert result.count(swap) == 1
 
 
 def test__fillLimitOrder_swap():
@@ -65,6 +66,7 @@ def test__fillLimitOrder_swap():
     result = get_swaps(classified_traces)
 
     assert swap in result
+    assert result.count(swap) == 1
 
 
 def test_RfqLimitOrder_swap():
@@ -96,6 +98,7 @@ def test_RfqLimitOrder_swap():
     result = get_swaps(classified_traces)
 
     assert swap in result
+    assert result.count(swap) == 1
 
 
 def test__RfqLimitOrder_swap():
@@ -127,3 +130,4 @@ def test__RfqLimitOrder_swap():
     result = get_swaps(classified_traces)
 
     assert swap in result
+    assert result.count(swap) == 1
