@@ -1,10 +1,9 @@
-from mev_inspect.schemas.classified_traces import (
+from mev_inspect.schemas.traces import (
     Protocol,
 )
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
 )
-
 
 ZEROX_CONTRACT_SPECS = [
     ClassifierSpec(

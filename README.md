@@ -35,6 +35,10 @@ kind create cluster
 
 Set an environment variable `RPC_URL` to an RPC for fetching blocks.
 
+mev-inspect-py currently requires a node with support for Erigon traces and receipts (not geth yet 😔).
+
+[pokt.network](pokt.network)'s "Ethereum Mainnet Archival with trace calls" is a good hosted option.
+
 Example:
 
 ```
@@ -54,7 +58,7 @@ Press "space" to see a browser of the services starting up.
 On first startup, you'll need to apply database migrations with:
 
 ```
-kubectl exec deploy/mev-inspect -- alembic upgrade head
+./mev exec alembic upgrade head
 ```
 
 ## Usage
@@ -65,7 +69,7 @@ Inspecting block [12914944](https://twitter.com/mevalphaleak/status/142041643757
 **Note**: Add `--geth` at the end if RPC_URL points to a geth / geth like node.
 
 ```
-kubectl exec deploy/mev-inspect -- poetry run inspect-block 12914944
+./mev inspect 12914944
 ```
 
 ### Inspect many blocks
@@ -74,7 +78,7 @@ Inspecting blocks 12914944 to 12914954:
 **Note**: Add `--geth` at the end if RPC_URL points to a geth / geth like node.
 
 ```
-kubectl exec deploy/mev-inspect -- poetry run inspect-many-blocks 12914944 12914954
+./mev inspect-many 12914944 12914954
 ```
 
 ### Inspect all incoming blocks
@@ -82,23 +86,45 @@ kubectl exec deploy/mev-inspect -- poetry run inspect-many-blocks 12914944 12914
 Start a block listener with:
 
 ```
-kubectl exec deploy/mev-inspect -- /app/listener start
+./mev listener start
 ```
 
 By default, it will pick up wherever you left off.
 If running for the first time, listener starts at the latest block.
 
-See logs for the listener with:
+Tail logs for the listener with:
 
 ```
-kubectl exec deploy/mev-inspect -- tail -f listener.log
+./mev listener tail
 ```
 
 And stop the listener with:
 
 ```
-kubectl exec deploy/mev-inspect -- /app/listener stop
+./mev listener stop
 ```
+
+### Backfilling
+
+For larger backfills, you can inspect many blocks in parallel using kubernetes
+
+To inspect blocks 12914944 to 12915044 divided across 10 worker pods:
+```
+./mev backfill 12914944 12915044 10
+```
+
+You can see worker pods spin up then complete by watching the status of all pods
+```
+watch kubectl get pods
+```
+
+To watch the logs for a given pod, take its pod name using the above, then run:
+```
+kubectl logs -f pod/mev-inspect-backfill-abcdefg
+```
+
+(where `mev-inspect-backfill-abcdefg` is your actual pod name)
+
 
 ### Exploring
 
@@ -107,7 +133,7 @@ All inspect output data is stored in Postgres.
 To connect to the local Postgres database for querying, launch a client container with:
 
 ```
-kubectl run -i --rm --tty postgres-client --env="PGPASSWORD=password" --image=jbergknoff/postgresql-client -- mev_inspect --host=postgresql --user=postgres
+./mev db
 ```
 
 When you see the prompt:
@@ -161,7 +187,7 @@ tilt up
 And rerun migrations to create the tables again:
 
 ```
-kubectl exec deploy/mev-inspect -- alembic upgrade head
+./mev exec alembic upgrade head
 ```
 
 ### I was using the docker-compose setup and want to switch to kube, now what?

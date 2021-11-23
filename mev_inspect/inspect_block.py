@@ -11,7 +11,11 @@ from mev_inspect.crud.arbitrages import (
     delete_arbitrages_for_block,
     write_arbitrages,
 )
-from mev_inspect.crud.classified_traces import (
+from mev_inspect.crud.blocks import (
+    delete_block,
+    write_block,
+)
+from mev_inspect.crud.traces import (
     delete_classified_traces_for_block,
     write_classified_traces,
 )
@@ -35,7 +39,7 @@ from mev_inspect.liquidations import get_liquidations
 logger = logging.getLogger(__name__)
 
 
-def inspect_block(
+async def inspect_block(
     inspect_db_session: orm.Session,
     base_provider,
     w3: Web3,
@@ -45,7 +49,7 @@ def inspect_block(
     trace_db_session: Optional[orm.Session],
     should_write_classified_traces: bool = True,
 ):
-    block = create_from_block_number(
+    block = await create_from_block_number(
         base_provider,
         w3,
         geth,
@@ -53,40 +57,45 @@ def inspect_block(
         trace_db_session,
     )
 
-    logger.info(f"Total traces: {len(block.traces)}")
+    logger.info(f"Block: {block_number} -- Total traces: {len(block.traces)}")
+
+    delete_block(inspect_db_session, block_number)
+    write_block(inspect_db_session, block)
 
     total_transactions = len(
         set(t.transaction_hash for t in block.traces if t.transaction_hash is not None)
     )
-    logger.info(f"Total transactions: {total_transactions}")
+    logger.info(f"Block: {block_number} -- Total transactions: {total_transactions}")
 
-    classified_traces = trace_clasifier.classify(block.traces)
-    logger.info(f"Returned {len(classified_traces)} classified traces")
+    classified_traces = trace_classifier.classify(block.traces)
+    logger.info(
+        f"Block: {block_number} -- Returned {len(classified_traces)} classified traces"
+    )
 
     if should_write_classified_traces:
         delete_classified_traces_for_block(inspect_db_session, block_number)
         write_classified_traces(inspect_db_session, classified_traces)
 
     transfers = get_transfers(classified_traces)
-    logger.info(f"Found {len(transfers)} transfers")
+    logger.info(f"Block: {block_number} -- Found {len(transfers)} transfers")
 
     delete_transfers_for_block(inspect_db_session, block_number)
     write_transfers(inspect_db_session, transfers)
 
     swaps = get_swaps(classified_traces)
-    logger.info(f"Found {len(swaps)} swaps")
+    logger.info(f"Block: {block_number} -- Found {len(swaps)} swaps")
 
     delete_swaps_for_block(inspect_db_session, block_number)
     write_swaps(inspect_db_session, swaps)
 
     arbitrages = get_arbitrages(swaps)
-    logger.info(f"Found {len(arbitrages)} arbitrages")
+    logger.info(f"Block: {block_number} -- Found {len(arbitrages)} arbitrages")
 
     delete_arbitrages_for_block(inspect_db_session, block_number)
     write_arbitrages(inspect_db_session, arbitrages)
 
     liquidations = get_liquidations(classified_traces)
-    logger.info(f"Found {len(liquidations)} liquidations")
+    logger.info(f"Block: {block_number} -- Found {len(liquidations)} liquidations")
 
     delete_liquidations_for_block(inspect_db_session, block_number)
     write_liquidations(inspect_db_session, liquidations)

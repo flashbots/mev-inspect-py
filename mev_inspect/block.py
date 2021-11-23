@@ -1,4 +1,5 @@
-from pathlib import Path
+import asyncio
+import logging
 from typing import List, Optional
 import json
 import asyncio
@@ -8,18 +9,25 @@ from sqlalchemy import orm
 from web3 import Web3
 
 from mev_inspect.fees import fetch_base_fee_per_gas
-from mev_inspect.schemas import Block, Trace, TraceType
+from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.receipts import Receipt
+from mev_inspect.schemas.traces import Trace, TraceType
+from mev_inspect.utils import hex_to_int
 
 
-cache_directory = "./cache"
+logger = logging.getLogger(__name__)
 
 
-def get_latest_block_number(w3: Web3) -> int:
-    return int(w3.eth.get_block("latest")["number"])
+async def get_latest_block_number(base_provider) -> int:
+    latest_block = await base_provider.make_request(
+        "eth_getBlockByNumber",
+        ["latest", False],
+    )
+
+    return hex_to_int(latest_block["result"]["number"])
 
 
-def create_from_block_number(
+async def create_from_block_number(
     base_provider,
     w3: Web3,
     geth: bool,
@@ -32,30 +40,35 @@ def create_from_block_number(
         block = _find_block(trace_db_session, block_number)
 
     if block is None:
-        return _fetch_block(w3, base_provider, geth, block_number)
+        block = await _fetch_block(w3, base_provider, block_number)
+        return block
     else:
         return block
 
 
-def _fetch_block(
-    w3,
-    base_provider,
-    geth,
-    block_number: int,
-) -> Block:
-    block_json = w3.eth.get_block(block_number)
-
+async def _fetch_block(w3, base_provider, geth, block_number: int, retries: int = 0) -> Block:
     if not geth:
-        receipts_json = base_provider.make_request(
-            "eth_getBlockReceipts", [block_number]
+        block_json, receipts_json, traces_json, base_fee_per_gas = await asyncio.gather(
+            w3.eth.get_block(block_number),
+            base_provider.make_request("eth_getBlockReceipts", [block_number]),
+            base_provider.make_request("trace_block", [block_number]),
+            fetch_base_fee_per_gas(w3, block_number),
         )
-        traces_json = w3.parity.trace_block(block_number)
 
-        receipts: List[Receipt] = [
-            Receipt(**receipt) for receipt in receipts_json["result"]
-        ]
-        traces = [Trace(**trace_json) for trace_json in traces_json]
-        base_fee_per_gas = fetch_base_fee_per_gas(w3, block_number)
+        try:
+            receipts: List[Receipt] = [
+                Receipt(**receipt) for receipt in receipts_json["result"]
+            ]
+            traces = [Trace(**trace_json) for trace_json in traces_json["result"]]
+        except KeyError as e:
+            logger.warning(
+                f"Failed to create objects from block: {block_number}: {e}, retrying: {retries + 1} / 3"
+            )
+            if retries < 3:
+                await asyncio.sleep(5)
+                return await _fetch_block(w3, base_provider, block_number, retries)
+            else:
+                raise
     else:
         traces = geth_get_tx_traces_parity_format(base_provider, block_json)
         geth_tx_receipts = geth_get_tx_receipts(
@@ -63,25 +76,32 @@ def _fetch_block(
         )
         receipts = geth_receipts_translator(block_json, geth_tx_receipts)
         base_fee_per_gas = 0
-
-    return Block(
-        block_number=block_number,
-        miner=block_json["miner"],
-        base_fee_per_gas=base_fee_per_gas,
-        traces=traces,
-        receipts=receipts,
-    )
-
+        
+        return Block(
+            block_number=block_number,
+            block_timestamp=block_json["timestamp"],
+            miner=block_json["miner"],
+            base_fee_per_gas=base_fee_per_gas,
+            traces=traces,
+            receipts=receipts,
+        )
+ 
 
 def _find_block(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[Block]:
+    block_timestamp = _find_block_timestamp(trace_db_session, block_number)
     traces = _find_traces(trace_db_session, block_number)
     receipts = _find_receipts(trace_db_session, block_number)
     base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
 
-    if traces is None or receipts is None or base_fee_per_gas is None:
+    if (
+        block_timestamp is None
+        or traces is None
+        or receipts is None
+        or base_fee_per_gas is None
+    ):
         return None
 
     miner_address = _get_miner_address_from_traces(traces)
@@ -91,11 +111,27 @@ def _find_block(
 
     return Block(
         block_number=block_number,
+        block_timestamp=block_timestamp,
         miner=miner_address,
         base_fee_per_gas=base_fee_per_gas,
         traces=traces,
         receipts=receipts,
     )
+
+def _find_block_timestamp(
+    trace_db_session: orm.Session,
+    block_number: int,
+) -> Optional[int]:
+    result = trace_db_session.execute(
+        "SELECT block_timestamp FROM block_timestamps WHERE block_number = :block_number",
+        params={"block_number": block_number},
+    ).one_or_none()
+
+    if result is None:
+        return None
+    else:
+        (block_timestamp,) = result
+        return block_timestamp
 
 
 def _find_traces(
@@ -166,21 +202,6 @@ def get_transaction_hashes(calls: List[Trace]) -> List[str]:
                 result.append(call.transaction_hash)
 
     return result
-
-
-def cache_block(cache_path: Path, block: Block):
-    write_mode = "w" if cache_path.is_file() else "x"
-
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(cache_path, mode=write_mode) as cache_file:
-        cache_file.write(block.json())
-
-
-def _get_cache_path(block_number: int) -> Path:
-    cache_directory_path = Path(cache_directory)
-    return cache_directory_path / f"{block_number}.json"
-
 
 # Geth specific additions
 

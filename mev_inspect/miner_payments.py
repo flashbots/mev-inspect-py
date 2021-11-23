@@ -1,6 +1,6 @@
 from typing import List
 
-from mev_inspect.schemas.classified_traces import ClassifiedTrace
+from mev_inspect.schemas.traces import ClassifiedTrace
 from mev_inspect.schemas.miner_payments import MinerPayment
 from mev_inspect.schemas.receipts import Receipt
 from mev_inspect.traces import get_traces_by_transaction_hash

@@ -1,8 +1,8 @@
 import json
 from typing import List
 
-from mev_inspect.models.classified_traces import ClassifiedTraceModel
-from mev_inspect.schemas.classified_traces import ClassifiedTrace
+from mev_inspect.models.traces import ClassifiedTraceModel
+from mev_inspect.schemas.traces import ClassifiedTrace
 
 
 def delete_classified_traces_for_block(

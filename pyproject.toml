@@ -11,7 +11,7 @@ pydantic = "^1.8.2"
 hexbytes = "^0.2.1"
 click = "^8.0.1"
 psycopg2 = "^2.9.1"
-aiohttp = "^3.7.4"
+aiohttp = "^3.8.0"
 asyncio = "^3.4.3"
 
 [tool.poetry.dev-dependencies]
@@ -34,6 +34,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 inspect-block = 'cli:inspect_block_command'
 inspect-many-blocks = 'cli:inspect_many_blocks_command'
+fetch-block = 'cli:fetch_block_command'
 
 [tool.black]
 exclude = '''

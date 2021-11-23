@@ -3,8 +3,9 @@ from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
-from .classified_traces import Classification, DecodedCallTrace, Protocol
+from .traces import Classification, DecodedCallTrace, Protocol
 from .transfers import Transfer
+from .swaps import Swap
 
 
 class Classifier(ABC):
@@ -32,7 +33,11 @@ class SwapClassifier(Classifier):
 
     @staticmethod
     @abstractmethod
-    def get_swap_recipient(trace: DecodedCallTrace) -> str:
+    def parse_swap(
+        trace: DecodedCallTrace,
+        prior_transfers: List[Transfer],
+        child_transfers: List[Transfer],
+    ) -> Optional[Swap]:
         raise NotImplementedError()
 
 
