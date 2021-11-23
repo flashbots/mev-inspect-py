@@ -62,7 +62,7 @@ class ZeroExSwapClassifier(SwapClassifier):
             transaction_hash=trace.transaction_hash,
             block_number=trace.block_number,
             trace_address=trace.trace_address,
-            contract_address=trace.function_signature,
+            contract_address=trace.to_address,
             protocol=Protocol.zero_ex,
             from_address=trace.from_address,
             to_address=trace.to_address,
