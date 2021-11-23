@@ -62,7 +62,7 @@ class ZeroExSwapClassifier(SwapClassifier):
             transaction_hash=trace.transaction_hash,
             block_number=trace.block_number,
             trace_address=trace.trace_address,
-            contract_address=trace.to_address,
+            contract_address=trace.function_signature,
             protocol=Protocol.zero_ex,
             from_address=trace.from_address,
             to_address=trace.to_address,
@@ -194,6 +194,8 @@ ZEROX_GENERIC_SPECS = [
             "fillOrKillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
             "fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
             "fillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
+            "_fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128,address,bool,address)": ZeroExSwapClassifier,
+            "_fillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128,address,address)": ZeroExSwapClassifier,
         },
     ),
     ClassifierSpec(
