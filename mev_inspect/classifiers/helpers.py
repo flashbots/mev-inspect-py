@@ -1,9 +1,20 @@
-from typing import Optional, List, Sequence
+from typing import Optional, List, Sequence, Tuple
 
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.transfers import Transfer, ETH_TOKEN_ADDRESS
 
 from mev_inspect.schemas.traces import DecodedCallTrace, ClassifiedTrace
+
+
+RFQ_SIGNATURES = [
+    "fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
+    "_fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128,address,bool,address)",
+]
+LIMIT_SIGNATURES = [
+    "fillOrKillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
+    "fillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
+    "_fillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128,address,address)",
+]
 
 
 def create_swap_from_transfers(
@@ -86,19 +97,67 @@ def _filter_transfers(
     return filtered_transfers
 
 
-def get_first_amount_transferred_to_address(
-    address: str, transfers: List[Transfer]
+def is_valid_0x_swap(
+    trace: DecodedCallTrace,
+    child_transfers: List[Transfer],
+) -> bool:
+
+    # 1. There should be 2 child transfers, one for each settled leg of the order
+    if len(child_transfers) != 2:
+        raise ValueError(
+            f"A settled order should consist of 2 child transfers, not {len(child_transfers)}."
+        )
+
+    # 2. The function signature must be in the lists of supported signatures
+    if trace.function_signature not in (LIMIT_SIGNATURES + RFQ_SIGNATURES):
+        raise RuntimeError(
+            f"0x orderbook function {trace.function_signature} is not supported"
+        )
+
+    return True
+
+
+def _get_taker_token_in_amount(
+    taker_address: str, token_in_address: str, child_transfers: List[Transfer]
 ) -> int:
-    for transfer in transfers:
-        if transfer.to_address == address:
-            return transfer.amount
+
+    ANY_TAKER = "0x0000000000000000000000000000000000000000"
+
+    if taker_address == ANY_TAKER:
+        for transfer in child_transfers:
+            if transfer.token_address == token_in_address:
+                return transfer.amount
+    else:
+        for transfer in child_transfers:
+            if transfer.to_address == taker_address:
+                return transfer.amount
     return 0
 
 
-def get_first_amount_transferred_by_token_address(
-    token_address: str, transfers: List[Transfer]
-) -> int:
-    for transfer in transfers:
-        if transfer.token_address == token_address:
-            return transfer.amount
-    return 0
+def get_0x_token_in_data(
+    trace: DecodedCallTrace, child_transfers: List[Transfer]
+) -> Tuple[str, int]:
+
+    order: List = trace.inputs["order"]
+    token_in_address = order[0]
+
+    if trace.function_signature in RFQ_SIGNATURES:
+        taker_address = order[5]
+
+    elif trace.function_signature in LIMIT_SIGNATURES:
+        taker_address = order[6]
+
+    token_in_amount = _get_taker_token_in_amount(
+        taker_address, token_in_address, child_transfers
+    )
+
+    return token_in_address, token_in_amount
+
+
+def get_0x_token_out_data(trace: DecodedCallTrace) -> Tuple[str, int]:
+
+    order: List = trace.inputs["order"]
+    token_out_address = order[1]
+    token_out_amount = trace.inputs["takerTokenFillAmount"]
+
+    return token_out_address, token_out_amount
