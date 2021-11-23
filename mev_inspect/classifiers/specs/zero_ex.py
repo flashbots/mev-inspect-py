@@ -163,6 +163,7 @@ ZEROX_GENERIC_SPECS = [
     ClassifierSpec(
         abi_name="INativeOrdersFeature",
         protocol=Protocol.zero_ex,
+        valid_contract_addresses=["0xdef1c0ded9bec7f1a1670819833240f027b25eff"],
         classifiers={
             "fillOrKillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
             "fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)": ZeroExSwapClassifier,
