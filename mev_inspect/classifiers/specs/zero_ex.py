@@ -10,8 +10,8 @@ from mev_inspect.schemas.classifiers import (
     SwapClassifier,
 )
 from mev_inspect.classifiers.helpers import (
-    get_amount_transferred_to_address,
-    get_amount_transferred_by_token_address,
+    get_first_amount_transferred_to_address,
+    get_first_amount_transferred_by_token_address,
 )
 
 
@@ -23,37 +23,56 @@ class ZeroExSwapClassifier(SwapClassifier):
         child_transfers: List[Transfer],
     ) -> Optional[Swap]:
 
-        token_in_amount: int = 0
-        taker_address: str = ""
+        ANY_TAKER = "0x0000000000000000000000000000000000000000"
+        RFQ_SIGNATURES = [
+            "fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
+            "_fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128,address,bool,address)",
+        ]
+        LIMIT_SIGNATURES = [
+            "fillOrKillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
+            "fillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
+            "_fillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128,address,address)",
+        ]
+
+        # Assumptions:
+        # 1. There should be 2 child transfers, one for each settled leg of the order
+        if len(child_transfers) != 2:
+            raise ValueError(
+                f"A settled order should consist of 2 child transfers, not {len(child_transfers)}."
+            )
+
+        # 2. The function signature must be in the lists of supported signatures
+        if trace.function_signature not in (LIMIT_SIGNATURES + RFQ_SIGNATURES):
+            raise RuntimeError(
+                f"0x orderbook function {trace.function_signature} is not supported"
+            )
+
+        # The position of the token addresses and presence of takerTokenFillAmount
+        # is always ensured across order formats
 
         order: List = trace.inputs["order"]
 
         token_in_address: str = order[0]
+
         token_out_address: str = order[1]
+        token_out_amount = trace.inputs["takerTokenFillAmount"]
 
-        if "Rfq" in trace.function_signature:
-
+        # Find token in amount
+        if trace.function_signature in RFQ_SIGNATURES:
             taker_address = order[5]
 
-        elif "Limit" in trace.function_signature:
-
+        elif trace.function_signature in LIMIT_SIGNATURES:
             taker_address = order[6]
-
-        else:
-
-            raise RuntimeError(
-                f"Unknown 0x orderbook function: {trace.function_signature}"
-            )
 
         token_out_amount = trace.inputs["takerTokenFillAmount"]
 
-        if taker_address == "0x0000000000000000000000000000000000000000":
-            token_in_amount = get_amount_transferred_by_token_address(
+        if taker_address == ANY_TAKER:
+            token_in_amount = get_first_amount_transferred_by_token_address(
                 token_in_address, child_transfers
             )
 
         else:
-            token_in_amount = get_amount_transferred_to_address(
+            token_in_amount = get_first_amount_transferred_to_address(
                 taker_address, child_transfers
             )
 
