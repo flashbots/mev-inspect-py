@@ -5,6 +5,7 @@ from typing import List, Optional
 from sqlalchemy import orm
 from web3 import Web3
 
+from mev_inspect.db import get_trace_session
 from mev_inspect.fees import fetch_base_fee_per_gas
 from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.receipts import Receipt
@@ -28,13 +29,12 @@ async def create_from_block_number(
     base_provider,
     w3: Web3,
     block_number: int,
-    trace_db_session: Optional[orm.Session],
 ) -> Block:
     block: Optional[Block] = None
 
-    if trace_db_session is not None:
-        block = _find_block(trace_db_session, block_number)
-
+    if get_trace_session() is not None:
+        async with get_trace_session() as session:  # type: ignore
+            block = await _find_block(session, block_number)
     if block is None:
         block = await _fetch_block(w3, base_provider, block_number)
         return block
@@ -75,14 +75,14 @@ async def _fetch_block(w3, base_provider, block_number: int, retries: int = 0) -
     )
 
 
-def _find_block(
+async def _find_block(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[Block]:
+    traces = await _find_traces(trace_db_session, block_number)
+    receipts = await _find_receipts(trace_db_session, block_number)
+    base_fee_per_gas = await _find_base_fee(trace_db_session, block_number)
     block_timestamp = _find_block_timestamp(trace_db_session, block_number)
-    traces = _find_traces(trace_db_session, block_number)
-    receipts = _find_receipts(trace_db_session, block_number)
-    base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
 
     if (
         block_timestamp is None
@@ -123,11 +123,11 @@ def _find_block_timestamp(
         return block_timestamp
 
 
-def _find_traces(
+async def _find_traces(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[List[Trace]]:
-    result = trace_db_session.execute(
+    result = await trace_db_session.execute(
         "SELECT raw_traces FROM block_traces WHERE block_number = :block_number",
         params={"block_number": block_number},
     ).one_or_none()
@@ -139,11 +139,11 @@ def _find_traces(
         return [Trace(**trace_json) for trace_json in traces_json]
 
 
-def _find_receipts(
+async def _find_receipts(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[List[Receipt]]:
-    result = trace_db_session.execute(
+    result = await trace_db_session.execute(
         "SELECT raw_receipts FROM block_receipts WHERE block_number = :block_number",
         params={"block_number": block_number},
     ).one_or_none()
@@ -155,11 +155,11 @@ def _find_receipts(
         return [Receipt(**receipt) for receipt in receipts_json]
 
 
-def _find_base_fee(
+async def _find_base_fee(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[int]:
-    result = trace_db_session.execute(
+    result = await trace_db_session.execute(
         "SELECT base_fee_in_wei FROM base_fee WHERE block_number = :block_number",
         params={"block_number": block_number},
     ).one_or_none()

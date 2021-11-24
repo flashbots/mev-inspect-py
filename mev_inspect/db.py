@@ -1,8 +1,8 @@
 import os
 from typing import Optional
 
-from sqlalchemy import create_engine, orm
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 
 
 def get_trace_database_uri() -> Optional[str]:
@@ -12,7 +12,7 @@ def get_trace_database_uri() -> Optional[str]:
     db_name = "trace_db"
 
     if all(field is not None for field in [username, password, host]):
-        return f"postgresql://{username}:{password}@{host}/{db_name}"
+        return f"postgresql+asyncpg://{username}:{password}@{host}/{db_name}"
 
     return None
 
@@ -22,24 +22,24 @@ def get_inspect_database_uri():
     password = os.getenv("POSTGRES_PASSWORD")
     host = os.getenv("POSTGRES_HOST")
     db_name = "mev_inspect"
-    return f"postgresql://{username}:{password}@{host}/{db_name}"
+    return f"postgresql+asyncpg://{username}:{password}@{host}/{db_name}"
 
 
 def _get_engine(uri: str):
-    return create_engine(uri)
+    return create_async_engine(uri)
 
 
 def _get_session(uri: str):
-    Session = sessionmaker(bind=_get_engine(uri))
-    return Session()
+    session = sessionmaker(bind=_get_engine(uri), class_=AsyncSession)
+    return session()
 
 
-def get_inspect_session() -> orm.Session:
+def get_inspect_session() -> sessionmaker:
     uri = get_inspect_database_uri()
     return _get_session(uri)
 
 
-def get_trace_session() -> Optional[orm.Session]:
+def get_trace_session() -> Optional[sessionmaker]:
     uri = get_trace_database_uri()
 
     if uri is not None:

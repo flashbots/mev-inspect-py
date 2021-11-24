@@ -22,3 +22,4 @@ cache
 
 # env
 .envrc
+/out/
