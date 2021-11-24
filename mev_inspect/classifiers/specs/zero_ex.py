@@ -31,8 +31,6 @@ class ZeroExSwapClassifier(SwapClassifier):
         child_transfers: List[Transfer],
     ) -> Optional[Swap]:
 
-        _validate_0x_swap(trace, child_transfers)
-
         token_in_address, token_in_amount = _get_0x_token_in_data(
             trace, child_transfers
         )
@@ -226,27 +224,14 @@ ZEROX_GENERIC_SPECS = [
 ZEROX_CLASSIFIER_SPECS = ZEROX_CONTRACT_SPECS + ZEROX_GENERIC_SPECS
 
 
-def _validate_0x_swap(
-    trace: DecodedCallTrace,
-    child_transfers: List[Transfer],
-) -> None:
+def _get_taker_token_in_amount(
+    taker_address: str, token_in_address: str, child_transfers: List[Transfer]
+) -> int:
 
     if len(child_transfers) != 2:
         raise ValueError(
             f"A settled order should consist of 2 child transfers, not {len(child_transfers)}."
         )
-
-    if trace.function_signature not in (LIMIT_SIGNATURES + RFQ_SIGNATURES):
-        raise RuntimeError(
-            f"0x orderbook function {trace.function_signature} is not supported"
-        )
-
-    return None
-
-
-def _get_taker_token_in_amount(
-    taker_address: str, token_in_address: str, child_transfers: List[Transfer]
-) -> int:
 
     if taker_address == ANY_TAKER_ADDRESS:
         for transfer in child_transfers:
@@ -271,6 +256,11 @@ def _get_0x_token_in_data(
 
     elif trace.function_signature in LIMIT_SIGNATURES:
         taker_address = order[6]
+
+    else:
+        raise RuntimeError(
+            f"0x orderbook function {trace.function_signature} is not supported"
+        )
 
     token_in_amount = _get_taker_token_in_amount(
         taker_address, token_in_address, child_transfers
