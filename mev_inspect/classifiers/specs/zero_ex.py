@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import (
@@ -9,11 +9,18 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-from mev_inspect.classifiers.helpers import (
-    is_valid_0x_swap,
-    get_0x_token_in_data,
-    get_0x_token_out_data,
-)
+
+ANY_TAKER_ADDRESS = "0x0000000000000000000000000000000000000000"
+
+RFQ_SIGNATURES = [
+    "fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
+    "_fillRfqOrder((address,address,uint128,uint128,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128,address,bool,address)",
+]
+LIMIT_SIGNATURES = [
+    "fillOrKillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
+    "fillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128)",
+    "_fillLimitOrder((address,address,uint128,uint128,uint128,address,address,address,address,bytes32,uint64,uint256),(uint8,uint8,bytes32,bytes32),uint128,address,address)",
+]
 
 
 class ZeroExSwapClassifier(SwapClassifier):
@@ -24,11 +31,13 @@ class ZeroExSwapClassifier(SwapClassifier):
         child_transfers: List[Transfer],
     ) -> Optional[Swap]:
 
-        assert is_valid_0x_swap(trace, child_transfers)
+        _validate_0x_swap(trace, child_transfers)
 
-        token_in_address, token_in_amount = get_0x_token_in_data(trace, child_transfers)
+        token_in_address, token_in_amount = _get_0x_token_in_data(
+            trace, child_transfers
+        )
 
-        token_out_address, token_out_amount = get_0x_token_out_data(trace)
+        token_out_address, token_out_amount = _get_0x_token_out_data(trace)
 
         return Swap(
             abi_name=trace.abi_name,
@@ -215,3 +224,65 @@ ZEROX_GENERIC_SPECS = [
 ]
 
 ZEROX_CLASSIFIER_SPECS = ZEROX_CONTRACT_SPECS + ZEROX_GENERIC_SPECS
+
+
+def _validate_0x_swap(
+    trace: DecodedCallTrace,
+    child_transfers: List[Transfer],
+) -> None:
+
+    if len(child_transfers) != 2:
+        raise ValueError(
+            f"A settled order should consist of 2 child transfers, not {len(child_transfers)}."
+        )
+
+    if trace.function_signature not in (LIMIT_SIGNATURES + RFQ_SIGNATURES):
+        raise RuntimeError(
+            f"0x orderbook function {trace.function_signature} is not supported"
+        )
+
+    return None
+
+
+def _get_taker_token_in_amount(
+    taker_address: str, token_in_address: str, child_transfers: List[Transfer]
+) -> int:
+
+    if taker_address == ANY_TAKER_ADDRESS:
+        for transfer in child_transfers:
+            if transfer.token_address == token_in_address:
+                return transfer.amount
+    else:
+        for transfer in child_transfers:
+            if transfer.to_address == taker_address:
+                return transfer.amount
+    return 0
+
+
+def _get_0x_token_in_data(
+    trace: DecodedCallTrace, child_transfers: List[Transfer]
+) -> Tuple[str, int]:
+
+    order: List = trace.inputs["order"]
+    token_in_address = order[0]
+
+    if trace.function_signature in RFQ_SIGNATURES:
+        taker_address = order[5]
+
+    elif trace.function_signature in LIMIT_SIGNATURES:
+        taker_address = order[6]
+
+    token_in_amount = _get_taker_token_in_amount(
+        taker_address, token_in_address, child_transfers
+    )
+
+    return token_in_address, token_in_amount
+
+
+def _get_0x_token_out_data(trace: DecodedCallTrace) -> Tuple[str, int]:
+
+    order: List = trace.inputs["order"]
+    token_out_address = order[1]
+    token_out_amount = trace.inputs["takerTokenFillAmount"]
+
+    return token_out_address, token_out_amount
