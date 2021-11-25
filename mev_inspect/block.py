@@ -2,10 +2,9 @@ import asyncio
 import logging
 from typing import List, Optional
 
-from sqlalchemy import orm
+from sqlalchemy.ext.asyncio import async_scoped_session
 from web3 import Web3
 
-from mev_inspect.db import get_trace_session
 from mev_inspect.fees import fetch_base_fee_per_gas
 from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.receipts import Receipt
@@ -29,12 +28,13 @@ async def create_from_block_number(
     base_provider,
     w3: Web3,
     block_number: int,
+    trace_session: Optional[async_scoped_session],
 ) -> Block:
     block: Optional[Block] = None
 
-    if get_trace_session() is not None:
-        async with get_trace_session() as session:  # type: ignore
-            block = await _find_block(session, block_number)
+    if trace_session is not None:
+        block = await _find_block(trace_session, block_number)
+        await trace_session.close()
     if block is None:
         block = await _fetch_block(w3, base_provider, block_number)
         return block
@@ -76,7 +76,7 @@ async def _fetch_block(w3, base_provider, block_number: int, retries: int = 0) -
 
 
 async def _find_block(
-    trace_db_session: orm.Session,
+    trace_db_session: async_scoped_session,
     block_number: int,
 ) -> Optional[Block]:
     traces = await _find_traces(trace_db_session, block_number)
@@ -108,7 +108,7 @@ async def _find_block(
 
 
 def _find_block_timestamp(
-    trace_db_session: orm.Session,
+    trace_db_session: async_scoped_session,
     block_number: int,
 ) -> Optional[int]:
     result = trace_db_session.execute(
@@ -124,7 +124,7 @@ def _find_block_timestamp(
 
 
 async def _find_traces(
-    trace_db_session: orm.Session,
+    trace_db_session: async_scoped_session,
     block_number: int,
 ) -> Optional[List[Trace]]:
     result = await trace_db_session.execute(
@@ -140,7 +140,7 @@ async def _find_traces(
 
 
 async def _find_receipts(
-    trace_db_session: orm.Session,
+    trace_db_session: async_scoped_session,
     block_number: int,
 ) -> Optional[List[Receipt]]:
     result = await trace_db_session.execute(
@@ -156,7 +156,7 @@ async def _find_receipts(
 
 
 async def _find_base_fee(
-    trace_db_session: orm.Session,
+    trace_db_session: async_scoped_session,
     block_number: int,
 ) -> Optional[int]:
     result = await trace_db_session.execute(

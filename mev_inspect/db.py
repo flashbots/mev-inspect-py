@@ -1,8 +1,13 @@
 import os
 from typing import Optional
+from asyncio import current_task
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    AsyncSession,
+    async_scoped_session,
+)
 
 
 def get_trace_database_uri() -> Optional[str]:
@@ -31,15 +36,15 @@ def _get_engine(uri: str):
 
 def _get_session(uri: str):
     session = sessionmaker(bind=_get_engine(uri), class_=AsyncSession)
-    return session()
+    return async_scoped_session(session, scopefunc=current_task)
 
 
-def get_inspect_session() -> sessionmaker:
+def get_inspect_session() -> async_scoped_session:
     uri = get_inspect_database_uri()
     return _get_session(uri)
 
 
-def get_trace_session() -> Optional[sessionmaker]:
+def get_trace_session() -> Optional[async_scoped_session]:
     uri = get_trace_database_uri()
 
     if uri is not None:

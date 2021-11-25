@@ -1,6 +1,7 @@
 import logging
+from typing import Optional
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import async_scoped_session
 from web3 import Web3
 
 from mev_inspect.arbitrages import get_arbitrages
@@ -37,14 +38,17 @@ logger = logging.getLogger(__name__)
 
 
 async def inspect_block(
-    inspect_db_session: AsyncSession,
+    inspect_db_session: async_scoped_session,
+    trace_db_session: Optional[async_scoped_session],
     base_provider,
     w3: Web3,
     trace_classifier: TraceClassifier,
     block_number: int,
     should_write_classified_traces: bool = True,
 ):
-    block = await create_from_block_number(base_provider, w3, block_number)
+    block = await create_from_block_number(
+        base_provider, w3, block_number, trace_db_session
+    )
 
     logger.info(f"Block: {block_number} -- Total traces: {len(block.traces)}")
 
@@ -91,4 +95,4 @@ async def inspect_block(
     )
     await delete_miner_payments_for_block(inspect_db_session, block_number)
     await write_miner_payments(inspect_db_session, miner_payments)
-    await inspect_db_session.commit()
+    await inspect_db_session.close()
