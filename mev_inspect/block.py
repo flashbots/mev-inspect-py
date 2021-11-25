@@ -80,7 +80,7 @@ async def _fetch_block(
             else:
                 raise
     else:
-        block_json = await asyncio.gather(w3.eth.get_block(block_number))
+        block_json = await w3.eth.get_block(block_number)
         print(block_json)
         traces = geth_get_tx_traces_parity_format(base_provider, block_json)
         geth_tx_receipts = geth_get_tx_receipts(
