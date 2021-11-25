@@ -2,7 +2,6 @@ import asyncio
 import logging
 from typing import List, Optional
 import json
-import asyncio
 import aiohttp
 
 from sqlalchemy import orm
@@ -40,13 +39,14 @@ async def create_from_block_number(
         block = _find_block(trace_db_session, block_number)
 
     if block is None:
-        block = await _fetch_block(w3, base_provider, block_number)
+        block = await _fetch_block(w3, base_provider, geth, block_number)
         return block
-    else:
-        return block
+    return block
 
 
-async def _fetch_block(w3, base_provider, geth, block_number: int, retries: int = 0) -> Block:
+async def _fetch_block(
+    w3, base_provider, geth: bool, block_number: int, retries: int = 0
+) -> Block:
     if not geth:
         block_json, receipts_json, traces_json, base_fee_per_gas = await asyncio.gather(
             w3.eth.get_block(block_number),
@@ -60,23 +60,35 @@ async def _fetch_block(w3, base_provider, geth, block_number: int, retries: int 
                 Receipt(**receipt) for receipt in receipts_json["result"]
             ]
             traces = [Trace(**trace_json) for trace_json in traces_json["result"]]
+            return Block(
+                block_number=block_number,
+                block_timestamp=block_json["timestamp"],
+                miner=block_json["miner"],
+                base_fee_per_gas=base_fee_per_gas,
+                traces=traces,
+                receipts=receipts,
+            )
         except KeyError as e:
             logger.warning(
                 f"Failed to create objects from block: {block_number}: {e}, retrying: {retries + 1} / 3"
             )
             if retries < 3:
                 await asyncio.sleep(5)
-                return await _fetch_block(w3, base_provider, block_number, retries)
+                return await _fetch_block(
+                    w3, base_provider, geth, block_number, retries
+                )
             else:
                 raise
     else:
+        block_json = await asyncio.gather(w3.eth.get_block(block_number))
+        print(block_json)
         traces = geth_get_tx_traces_parity_format(base_provider, block_json)
         geth_tx_receipts = geth_get_tx_receipts(
             base_provider, block_json["transactions"]
         )
         receipts = geth_receipts_translator(block_json, geth_tx_receipts)
         base_fee_per_gas = 0
-        
+
         return Block(
             block_number=block_number,
             block_timestamp=block_json["timestamp"],
@@ -85,7 +97,7 @@ async def _fetch_block(w3, base_provider, geth, block_number: int, retries: int 
             traces=traces,
             receipts=receipts,
         )
- 
+
 
 def _find_block(
     trace_db_session: orm.Session,
@@ -117,6 +129,7 @@ def _find_block(
         traces=traces,
         receipts=receipts,
     )
+
 
 def _find_block_timestamp(
     trace_db_session: orm.Session,
@@ -203,10 +216,11 @@ def get_transaction_hashes(calls: List[Trace]) -> List[str]:
 
     return result
 
+
 # Geth specific additions
 
 
-def geth_get_tx_traces_parity_format(base_provider, block_json):
+def geth_get_tx_traces_parity_format(base_provider, block_json: dict):
     block_hash = block_json["hash"]
     block_trace = geth_get_tx_traces(base_provider, block_hash)
     parity_traces = []

@@ -7,6 +7,7 @@ from typing import Optional
 from sqlalchemy import orm
 from web3 import Web3
 from web3.eth import AsyncEth
+from web3.middleware import geth_poa_middleware
 
 from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
@@ -22,13 +23,24 @@ class MEVInspector:
         rpc: str,
         inspect_db_session: orm.Session,
         trace_db_session: Optional[orm.Session],
+        geth: bool = False,
         max_concurrency: int = 1,
         request_timeout: int = 300,
     ):
         self.inspect_db_session = inspect_db_session
         self.trace_db_session = trace_db_session
         self.base_provider = get_base_provider(rpc, request_timeout=request_timeout)
-        self.w3 = Web3(self.base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
+        self.geth = geth
+        if geth:
+            self.w3 = Web3(
+                self.base_provider,
+                modules={"eth": (AsyncEth,)},
+                middlewares=[geth_poa_middleware],
+            )
+        else:
+            self.w3 = Web3(
+                self.base_provider, modules={"eth": (AsyncEth,)}, middlewares=[]
+            )
         self.trace_classifier = TraceClassifier()
         self.max_concurrency = asyncio.Semaphore(max_concurrency)
 
@@ -36,6 +48,7 @@ class MEVInspector:
         return await create_from_block_number(
             base_provider=self.base_provider,
             w3=self.w3,
+            geth=self.geth,
             block_number=block_number,
             trace_db_session=self.trace_db_session,
         )
@@ -45,6 +58,7 @@ class MEVInspector:
             self.inspect_db_session,
             self.base_provider,
             self.w3,
+            self.geth,
             self.trace_classifier,
             block,
             trace_db_session=self.trace_db_session,
@@ -73,6 +87,7 @@ class MEVInspector:
                 self.inspect_db_session,
                 self.base_provider,
                 self.w3,
+                self.geth,
                 self.trace_classifier,
                 block_number,
                 trace_db_session=self.trace_db_session,

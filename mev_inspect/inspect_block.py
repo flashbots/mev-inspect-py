@@ -44,7 +44,7 @@ async def inspect_block(
     base_provider,
     w3: Web3,
     geth: bool,
-    trace_clasifier: TraceClassifier,
+    trace_classifier: TraceClassifier,
     block_number: int,
     trace_db_session: Optional[orm.Session],
     should_write_classified_traces: bool = True,
