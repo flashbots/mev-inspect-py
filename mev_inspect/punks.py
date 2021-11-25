@@ -18,7 +18,7 @@ def get_punk_snipes(
     for punk_bid in punk_bids:
         for punk_bid_acceptance in punk_bid_acceptances:
             if punk_bid.punk_index == punk_bid_acceptance.punk_index:
-                if punk_bid.amount > punk_bid_acceptance.min_price:
+                if punk_bid.price > punk_bid_acceptance.min_price:
                     punk_snipe = PunkSnipe(
                         block_number=punk_bid.block_number,
                         transaction_hash=punk_bid.transaction_hash,
@@ -26,7 +26,7 @@ def get_punk_snipes(
                         from_address=punk_bid.from_address,
                         punk_index=punk_bid.punk_index,
                         min_acceptance_price=punk_bid_acceptance.min_price,
-                        acceptance_price=punk_bid.amount,
+                        acceptance_price=punk_bid.price,
                     )
 
                     punk_snipe_list.append(punk_snipe)
@@ -96,7 +96,7 @@ def _get_punk_bids_for_transaction(traces: List[ClassifiedTrace]) -> List[PunkBi
                 trace_address=trace.trace_address,
                 from_address=trace.from_address,
                 punk_index=trace.inputs["punkIndex"],
-                amount=trace.value,
+                price=trace.value,
             )
 
             punk_bids.append(punk_bid)

@@ -9,4 +9,4 @@ class PunkBid(BaseModel):
     trace_address: List[int]
     from_address: str
     punk_index: int
-    amount: int
+    price: int
