@@ -1,12 +1,22 @@
-from mev_inspect.schemas.traces import (
-    Protocol,
-)
+from mev_inspect.schemas.traces import Protocol, Classification
 
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
-    PunkBidClassifier,
-    PunkBidAcceptanceClassifier,
+    Classifier,
 )
+
+
+class PunkBidAcceptanceClassifier(Classifier):
+    @staticmethod
+    def get_classification() -> Classification:
+        return Classification.punk_accept_bid
+
+
+class PunkBidClassifier(Classifier):
+    @staticmethod
+    def get_classification() -> Classification:
+        return Classification.punk_bid
+
 
 CRYPTO_PUNKS_SPEC = ClassifierSpec(
     abi_name="cryptopunks",

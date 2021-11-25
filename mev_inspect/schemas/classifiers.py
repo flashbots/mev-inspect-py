@@ -5,36 +5,12 @@ from pydantic import BaseModel
 
 from .traces import Classification, DecodedCallTrace, Protocol
 from .transfers import Transfer
-from .punk_bid import PunkBid
-from .punk_accept_bid import PunkBidAcceptance
 
 
 class Classifier(ABC):
     @staticmethod
     @abstractmethod
     def get_classification() -> Classification:
-        raise NotImplementedError()
-
-
-class PunkBidClassifier(Classifier):
-    @staticmethod
-    def get_classification() -> Classification:
-        return Classification.punk_bid
-
-    @staticmethod
-    @abstractmethod
-    def get_bid(trace: DecodedCallTrace) -> PunkBid:
-        raise NotImplementedError()
-
-
-class PunkBidAcceptanceClassifier(Classifier):
-    @staticmethod
-    def get_classification() -> Classification:
-        return Classification.punk_accept_bid
-
-    @staticmethod
-    @abstractmethod
-    def get_accept_bid(trace: DecodedCallTrace) -> PunkBidAcceptance:
         raise NotImplementedError()
 
 
