@@ -10,6 +10,7 @@ from mev_inspect.crud.latest_block_update import (
     find_latest_block_update,
     update_latest_block,
 )
+from mev_inspect.db import get_sessions
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.provider import get_base_provider
 from mev_inspect.signal_handler import GracefulKiller
@@ -33,13 +34,14 @@ async def run():
 
     killer = GracefulKiller()
 
-    inspector = MEVInspector(rpc, None, None)
+    inspector = MEVInspector(rpc)
     base_provider = get_base_provider(rpc)
+    _, inspect_session = get_sessions()
 
     while not killer.kill_now:
         await inspect_next_block(
             inspector,
-            None,
+            inspect_session,
             base_provider,
             healthcheck_url,
         )

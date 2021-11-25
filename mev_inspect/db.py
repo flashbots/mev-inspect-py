@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, Tuple
 from asyncio import current_task
 
 from sqlalchemy.orm import sessionmaker
@@ -51,3 +51,10 @@ def get_trace_session() -> Optional[async_scoped_session]:
         return _get_session(uri)
 
     return None
+
+
+def get_sessions() -> Tuple[async_scoped_session, Optional[async_scoped_session]]:
+    inspect_db_session = get_inspect_session()
+    trace_db_session = get_trace_session()
+    trace_db_session = trace_db_session() if trace_db_session is not None else None
+    return inspect_db_session, trace_db_session

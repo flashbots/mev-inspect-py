@@ -2,15 +2,13 @@ import asyncio
 import logging
 import traceback
 from asyncio import CancelledError
-from typing import Tuple, Optional
 
-from sqlalchemy.ext.asyncio import async_scoped_session
 from web3 import Web3
 from web3.eth import AsyncEth
 
 from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.db import get_inspect_session, get_trace_session
+from mev_inspect.db import get_sessions
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
 
@@ -30,7 +28,7 @@ class MEVInspector:
         self.max_concurrency = asyncio.Semaphore(max_concurrency)
 
     async def create_from_block(self, block_number: int):
-        _, trace_session = _get_sessions()
+        _, trace_session = get_sessions()
         return await create_from_block_number(
             base_provider=self.base_provider,
             w3=self.w3,
@@ -39,7 +37,7 @@ class MEVInspector:
         )
 
     async def inspect_single_block(self, block: int):
-        inspect_session, trace_session = _get_sessions()
+        inspect_session, trace_session = get_sessions()
         return await inspect_block(
             inspect_session,
             trace_session,
@@ -67,7 +65,7 @@ class MEVInspector:
             traceback.print_exc()
 
     async def safe_inspect_block(self, block_number: int):
-        inspect_session, trace_session = _get_sessions()
+        inspect_session, trace_session = get_sessions()
         async with self.max_concurrency:
             return await inspect_block(
                 inspect_session,
@@ -77,10 +75,3 @@ class MEVInspector:
                 self.trace_classifier,
                 block_number,
             )
-
-
-def _get_sessions() -> Tuple[async_scoped_session, Optional[async_scoped_session]]:
-    inspect_db_session = get_inspect_session()
-    trace_db_session = get_trace_session()
-    trace_db_session = trace_db_session() if trace_db_session is not None else None
-    return inspect_db_session, trace_db_session
