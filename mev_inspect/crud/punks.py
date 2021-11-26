@@ -4,10 +4,37 @@ from typing import List
 from mev_inspect.models.punks import (
     PunkSnipeModel,
     PunkBidModel,
+    PunkBidAcceptanceModel,
 )
 from mev_inspect.schemas.punk_snipe import PunkSnipe
-
 from mev_inspect.schemas.punk_bid import PunkBid
+from mev_inspect.schemas.punk_accept_bid import PunkBidAcceptance
+
+
+def delete_punk_bid_acceptances_for_block(
+    db_session,
+    block_number: int,
+) -> None:
+    (
+        db_session.query(PunkBidAcceptanceModel)
+        .filter(PunkBidAcceptanceModel.block_number == block_number)
+        .delete()
+    )
+
+    db_session.commit()
+
+
+def write_punk_bid_acceptances(
+    db_session,
+    punk_bid_acceptances: List[PunkBidAcceptance],
+) -> None:
+    models = [
+        PunkBidAcceptanceModel(**json.loads(punk_bid_acceptance.json()))
+        for punk_bid_acceptance in punk_bid_acceptances
+    ]
+
+    db_session.bulk_save_objects(models)
+    db_session.commit()
 
 
 def delete_punk_bids_for_block(
