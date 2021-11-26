@@ -32,4 +32,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table("liquidations")
+    op.drop_table("punk_snipes")
