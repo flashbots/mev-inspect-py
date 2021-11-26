@@ -28,7 +28,6 @@ from mev_inspect.crud.liquidations import (
 )
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_snipes
-from mev_inspect.schemas import punk_snipe
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
 from mev_inspect.liquidations import get_liquidations
