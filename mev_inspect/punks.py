@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from mev_inspect.schemas.traces import (
     ClassifiedTrace,
     Classification,
@@ -10,26 +10,47 @@ from mev_inspect.schemas.punk_snipe import PunkSnipe
 from mev_inspect.traces import get_traces_by_transaction_hash
 
 
+def _get_highest_punk_bid_per_index(
+    punk_bids: List[PunkBid], punk_index: int
+) -> Optional[PunkBid]:
+    highest_punk_bid = None
+
+    for punk_bid in punk_bids:
+        if punk_bid.punk_index == punk_index:
+            if highest_punk_bid is None:
+                highest_punk_bid = punk_bid
+
+            elif punk_bid.price > highest_punk_bid.price:
+                highest_punk_bid = punk_bid
+
+    return highest_punk_bid
+
+
 def get_punk_snipes(
     punk_bids: List[PunkBid], punk_bid_acceptances: List[PunkBidAcceptance]
 ) -> List[PunkSnipe]:
     punk_snipe_list = []
 
-    for punk_bid in punk_bids:
-        for punk_bid_acceptance in punk_bid_acceptances:
-            if punk_bid.punk_index == punk_bid_acceptance.punk_index:
-                if punk_bid.price > punk_bid_acceptance.min_price:
-                    punk_snipe = PunkSnipe(
-                        block_number=punk_bid.block_number,
-                        transaction_hash=punk_bid.transaction_hash,
-                        trace_address=punk_bid.trace_address,
-                        from_address=punk_bid.from_address,
-                        punk_index=punk_bid.punk_index,
-                        min_acceptance_price=punk_bid_acceptance.min_price,
-                        acceptance_price=punk_bid.price,
-                    )
+    for punk_bid_acceptance in punk_bid_acceptances:
+        highest_punk_bid = _get_highest_punk_bid_per_index(
+            punk_bids, punk_bid_acceptance.punk_index
+        )
 
-                    punk_snipe_list.append(punk_snipe)
+        if highest_punk_bid is None:
+            continue
+
+        if highest_punk_bid.price > punk_bid_acceptance.min_price:
+            punk_snipe = PunkSnipe(
+                block_number=highest_punk_bid.block_number,
+                transaction_hash=highest_punk_bid.transaction_hash,
+                trace_address=highest_punk_bid.trace_address,
+                from_address=highest_punk_bid.from_address,
+                punk_index=highest_punk_bid.punk_index,
+                min_acceptance_price=punk_bid_acceptance.min_price,
+                acceptance_price=highest_punk_bid.price,
+            )
+
+            punk_snipe_list.append(punk_snipe)
 
     return punk_snipe_list
 
