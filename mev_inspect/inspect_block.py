@@ -17,7 +17,7 @@ from mev_inspect.crud.punks import (
     write_punk_snipes,
     delete_punk_bids_for_block,
     write_punk_bids,
-
+)
 from mev_inspect.crud.blocks import (
     delete_block,
     write_block,
