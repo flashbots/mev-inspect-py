@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import sys
-from pathlib import Path
 from typing import List, Optional
 
 from sqlalchemy import orm
@@ -11,15 +9,19 @@ from mev_inspect.fees import fetch_base_fee_per_gas
 from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.receipts import Receipt
 from mev_inspect.schemas.traces import Trace, TraceType
+from mev_inspect.utils import hex_to_int
 
 
-cache_directory = "./cache"
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def get_latest_block_number(w3: Web3) -> int:
-    return int(w3.eth.get_block("latest")["number"])
+async def get_latest_block_number(base_provider) -> int:
+    latest_block = await base_provider.make_request(
+        "eth_getBlockByNumber",
+        ["latest", False],
+    )
+
+    return hex_to_int(latest_block["result"]["number"])
 
 
 async def create_from_block_number(
@@ -65,6 +67,7 @@ async def _fetch_block(w3, base_provider, block_number: int, retries: int = 0) -
 
     return Block(
         block_number=block_number,
+        block_timestamp=block_json["timestamp"],
         miner=block_json["miner"],
         base_fee_per_gas=base_fee_per_gas,
         traces=traces,
@@ -76,11 +79,17 @@ def _find_block(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[Block]:
+    block_timestamp = _find_block_timestamp(trace_db_session, block_number)
     traces = _find_traces(trace_db_session, block_number)
     receipts = _find_receipts(trace_db_session, block_number)
     base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
 
-    if traces is None or receipts is None or base_fee_per_gas is None:
+    if (
+        block_timestamp is None
+        or traces is None
+        or receipts is None
+        or base_fee_per_gas is None
+    ):
         return None
 
     miner_address = _get_miner_address_from_traces(traces)
@@ -90,11 +99,28 @@ def _find_block(
 
     return Block(
         block_number=block_number,
+        block_timestamp=block_timestamp,
         miner=miner_address,
         base_fee_per_gas=base_fee_per_gas,
         traces=traces,
         receipts=receipts,
     )
+
+
+def _find_block_timestamp(
+    trace_db_session: orm.Session,
+    block_number: int,
+) -> Optional[int]:
+    result = trace_db_session.execute(
+        "SELECT block_timestamp FROM block_timestamps WHERE block_number = :block_number",
+        params={"block_number": block_number},
+    ).one_or_none()
+
+    if result is None:
+        return None
+    else:
+        (block_timestamp,) = result
+        return block_timestamp
 
 
 def _find_traces(
@@ -165,17 +191,3 @@ def get_transaction_hashes(calls: List[Trace]) -> List[str]:
                 result.append(call.transaction_hash)
 
     return result
-
-
-def cache_block(cache_path: Path, block: Block):
-    write_mode = "w" if cache_path.is_file() else "x"
-
-    cache_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(cache_path, mode=write_mode) as cache_file:
-        cache_file.write(block.json())
-
-
-def _get_cache_path(block_number: int) -> Path:
-    cache_directory_path = Path(cache_directory)
-    return cache_directory_path / f"{block_number}.json"

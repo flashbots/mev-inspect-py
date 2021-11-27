@@ -13,6 +13,10 @@ k8s_yaml(configmap_from_dict("mev-inspect-rpc", inputs = {
     "url" : os.environ["RPC_URL"],
 }))
 
+k8s_yaml(configmap_from_dict("mev-inspect-listener-healthcheck", inputs = {
+    "url" : os.getenv("LISTENER_HEALTHCHECK_URL", default=""),
+}))
+
 k8s_yaml(secret_from_dict("mev-inspect-db-credentials", inputs = {
     "username" : "postgres",
     "password": "password",

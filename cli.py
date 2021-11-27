@@ -1,13 +1,16 @@
-import asyncio
+import logging
 import os
-import signal
-from functools import wraps
+import sys
 
 import click
 
+from mev_inspect.concurrency import coro
+from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 
 RPC_URL_ENV = "RPC_URL"
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 @click.group()
@@ -15,31 +18,15 @@ def cli():
     pass
 
 
-def coro(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        loop = asyncio.get_event_loop()
-
-        def cancel_task_callback():
-            for task in asyncio.all_tasks():
-                task.cancel()
-
-        for sig in (signal.SIGINT, signal.SIGTERM):
-            loop.add_signal_handler(sig, cancel_task_callback)
-        try:
-            loop.run_until_complete(f(*args, **kwargs))
-        finally:
-            loop.run_until_complete(loop.shutdown_asyncgens())
-
-    return wrapper
-
-
 @cli.command()
 @click.argument("block_number", type=int)
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
 @coro
 async def inspect_block_command(block_number: int, rpc: str):
-    inspector = MEVInspector(rpc=rpc)
+    inspect_db_session = get_inspect_session()
+    trace_db_session = get_trace_session()
+
+    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session)
     await inspector.inspect_single_block(block=block_number)
 
 
@@ -48,7 +35,10 @@ async def inspect_block_command(block_number: int, rpc: str):
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
 @coro
 async def fetch_block_command(block_number: int, rpc: str):
-    inspector = MEVInspector(rpc=rpc)
+    inspect_db_session = get_inspect_session()
+    trace_db_session = get_trace_session()
+
+    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session)
     block = await inspector.create_from_block(block_number=block_number)
     print(block.json())
 
@@ -74,8 +64,13 @@ async def inspect_many_blocks_command(
     max_concurrency: int,
     request_timeout: int,
 ):
+    inspect_db_session = get_inspect_session()
+    trace_db_session = get_trace_session()
+
     inspector = MEVInspector(
-        rpc=rpc,
+        rpc,
+        inspect_db_session,
+        trace_db_session,
         max_concurrency=max_concurrency,
         request_timeout=request_timeout,
     )
