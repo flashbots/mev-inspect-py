@@ -11,6 +11,7 @@ from mev_inspect.crud.arbitrages import (
     delete_arbitrages_for_block,
     write_arbitrages,
 )
+
 from mev_inspect.crud.punks import (
     delete_punk_snipes_for_block,
     write_punk_snipes,
@@ -18,6 +19,11 @@ from mev_inspect.crud.punks import (
     write_punk_bids,
     delete_punk_bid_acceptances_for_block,
     write_punk_bid_acceptances,
+
+from mev_inspect.crud.blocks import (
+    delete_block,
+    write_block,
+
 )
 from mev_inspect.crud.traces import (
     delete_classified_traces_for_block,
@@ -48,7 +54,7 @@ async def inspect_block(
     inspect_db_session: orm.Session,
     base_provider,
     w3: Web3,
-    trace_clasifier: TraceClassifier,
+    trace_classifier: TraceClassifier,
     block_number: int,
     trace_db_session: Optional[orm.Session],
     should_write_classified_traces: bool = True,
@@ -62,12 +68,15 @@ async def inspect_block(
 
     logger.info(f"Block: {block_number} -- Total traces: {len(block.traces)}")
 
+    delete_block(inspect_db_session, block_number)
+    write_block(inspect_db_session, block)
+
     total_transactions = len(
         set(t.transaction_hash for t in block.traces if t.transaction_hash is not None)
     )
     logger.info(f"Block: {block_number} -- Total transactions: {total_transactions}")
 
-    classified_traces = trace_clasifier.classify(block.traces)
+    classified_traces = trace_classifier.classify(block.traces)
     logger.info(
         f"Block: {block_number} -- Returned {len(classified_traces)} classified traces"
     )
