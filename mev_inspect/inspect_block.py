@@ -21,7 +21,6 @@ from mev_inspect.crud.punks import (
 from mev_inspect.crud.blocks import (
     delete_block,
     write_block,
-
 )
 from mev_inspect.crud.traces import (
     delete_classified_traces_for_block,
