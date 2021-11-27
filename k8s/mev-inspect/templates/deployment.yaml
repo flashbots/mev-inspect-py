@@ -78,6 +78,12 @@ spec:
               configMapKeyRef:
                 name: mev-inspect-rpc
                 key: url
+          - name: LISTENER_HEALTHCHECK_URL
+            valueFrom:
+              configMapKeyRef:
+                name: mev-inspect-listener-healthcheck
+                key: url
+                optional: true
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
