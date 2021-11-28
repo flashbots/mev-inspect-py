@@ -5,6 +5,7 @@ import sys
 import click
 
 from mev_inspect.concurrency import coro
+from mev_inspect.db import get_sessions
 from mev_inspect.inspector import MEVInspector
 
 RPC_URL_ENV = "RPC_URL"
@@ -23,7 +24,10 @@ def cli():
 @coro
 async def inspect_block_command(block_number: int, rpc: str):
     inspector = MEVInspector(rpc)
-    await inspector.inspect_single_block(block=block_number)
+    inspect_session, trace_session = get_sessions()
+    await inspector.inspect_single_block(
+        block=block_number, inspect_session=inspect_session, trace_session=trace_session
+    )
 
 
 @cli.command()
@@ -32,7 +36,10 @@ async def inspect_block_command(block_number: int, rpc: str):
 @coro
 async def fetch_block_command(block_number: int, rpc: str):
     inspector = MEVInspector(rpc)
-    block = await inspector.create_from_block(block_number=block_number)
+    _, trace_session = get_sessions()
+    block = await inspector.create_from_block(
+        block_number=block_number, trace_session=trace_session
+    )
     print(block.json())
 
 
@@ -62,8 +69,12 @@ async def inspect_many_blocks_command(
         max_concurrency=max_concurrency,
         request_timeout=request_timeout,
     )
+    inspect_session, trace_session = get_sessions()
     await inspector.inspect_many_blocks(
-        after_block=after_block, before_block=before_block
+        after_block=after_block,
+        before_block=before_block,
+        inspect_session=inspect_session,
+        trace_session=trace_session,
     )
 
 
