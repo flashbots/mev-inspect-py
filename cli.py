@@ -5,12 +5,15 @@ import sys
 import click
 
 from mev_inspect.concurrency import coro
+from mev_inspect.crud.prices import write_prices
 from mev_inspect.db import get_sessions
 from mev_inspect.inspector import MEVInspector
+from mev_inspect.prices import fetch_all_supported_prices
 
 RPC_URL_ENV = "RPC_URL"
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @click.group()
@@ -76,6 +79,18 @@ async def inspect_many_blocks_command(
         inspect_session=inspect_session,
         trace_session=trace_session,
     )
+
+
+@cli.command()
+@coro
+async def fetch_all_prices():
+    inspect_session, _ = get_sessions()
+
+    logger.info("Fetching prices")
+    prices = await fetch_all_supported_prices()
+
+    logger.info("Writing prices")
+    write_prices(inspect_session, prices)
 
 
 def get_rpc_url() -> str:
