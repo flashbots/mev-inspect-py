@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from mev_inspect.schemas.blocks import Block
 
 
@@ -20,7 +22,7 @@ def write_block(
         "INSERT INTO blocks (block_number, block_timestamp) VALUES (:block_number, :block_timestamp)",
         params={
             "block_number": block.block_number,
-            "block_timestamp": block.block_timestamp,
+            "block_timestamp": datetime.fromtimestamp(block.block_timestamp),
         },
     )
     db_session.commit()
