@@ -11,10 +11,12 @@ def test_fillLimitOrder_swap():
         "0xa043976d736ec8dc930c0556dffd0a86a4bfc80bf98fb7995c791fb4dc488b5d"
     )
     block_number = 13666312
+    transaction_position = 0
 
     swap = Swap(
         abi_name="INativeOrdersFeature",
         transaction_hash=transaction_hash,
+        transaction_position=transaction_position,
         block_number=block_number,
         trace_address=[0, 2, 0, 1],
         contract_address="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
@@ -42,10 +44,12 @@ def test__fillLimitOrder_swap():
         "0x9255addffa2dbeb9560c5e20e78a78c949488d2054c70b2155c39f9e28394cbf"
     )
     block_number = 13666184
+    transaction_position = 0
 
     swap = Swap(
         abi_name="INativeOrdersFeature",
         transaction_hash=transaction_hash,
+        transaction_position=transaction_position,
         block_number=block_number,
         trace_address=[0, 1],
         contract_address="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
@@ -73,10 +77,12 @@ def test_RfqLimitOrder_swap():
         "0x1c948eb7c59ddbe6b916cf68f5df86eb44a7c9e728221fcd8ab750f137fd2a0f"
     )
     block_number = 13666326
+    transaction_position = 0
 
     swap = Swap(
         abi_name="INativeOrdersFeature",
         transaction_hash=transaction_hash,
+        transaction_position=transaction_position,
         block_number=block_number,
         trace_address=[0, 1, 13, 0, 1],
         contract_address="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
@@ -104,10 +110,12 @@ def test__RfqLimitOrder_swap():
         "0x4f66832e654f8a4d773d9769571155df3722401343247376d6bb56626db29b90"
     )
     block_number = 13666363
+    transaction_position = 0
 
     swap = Swap(
         abi_name="INativeOrdersFeature",
         transaction_hash=transaction_hash,
+        transaction_position=transaction_position,
         block_number=block_number,
         trace_address=[1, 0, 1, 0, 1],
         contract_address="0xdef1c0ded9bec7f1a1670819833240f027b25eff",

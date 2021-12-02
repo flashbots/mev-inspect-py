@@ -28,6 +28,7 @@ def write_classified_traces(
         models.append(
             ClassifiedTraceModel(
                 transaction_hash=trace.transaction_hash,
+                transaction_position=trace.transaction_position,
                 block_number=trace.block_number,
                 classification=trace.classification.value,
                 trace_type=trace.type.value,
