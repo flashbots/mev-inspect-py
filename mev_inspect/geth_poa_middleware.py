@@ -85,9 +85,7 @@ pythonic_geth_poa = apply_formatters_to_dict(
 geth_poa_cleanup = compose(pythonic_geth_poa, remap_geth_poa_fields)
 
 
-async def geth_poa_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], *_: Web3
-):
+async def geth_poa_middleware(make_request: Callable[[RPCEndpoint, Any], Any], _: Web3):
     return await get_geth_poa_middleware(
         make_request=make_request,
         request_formatters={},
