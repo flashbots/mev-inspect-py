@@ -32,6 +32,7 @@ from mev_inspect.crud.liquidations import (
 )
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_snipes
+from mev_inspect.sandwiches import get_sandwiches
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
 from mev_inspect.liquidations import get_liquidations
@@ -98,6 +99,11 @@ async def inspect_block(
 
     delete_liquidations_for_block(inspect_db_session, block_number)
     write_liquidations(inspect_db_session, liquidations)
+
+    sandwiches = get_sandwiches(swaps)
+    logger.info(f"Block: {block_number} -- Found {len(sandwiches)} sandwiches")
+    for sandwich in sandwiches:
+        print(sandwich.json(indent=4))
 
     punk_bids = get_punk_bids(classified_traces)
     punk_bid_acceptances = get_punk_bid_acceptances(classified_traces)
