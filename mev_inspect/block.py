@@ -80,19 +80,19 @@ async def _fetch_block(
             else:
                 raise
     else:
-        block_json = await w3.eth.get_block(block_number)
-        print(block_json)
-        traces = geth_get_tx_traces_parity_format(base_provider, block_json)
-        geth_tx_receipts = geth_get_tx_receipts(
-            base_provider, block_json["transactions"]
+        # print(block_number)
+        block_json = await asyncio.gather(w3.eth.get_block(block_number))
+        traces = await geth_get_tx_traces_parity_format(base_provider, block_json[0])
+        geth_tx_receipts = await geth_get_tx_receipts_async(
+            base_provider.endpoint_uri, block_json[0]["transactions"]
         )
-        receipts = geth_receipts_translator(block_json, geth_tx_receipts)
+        receipts = geth_receipts_translator(block_json[0], geth_tx_receipts)
         base_fee_per_gas = 0
 
         return Block(
             block_number=block_number,
-            block_timestamp=block_json["timestamp"],
-            miner=block_json["miner"],
+            block_timestamp=block_json[0]["timestamp"],
+            miner=block_json[0]["miner"],
             base_fee_per_gas=base_fee_per_gas,
             traces=traces,
             receipts=receipts,
@@ -220,9 +220,11 @@ def get_transaction_hashes(calls: List[Trace]) -> List[str]:
 # Geth specific additions
 
 
-def geth_get_tx_traces_parity_format(base_provider, block_json: dict):
+async def geth_get_tx_traces_parity_format(base_provider, block_json: dict):
+    # print(block_json['hash'].hex())
     block_hash = block_json["hash"]
-    block_trace = geth_get_tx_traces(base_provider, block_hash)
+    block_trace = await geth_get_tx_traces(base_provider, block_hash)
+    # print(block_trace)
     parity_traces = []
     for idx, trace in enumerate(block_trace["result"]):
         if "result" in trace:
@@ -232,8 +234,8 @@ def geth_get_tx_traces_parity_format(base_provider, block_json: dict):
     return parity_traces
 
 
-def geth_get_tx_traces(base_provider, block_hash):
-    block_trace = base_provider.make_request(
+async def geth_get_tx_traces(base_provider, block_hash):
+    block_trace = await base_provider.make_request(
         "debug_traceBlockByHash", [block_hash.hex(), {"tracer": "callTracer"}]
     )
     return block_trace
@@ -312,12 +314,6 @@ async def geth_get_tx_receipts_async(endpoint_uri, transactions):
         ]
         geth_tx_receipts = await asyncio.gather(*tasks)
     return [json.loads(tx_receipts) for tx_receipts in geth_tx_receipts]
-
-
-def geth_get_tx_receipts(base_provider, transactions):
-    return asyncio.run(
-        geth_get_tx_receipts_async(base_provider.endpoint_uri, transactions)
-    )
 
 
 def geth_receipts_translator(block_json, geth_tx_receipts) -> List[Receipt]:

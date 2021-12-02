@@ -7,7 +7,6 @@ from typing import Optional
 from sqlalchemy import orm
 from web3 import Web3
 from web3.eth import AsyncEth
-from web3.middleware import geth_poa_middleware
 
 from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
@@ -29,18 +28,19 @@ class MEVInspector:
     ):
         self.inspect_db_session = inspect_db_session
         self.trace_db_session = trace_db_session
-        self.base_provider = get_base_provider(rpc, request_timeout=request_timeout)
+        self.base_provider = get_base_provider(rpc, request_timeout, geth)
         self.geth = geth
-        if geth:
-            self.w3 = Web3(
-                self.base_provider,
-                modules={"eth": (AsyncEth,)},
-                middlewares=[geth_poa_middleware],
-            )
-        else:
-            self.w3 = Web3(
-                self.base_provider, modules={"eth": (AsyncEth,)}, middlewares=[]
-            )
+        self.w3 = Web3(self.base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
+        # if geth:
+        #     self.w3 = Web3(
+        #         self.base_provider,
+        #         modules={"eth": (AsyncEth,)},
+        #         middlewares=[],
+        #     )
+        # else:
+        #     self.w3 = Web3(
+        #         self.base_provider, modules={"eth": (AsyncEth,)}, middlewares=[]
+        #     )
         self.trace_classifier = TraceClassifier()
         self.max_concurrency = asyncio.Semaphore(max_concurrency)
 
