@@ -30,7 +30,7 @@ def test_c_ether_liquidations():
     block = load_test_block(block_number)
     trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces, comp_markets, cream_markets)
+    result = get_compound_liquidations(classified_traces)
     assert result == liquidations
 
     block_number = 13207907
@@ -55,7 +55,7 @@ def test_c_ether_liquidations():
     block = load_test_block(block_number)
     trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces, comp_markets, cream_markets)
+    result = get_compound_liquidations(classified_traces)
     assert result == liquidations
 
     block_number = 13298725
@@ -79,7 +79,7 @@ def test_c_ether_liquidations():
     block = load_test_block(block_number)
     trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces, comp_markets, cream_markets)
+    result = get_compound_liquidations(classified_traces)
     assert result == liquidations
 
 
@@ -105,7 +105,7 @@ def test_c_token_liquidation():
     block = load_test_block(block_number)
     trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces, comp_markets, cream_markets)
+    result = get_compound_liquidations(classified_traces)
     assert result == liquidations
 
 
@@ -131,5 +131,5 @@ def test_cream_token_liquidation():
     block = load_test_block(block_number)
     trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces, comp_markets, cream_markets)
+    result = get_compound_liquidations(classified_traces)
     assert result == liquidations
