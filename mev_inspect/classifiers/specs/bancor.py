@@ -10,7 +10,7 @@ from mev_inspect.schemas.classifiers import (
     SwapClassifier,
 )
 from mev_inspect.classifiers.helpers import (
-    create_swap_from_transfers_not_including_pool,
+    create_swap_from_recipient_transfers,
 )
 
 BANCOR_NETWORK_ABI_NAME = "BancorNetwork"
@@ -26,7 +26,7 @@ class BancorSwapClassifier(SwapClassifier):
     ) -> Optional[Swap]:
         recipient_address = trace.from_address
 
-        swap = create_swap_from_transfers_not_including_pool(
+        swap = create_swap_from_recipient_transfers(
             trace,
             BANCOR_NETWORK_CONTRACT_ADDRESS,
             recipient_address,

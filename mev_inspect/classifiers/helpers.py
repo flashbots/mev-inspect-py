@@ -6,7 +6,7 @@ from mev_inspect.schemas.transfers import Transfer, ETH_TOKEN_ADDRESS
 from mev_inspect.schemas.traces import DecodedCallTrace, ClassifiedTrace
 
 
-def create_swap_from_transfers(
+def create_swap_from_pool_transfers(
     trace: DecodedCallTrace,
     recipient_address: str,
     prior_transfers: List[Transfer],
@@ -55,7 +55,7 @@ def create_swap_from_transfers(
     )
 
 
-def create_swap_from_transfers_not_including_pool(
+def create_swap_from_recipient_transfers(
     trace: DecodedCallTrace,
     pool_address: str,
     recipient_address: str,
