@@ -9,7 +9,7 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-from mev_inspect.classifiers.helpers import create_swap_from_transfers
+from mev_inspect.classifiers.helpers import create_swap_from_pool_transfers
 
 
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
@@ -26,7 +26,7 @@ class UniswapV3SwapClassifier(SwapClassifier):
 
         recipient_address = trace.inputs.get("recipient", trace.from_address)
 
-        swap = create_swap_from_transfers(
+        swap = create_swap_from_pool_transfers(
             trace, recipient_address, prior_transfers, child_transfers
         )
         return swap
@@ -42,7 +42,7 @@ class UniswapV2SwapClassifier(SwapClassifier):
 
         recipient_address = trace.inputs.get("to", trace.from_address)
 
-        swap = create_swap_from_transfers(
+        swap = create_swap_from_pool_transfers(
             trace, recipient_address, prior_transfers, child_transfers
         )
         return swap

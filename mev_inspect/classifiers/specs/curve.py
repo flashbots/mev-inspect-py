@@ -10,7 +10,7 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-from mev_inspect.classifiers.helpers import create_swap_from_transfers
+from mev_inspect.classifiers.helpers import create_swap_from_pool_transfers
 
 
 class CurveSwapClassifier(SwapClassifier):
@@ -23,7 +23,7 @@ class CurveSwapClassifier(SwapClassifier):
 
         recipient_address = trace.from_address
 
-        swap = create_swap_from_transfers(
+        swap = create_swap_from_pool_transfers(
             trace, recipient_address, prior_transfers, child_transfers
         )
         return swap
