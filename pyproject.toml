@@ -11,6 +11,7 @@ pydantic = "^1.8.2"
 hexbytes = "^0.2.1"
 click = "^8.0.1"
 psycopg2 = "^2.9.1"
+aiohttp = "^3.8.0"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.13.0"
