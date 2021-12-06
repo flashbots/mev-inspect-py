@@ -1,8 +1,8 @@
 import json
 
 from hexbytes import HexBytes
-from web3.datastructures import AttributeDict
 from pydantic import BaseModel
+from web3.datastructures import AttributeDict
 
 
 def to_camel(string: str) -> str:
