@@ -48,12 +48,13 @@ def _get_sandwich_starting_with_swap(
                 and other_swap.token_in_address == front_swap.token_out_address
                 and other_swap.from_address == sandwicher_address
             ):
-                return Sandwich(
-                    block_number=front_swap.block_number,
-                    sandwicher_address=sandwicher_address,
-                    frontrun_transaction_hash=front_swap.transaction_hash,
-                    backrun_transaction_hash=other_swap.transaction_hash,
-                    sandwiched_swaps=sandwiched_swaps,
-                )
+                if len(sandwiched_swaps) > 0:
+                    return Sandwich(
+                        block_number=front_swap.block_number,
+                        sandwicher_address=sandwicher_address,
+                        frontrun_transaction_hash=front_swap.transaction_hash,
+                        backrun_transaction_hash=other_swap.transaction_hash,
+                        sandwiched_swaps=sandwiched_swaps,
+                    )
 
     return None
