@@ -36,6 +36,7 @@ def write_punk_bid_acceptances(
     db_session.bulk_save_objects(models)
     db_session.commit()
 
+
 def delete_punk_bids_for_block(
     db_session,
     block_number: int,
