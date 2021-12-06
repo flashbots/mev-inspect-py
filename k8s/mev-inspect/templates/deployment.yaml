@@ -30,6 +30,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["run", "python", "loop.py"]
           livenessProbe:
             exec:
               command:

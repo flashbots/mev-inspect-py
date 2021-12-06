@@ -9,7 +9,7 @@ from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     SwapClassifier,
 )
-from mev_inspect.classifiers.helpers import create_swap_from_transfers
+from mev_inspect.classifiers.helpers import create_swap_from_pool_transfers
 
 BALANCER_V1_POOL_ABI_NAME = "BPool"
 
@@ -24,7 +24,7 @@ class BalancerSwapClassifier(SwapClassifier):
 
         recipient_address = trace.from_address
 
-        swap = create_swap_from_transfers(
+        swap = create_swap_from_pool_transfers(
             trace, recipient_address, prior_transfers, child_transfers
         )
         return swap

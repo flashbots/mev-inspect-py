@@ -27,7 +27,7 @@ def upgrade():
         sa.Column("punk_index", sa.Numeric, nullable=False),
         sa.Column("min_acceptance_price", sa.Numeric, nullable=False),
         sa.Column("acceptance_price", sa.Numeric, nullable=False),
-        sa.PrimaryKeyConstraint("transaction_hash", "trace_address"),
+        sa.PrimaryKeyConstraint("block_number", "transaction_hash", "trace_address"),
     )
 
 
