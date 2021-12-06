@@ -88,8 +88,9 @@ def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, Swap]]:
     """
     pool_addrs = [swap.contract_address for swap in swaps]
     valid_start_ends: List[Tuple[Swap, Swap]] = []
-    for potential_start_swap in swaps:
-        for potential_end_swap in swaps:
+    for index, potential_start_swap in enumerate(swaps):
+        remaining_swaps = swaps[:index] + swaps[index + 1 :]
+        for potential_end_swap in remaining_swaps:
             if (
                 potential_start_swap.token_in_address
                 == potential_end_swap.token_out_address
