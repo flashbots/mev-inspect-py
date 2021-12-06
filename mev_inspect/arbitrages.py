@@ -95,6 +95,7 @@ def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, Swap]]:
                 == potential_end_swap.token_out_address
                 and potential_start_swap.from_address == potential_end_swap.to_address
                 and not potential_start_swap.from_address in pool_addrs
+                and potential_start_swap != potential_end_swap
             ):
                 valid_start_ends.append((potential_start_swap, potential_end_swap))
     return valid_start_ends
