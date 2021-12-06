@@ -24,3 +24,14 @@ class PunkBidModel(Base):
     from_address = Column(String, nullable=False)
     punk_index = Column(Integer, nullable=False)
     price = Column(Numeric, nullable=False)
+
+
+class PunkBidAcceptanceModel(Base):
+    __tablename__ = "punk_bid_acceptances"
+
+    block_number = Column(Numeric, nullable=False)
+    transaction_hash = Column(String, primary_key=True)
+    trace_address = Column(ARRAY(Integer), primary_key=True)
+    from_address = Column(String, nullable=False)
+    punk_index = Column(Integer, nullable=False)
+    min_price = Column(Numeric, nullable=False)
