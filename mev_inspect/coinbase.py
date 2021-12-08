@@ -11,21 +11,19 @@ from mev_inspect.schemas.prices import (
     UNI_TOKEN_ADDRESS,
     USDC_TOKEN_ADDRESS_ADDRESS,
     REN_TOKEN_ADDRESS,
-    SUSHIBAR_TOKEN_ADDRESS,
 )
 
 COINBASE_API_BASE = "https://www.coinbase.com/api/v2"
 COINBASE_TOKEN_NAME_BY_ADDRESS = {
     WETH_ADDRESS: "weth",
     ETH_TOKEN_ADDRESS: "ethereum",
-    WBTC_TOKEN_ADDRESS: "wbtc",
+    WBTC_TOKEN_ADDRESS: "wrapped-bitcoin",
     LINK_TOKEN_ADDRESS: "link",
-    YEARN_TOKEN_ADDRESS: "yearn",
+    YEARN_TOKEN_ADDRESS: "yearn-finance",
     AAVE_TOKEN_ADDRESS: "aave",
-    UNI_TOKEN_ADDRESS: "uni",
+    UNI_TOKEN_ADDRESS: "uniswap",
     USDC_TOKEN_ADDRESS_ADDRESS: "usdc",
     REN_TOKEN_ADDRESS: "ren",
-    SUSHIBAR_TOKEN_ADDRESS: "sushibar",
 }
 
 
