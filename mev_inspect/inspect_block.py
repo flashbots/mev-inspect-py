@@ -34,6 +34,7 @@ from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
 from mev_inspect.liquidations import get_liquidations
+from mev_inspect.utils import RPCType
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ async def inspect_block(
     inspect_db_session: orm.Session,
     base_provider,
     w3: Web3,
-    geth: bool,
+    type: RPCType,
     trace_classifier: TraceClassifier,
     block_number: int,
     trace_db_session: Optional[orm.Session],
@@ -52,7 +53,7 @@ async def inspect_block(
     block = await create_from_block_number(
         base_provider,
         w3,
-        geth,
+        type,
         block_number,
         trace_db_session,
     )

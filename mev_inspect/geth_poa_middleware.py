@@ -1,3 +1,7 @@
+"""
+Modified asynchronous geth_poa_middleware which mirrors functionality of
+https://github.com/ethereum/web3.py/blob/master/web3/middleware/geth_poa.py
+"""
 from typing import (
     Any,
     Callable,
