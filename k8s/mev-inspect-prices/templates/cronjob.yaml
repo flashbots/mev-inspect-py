@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "mev-inspect-prices.fullname" . }}
+spec:
+  schedule: "0 */1 * * *"
+  successfulJobsHistoryLimit: 0
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: {{ .Chart.Name }}
+              image: "{{ .Values.image.repository }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              args:
+              - run
+              - fetch-all-prices
+              env:
+              - name: POSTGRES_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: mev-inspect-db-credentials
+                    key: host
+              - name: POSTGRES_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: mev-inspect-db-credentials
+                    key: username
+              - name: POSTGRES_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: mev-inspect-db-credentials
+                    key: password
+          restartPolicy: Never

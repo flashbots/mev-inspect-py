@@ -8,7 +8,6 @@ class LiquidationModel(Base):
 
     liquidated_user = Column(String, nullable=False)
     liquidator_user = Column(String, nullable=False)
-    collateral_token_address = Column(String, nullable=False)
     debt_token_address = Column(String, nullable=False)
     debt_purchase_amount = Column(Numeric, nullable=False)
     received_amount = Column(Numeric, nullable=False)

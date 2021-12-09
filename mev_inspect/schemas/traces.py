@@ -31,6 +31,8 @@ class Classification(Enum):
     transfer = "transfer"
     liquidate = "liquidate"
     seize = "seize"
+    punk_bid = "punk_bid"
+    punk_accept_bid = "punk_accept_bid"
 
 
 class Protocol(Enum):
@@ -44,6 +46,8 @@ class Protocol(Enum):
     balancer_v1 = "balancer_v1"
     compound_v2 = "compound_v2"
     cream = "cream"
+    cryptopunks = "cryptopunks"
+    bancor = "bancor"
 
 
 class ClassifiedTrace(Trace):

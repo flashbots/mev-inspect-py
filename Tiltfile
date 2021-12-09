@@ -1,5 +1,4 @@
 load("ext://helm_remote", "helm_remote")
-load("ext://restart_process", "docker_build_with_restart")
 load("ext://secret", "secret_from_dict")
 load("ext://configmap", "configmap_from_dict")
 
@@ -30,8 +29,7 @@ k8s_yaml(secret_from_dict("mev-inspect-db-credentials", inputs = {
 #     "host": "trace-db-postgresql",
 # }))
 
-docker_build_with_restart("mev-inspect-py", ".",
-    entrypoint="/app/entrypoint.sh",
+docker_build("mev-inspect-py", ".",
     live_update=[
         sync(".", "/app"),
         run("cd /app && poetry install",
@@ -40,6 +38,10 @@ docker_build_with_restart("mev-inspect-py", ".",
 )
 k8s_yaml(helm('./k8s/mev-inspect', name='mev-inspect'))
 k8s_resource(workload="mev-inspect", resource_deps=["postgresql-postgresql"])
+
+# uncomment to enable price monitor
+# k8s_yaml(helm('./k8s/mev-inspect-prices', name='mev-inspect-prices'))
+# k8s_resource(workload="mev-inspect-prices", resource_deps=["postgresql-postgresql"])
 
 local_resource(
     'pg-port-forward',

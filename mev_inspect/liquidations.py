@@ -1,6 +1,7 @@
 from typing import List
 
 from mev_inspect.aave_liquidations import get_aave_liquidations
+from mev_inspect.compound_liquidations import get_compound_liquidations
 from mev_inspect.schemas.traces import (
     ClassifiedTrace,
     Classification,
@@ -20,4 +21,5 @@ def get_liquidations(
     classified_traces: List[ClassifiedTrace],
 ) -> List[Liquidation]:
     aave_liquidations = get_aave_liquidations(classified_traces)
-    return aave_liquidations
+    comp_liquidations = get_compound_liquidations(classified_traces)
+    return aave_liquidations + comp_liquidations
