@@ -17,6 +17,7 @@ _calltype_mapping = {
     "CALL": "call",
     "DELEGATECALL": "delegateCall",
     "CREATE": "create",
+    "CREATE2": "create2",
     "SUICIDE": "suicide",
     "REWARD": "reward",
 }

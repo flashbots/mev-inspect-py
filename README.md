@@ -66,19 +66,19 @@ On first startup, you'll need to apply database migrations with:
 ### Inspect a single block
 
 Inspecting block [12914944](https://twitter.com/mevalphaleak/status/1420416437575901185):
-**Note**: Add `--geth` at the end if RPC_URL points to a geth / geth like node.
+**Note**: Add `geth` at the end instead of `parity` if RPC_URL points to a geth / geth like node.
 
 ```
-./mev inspect 12914944
+./mev inspect 12914944 parity
 ```
 
 ### Inspect many blocks
 
 Inspecting blocks 12914944 to 12914954:
-**Note**: Add `--geth` at the end if RPC_URL points to a geth / geth like node.
+**Note**: Add `geth` at the end instead of `parity` if RPC_URL points to a geth / geth like node.
 
 ```
-./mev inspect-many 12914944 12914954
+./mev inspect-many 12914944 12914954 parity
 ```
 
 ### Inspect all incoming blocks
