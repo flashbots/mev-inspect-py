@@ -6,7 +6,6 @@ from mev_inspect.schemas.traces import Protocol
 class Liquidation(BaseModel):
     liquidated_user: str
     liquidator_user: str
-    collateral_token_address: str
     debt_token_address: str
     debt_purchase_amount: int
     received_amount: int

@@ -4,6 +4,10 @@ from mev_inspect.classifiers.specs.uniswap import (
     UNISWAP_V2_PAIR_ABI_NAME,
     UNISWAP_V3_POOL_ABI_NAME,
 )
+from mev_inspect.classifiers.specs.bancor import (
+    BANCOR_NETWORK_ABI_NAME,
+    BANCOR_NETWORK_CONTRACT_ADDRESS,
+)
 from mev_inspect.schemas.traces import Protocol
 
 from .helpers import (
@@ -23,12 +27,14 @@ def test_swaps(
         first_transaction_hash,
         second_transaction_hash,
         third_transaction_hash,
-    ] = get_transaction_hashes(3)
+        fourth_transaction_hash,
+    ] = get_transaction_hashes(4)
 
     [
         alice_address,
         bob_address,
         carl_address,
+        danielle_address,
         first_token_in_address,
         first_token_out_address,
         first_pool_address,
@@ -38,7 +44,10 @@ def test_swaps(
         third_token_in_address,
         third_token_out_address,
         third_pool_address,
-    ] = get_addresses(12)
+        fourth_token_in_address,
+        fourth_token_out_address,
+        first_converter_address,
+    ] = get_addresses(16)
 
     first_token_in_amount = 10
     first_token_out_amount = 20
@@ -46,6 +55,8 @@ def test_swaps(
     second_token_out_amount = 40
     third_token_in_amount = 50
     third_token_out_amount = 60
+    fourth_token_in_amount = 70
+    fourth_token_out_amount = 80
 
     traces = [
         make_unknown_trace(block_number, first_transaction_hash, []),
@@ -139,11 +150,41 @@ def test_swaps(
             recipient_address=bob_address,
             recipient_input_key="recipient",
         ),
+        make_transfer_trace(
+            block_number,
+            fourth_transaction_hash,
+            trace_address=[2],
+            from_address=danielle_address,
+            to_address=first_converter_address,
+            token_address=fourth_token_in_address,
+            amount=fourth_token_in_amount,
+        ),
+        make_transfer_trace(
+            block_number,
+            fourth_transaction_hash,
+            trace_address=[1, 2],
+            from_address=first_converter_address,
+            to_address=danielle_address,
+            token_address=fourth_token_out_address,
+            amount=fourth_token_out_amount,
+        ),
+        make_swap_trace(
+            block_number,
+            fourth_transaction_hash,
+            trace_address=[],
+            from_address=danielle_address,
+            contract_address=BANCOR_NETWORK_CONTRACT_ADDRESS,
+            abi_name=BANCOR_NETWORK_ABI_NAME,
+            protocol=Protocol.bancor,
+            function_signature="convertByPath(address[],uint256,uint256,address,address,uint256)",
+            recipient_address=danielle_address,
+            recipient_input_key="recipient",
+        ),
     ]
 
     swaps = get_swaps(traces)
 
-    assert len(swaps) == 3
+    assert len(swaps) == 4
 
     for swap in swaps:
         if swap.abi_name == UNISWAP_V2_PAIR_ABI_NAME:
@@ -152,6 +193,8 @@ def test_swaps(
             uni_v3_swap = swap
         elif swap.abi_name == BALANCER_V1_POOL_ABI_NAME:
             bal_v1_swap = swap
+        elif swap.abi_name == BANCOR_NETWORK_ABI_NAME:
+            bancor_swap = swap
         else:
             assert False
 
@@ -193,3 +236,16 @@ def test_swaps(
     assert bal_v1_swap.token_in_amount == third_token_in_amount
     assert bal_v1_swap.token_out_address == third_token_out_address
     assert bal_v1_swap.token_out_amount == third_token_out_amount
+
+    assert bancor_swap.abi_name == BANCOR_NETWORK_ABI_NAME
+    assert bancor_swap.transaction_hash == fourth_transaction_hash
+    assert bancor_swap.block_number == block_number
+    assert bancor_swap.trace_address == []
+    assert bancor_swap.protocol == Protocol.bancor
+    assert bancor_swap.contract_address == BANCOR_NETWORK_CONTRACT_ADDRESS
+    assert bancor_swap.from_address == danielle_address
+    assert bancor_swap.to_address == danielle_address
+    assert bancor_swap.token_in_address == fourth_token_in_address
+    assert bancor_swap.token_in_amount == fourth_token_in_amount
+    assert bancor_swap.token_out_address == fourth_token_out_address
+    assert bancor_swap.token_out_amount == fourth_token_out_amount

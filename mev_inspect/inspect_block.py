@@ -11,6 +11,16 @@ from mev_inspect.crud.arbitrages import (
     delete_arbitrages_for_block,
     write_arbitrages,
 )
+
+from mev_inspect.crud.punks import (
+    delete_punk_snipes_for_block,
+    write_punk_snipes,
+    delete_punk_bids_for_block,
+    write_punk_bids,
+    delete_punk_bid_acceptances_for_block,
+    write_punk_bid_acceptances,
+)
+
 from mev_inspect.crud.blocks import (
     delete_block,
     write_block,
@@ -92,10 +102,18 @@ async def inspect_block(
     await write_liquidations(inspect_db_session, liquidations)
 
     punk_bids = get_punk_bids(classified_traces)
+    delete_punk_bids_for_block(inspect_db_session, block_number)
+    write_punk_bids(inspect_db_session, punk_bids)
+
     punk_bid_acceptances = get_punk_bid_acceptances(classified_traces)
+    delete_punk_bid_acceptances_for_block(inspect_db_session, block_number)
+    write_punk_bid_acceptances(inspect_db_session, punk_bid_acceptances)
 
     punk_snipes = get_punk_snipes(punk_bids, punk_bid_acceptances)
     logger.info(f"Block: {block_number} -- Found {len(punk_snipes)} punk snipes")
+
+    delete_punk_snipes_for_block(inspect_db_session, block_number)
+    write_punk_snipes(inspect_db_session, punk_snipes)
 
     miner_payments = get_miner_payments(
         block.miner, block.base_fee_per_gas, classified_traces, block.receipts

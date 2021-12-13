@@ -66,7 +66,6 @@ def get_aave_liquidations(
             liquidations.append(
                 Liquidation(
                     liquidated_user=trace.inputs["_user"],
-                    collateral_token_address=trace.inputs["_collateral"],
                     debt_token_address=trace.inputs["_reserve"],
                     liquidator_user=liquidator,
                     debt_purchase_amount=trace.inputs["_purchaseAmount"],
