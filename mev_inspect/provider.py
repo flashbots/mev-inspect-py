@@ -1,4 +1,4 @@
-from web3 import Web3, AsyncHTTPProvider
+from web3 import AsyncHTTPProvider, Web3
 
 from mev_inspect.retry import http_retry_with_backoff_request_middleware
 

@@ -1,17 +1,11 @@
-from typing import Optional, List
-from mev_inspect.schemas.transfers import Transfer
+from typing import List, Optional
+
+from mev_inspect.classifiers.helpers import create_swap_from_recipient_transfers
+from mev_inspect.schemas.classifiers import ClassifierSpec, SwapClassifier
 from mev_inspect.schemas.swaps import Swap
-from mev_inspect.schemas.traces import (
-    DecodedCallTrace,
-    Protocol,
-)
-from mev_inspect.schemas.classifiers import (
-    ClassifierSpec,
-    SwapClassifier,
-)
-from mev_inspect.classifiers.helpers import (
-    create_swap_from_recipient_transfers,
-)
+from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
+from mev_inspect.schemas.transfers import Transfer
+
 
 BANCOR_NETWORK_ABI_NAME = "BancorNetwork"
 BANCOR_NETWORK_CONTRACT_ADDRESS = "0x2F9EC37d6CcFFf1caB21733BdaDEdE11c823cCB0"

@@ -1,12 +1,9 @@
 from typing import List, Optional
-from mev_inspect.schemas.traces import (
-    ClassifiedTrace,
-    Classification,
-    DecodedCallTrace,
-)
-from mev_inspect.schemas.punk_bid import PunkBid
+
 from mev_inspect.schemas.punk_accept_bid import PunkBidAcceptance
+from mev_inspect.schemas.punk_bid import PunkBid
 from mev_inspect.schemas.punk_snipe import PunkSnipe
+from mev_inspect.schemas.traces import Classification, ClassifiedTrace, DecodedCallTrace
 from mev_inspect.traces import get_traces_by_transaction_hash
 
 

@@ -1,15 +1,10 @@
-from typing import Optional, List
-from mev_inspect.schemas.transfers import Transfer
-from mev_inspect.schemas.swaps import Swap
-from mev_inspect.schemas.traces import (
-    DecodedCallTrace,
-    Protocol,
-)
-from mev_inspect.schemas.classifiers import (
-    ClassifierSpec,
-    SwapClassifier,
-)
+from typing import List, Optional
+
 from mev_inspect.classifiers.helpers import create_swap_from_pool_transfers
+from mev_inspect.schemas.classifiers import ClassifierSpec, SwapClassifier
+from mev_inspect.schemas.swaps import Swap
+from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
+from mev_inspect.schemas.transfers import Transfer
 
 
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"

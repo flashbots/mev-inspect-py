@@ -1,4 +1,5 @@
 import json
+
 from typing import List
 
 from mev_inspect.models.swaps import SwapModel

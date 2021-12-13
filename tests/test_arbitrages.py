@@ -1,11 +1,11 @@
 from typing import List
 
-from mev_inspect.arbitrages import get_arbitrages, _get_all_routes
-from mev_inspect.schemas.swaps import Swap
+from mev_inspect.arbitrages import _get_all_routes, get_arbitrages
 from mev_inspect.classifiers.specs.uniswap import (
     UNISWAP_V2_PAIR_ABI_NAME,
     UNISWAP_V3_POOL_ABI_NAME,
 )
+from mev_inspect.schemas.swaps import Swap
 
 
 def test_two_pool_arbitrage(get_transaction_hashes, get_addresses):

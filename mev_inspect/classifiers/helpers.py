@@ -1,9 +1,8 @@
-from typing import Optional, List, Sequence
+from typing import List, Optional, Sequence
 
 from mev_inspect.schemas.swaps import Swap
-from mev_inspect.schemas.transfers import Transfer, ETH_TOKEN_ADDRESS
-
-from mev_inspect.schemas.traces import DecodedCallTrace, ClassifiedTrace
+from mev_inspect.schemas.traces import ClassifiedTrace, DecodedCallTrace
+from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS, Transfer
 
 
 def create_swap_from_pool_transfers(

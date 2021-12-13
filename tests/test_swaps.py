@@ -1,20 +1,16 @@
-from mev_inspect.swaps import get_swaps
 from mev_inspect.classifiers.specs.balancer import BALANCER_V1_POOL_ABI_NAME
-from mev_inspect.classifiers.specs.uniswap import (
-    UNISWAP_V2_PAIR_ABI_NAME,
-    UNISWAP_V3_POOL_ABI_NAME,
-)
 from mev_inspect.classifiers.specs.bancor import (
     BANCOR_NETWORK_ABI_NAME,
     BANCOR_NETWORK_CONTRACT_ADDRESS,
 )
-from mev_inspect.schemas.traces import Protocol
-
-from .helpers import (
-    make_unknown_trace,
-    make_transfer_trace,
-    make_swap_trace,
+from mev_inspect.classifiers.specs.uniswap import (
+    UNISWAP_V2_PAIR_ABI_NAME,
+    UNISWAP_V3_POOL_ABI_NAME,
 )
+from mev_inspect.schemas.traces import Protocol
+from mev_inspect.swaps import get_swaps
+
+from .helpers import make_swap_trace, make_transfer_trace, make_unknown_trace
 
 
 def test_swaps(

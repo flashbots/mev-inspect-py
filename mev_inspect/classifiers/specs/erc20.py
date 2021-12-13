@@ -1,8 +1,5 @@
+from mev_inspect.schemas.classifiers import ClassifierSpec, TransferClassifier
 from mev_inspect.schemas.traces import DecodedCallTrace
-from mev_inspect.schemas.classifiers import (
-    ClassifierSpec,
-    TransferClassifier,
-)
 from mev_inspect.schemas.transfers import Transfer
 
 

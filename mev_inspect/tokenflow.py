@@ -3,6 +3,7 @@ from typing import List, Optional
 from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.traces import Trace, TraceType
 
+
 weth_address = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
 
 cache_directory = "./cache"
