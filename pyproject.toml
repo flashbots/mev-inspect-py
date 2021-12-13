@@ -71,3 +71,4 @@ src_paths = ["mev_inspect", "tests"]
 skip_glob = ["*/setup.py"]
 filter_files = true
 known_first_party = "mev_inspect"
+py_version=39
