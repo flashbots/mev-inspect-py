@@ -41,6 +41,7 @@ def create_swap_from_pool_transfers(
     return Swap(
         abi_name=trace.abi_name,
         transaction_hash=trace.transaction_hash,
+        transaction_position=trace.transaction_position,
         block_number=trace.block_number,
         trace_address=trace.trace_address,
         contract_address=pool_address,
@@ -78,6 +79,7 @@ def create_swap_from_recipient_transfers(
     return Swap(
         abi_name=trace.abi_name,
         transaction_hash=trace.transaction_hash,
+        transaction_position=trace.transaction_position,
         block_number=trace.block_number,
         trace_address=trace.trace_address,
         contract_address=pool_address,

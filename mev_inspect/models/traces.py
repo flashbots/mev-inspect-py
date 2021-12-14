@@ -7,6 +7,7 @@ class ClassifiedTraceModel(Base):
     __tablename__ = "classified_traces"
 
     transaction_hash = Column(String, primary_key=True)
+    transaction_position = Column(Numeric, nullable=True)
     block_number = Column(Numeric, nullable=False)
     classification = Column(String, nullable=False)
     trace_type = Column(String, nullable=False)
