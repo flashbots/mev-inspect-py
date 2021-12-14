@@ -25,6 +25,7 @@ coverage = "^5.5"
 alembic = "^1.6.5"
 CProfileV = "^1.0.7"
 regex = "^2021.10.8"
+pytest-profiling = "^1.7.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
