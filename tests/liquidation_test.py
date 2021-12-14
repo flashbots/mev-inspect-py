@@ -8,8 +8,7 @@ from mev_inspect.transfers import ETH_TOKEN_ADDRESS
 from tests.utils import load_test_block
 
 
-def test_single_weth_liquidation():
-
+def test_single_weth_liquidation(trace_classifier: TraceClassifier):
     transaction_hash = (
         "0xb7575eedc9d8cfe82c4a11cd1a851221f2eafb93d738301995ac7103ffe877f7"
     )
@@ -31,15 +30,13 @@ def test_single_weth_liquidation():
     ]
 
     block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
     result = get_aave_liquidations(classified_traces)
 
     _assert_equal_list_of_liquidations(result, liquidations)
 
 
-def test_single_liquidation():
-
+def test_single_liquidation(trace_classifier: TraceClassifier):
     transaction_hash = (
         "0xe6c0e3ef0436cb032e1ef292141f4fc4dcd47a75a2559602133114952190e76b"
     )
@@ -61,15 +58,13 @@ def test_single_liquidation():
     ]
 
     block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
     result = get_aave_liquidations(classified_traces)
 
     _assert_equal_list_of_liquidations(result, liquidations)
 
 
-def test_single_liquidation_with_atoken_payback():
-
+def test_single_liquidation_with_atoken_payback(trace_classifier: TraceClassifier):
     transaction_hash = (
         "0xde551a73e813f1a1e5c843ac2c6a0e40d71618f4040bb7d0cd7cf7b2b6cf4633"
     )
@@ -91,15 +86,13 @@ def test_single_liquidation_with_atoken_payback():
     ]
 
     block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
     result = get_aave_liquidations(classified_traces)
 
     _assert_equal_list_of_liquidations(result, liquidations)
 
 
-def test_multiple_liquidations_in_block():
-
+def test_multiple_liquidations_in_block(trace_classifier: TraceClassifier):
     transaction1 = "0xedd062c3a728db4b114f2e83cac281d19a9f753e36afa8a35cdbdf1e1dd5d017"
     transaction2 = "0x18492f250cf4735bd67a21c6cc26b7d9c59cf2fb077356dc924f36bc68a810e5"
     transaction3 = "0x191b05b28ebaf460e38e90ac6a801681b500f169041ae83a45b32803ef2ec98c"
@@ -145,7 +138,6 @@ def test_multiple_liquidations_in_block():
     )
 
     block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
     result = get_aave_liquidations(classified_traces)
     liquidations = [liquidation1, liquidation2, liquidation3]
@@ -153,8 +145,7 @@ def test_multiple_liquidations_in_block():
     _assert_equal_list_of_liquidations(result, liquidations)
 
 
-def test_liquidations_with_eth_transfer():
-
+def test_liquidations_with_eth_transfer(trace_classifier: TraceClassifier):
     transaction_hash = (
         "0xf687fedbc4bbc25adb3ef3a35c20c38fb7d35d86d7633d5061d2e3c4f86311b7"
     )
@@ -187,7 +178,6 @@ def test_liquidations_with_eth_transfer():
     )
 
     block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
     result = get_aave_liquidations(classified_traces)
     liquidations = [liquidation1, liquidation2]

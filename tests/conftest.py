@@ -3,6 +3,13 @@ from typing import List
 
 import pytest
 
+from mev_inspect.classifiers.trace import TraceClassifier
+
+
+@pytest.fixture(scope="session")
+def trace_classifier() -> TraceClassifier:
+    return TraceClassifier()
+
 
 @pytest.fixture(name="get_transaction_hashes")
 def fixture_get_transaction_hashes():

@@ -48,8 +48,9 @@ case "$1" in
             poetry run inspect-many-blocks $start_block_number $end_block_number
 	;;
   test)
+        shift
         echo "Running tests"
-        kubectl exec -ti deploy/mev-inspect -- poetry run pytest tests
+        kubectl exec -ti deploy/mev-inspect -- poetry run pytest tests $@
 	;;
   fetch)
       block_number=$2
