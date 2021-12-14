@@ -1,9 +1,5 @@
-from mev_inspect.schemas.traces import Protocol, Classification
-
-from mev_inspect.schemas.classifiers import (
-    ClassifierSpec,
-    Classifier,
-)
+from mev_inspect.schemas.classifiers import Classifier, ClassifierSpec
+from mev_inspect.schemas.traces import Classification, Protocol
 
 
 class PunkBidAcceptanceClassifier(Classifier):

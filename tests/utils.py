@@ -1,5 +1,6 @@
 import json
 import os
+
 from typing import Dict
 
 from mev_inspect.schemas.blocks import Block

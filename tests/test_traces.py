@@ -1,7 +1,7 @@
 from typing import List
 
 from mev_inspect.schemas.traces import ClassifiedTrace
-from mev_inspect.traces import is_child_trace_address, get_child_traces
+from mev_inspect.traces import get_child_traces, is_child_trace_address
 
 from .helpers import make_many_unknown_traces
 

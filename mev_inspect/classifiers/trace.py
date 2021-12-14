@@ -4,12 +4,13 @@ from mev_inspect.abi import get_abi
 from mev_inspect.decode import ABIDecoder
 from mev_inspect.schemas.blocks import CallAction, CallResult
 from mev_inspect.schemas.traces import (
+    CallTrace,
     Classification,
     ClassifiedTrace,
-    CallTrace,
     DecodedCallTrace,
+    Trace,
+    TraceType,
 )
-from mev_inspect.schemas.traces import Trace, TraceType
 
 from .specs import ALL_CLASSIFIER_SPECS
 

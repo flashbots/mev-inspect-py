@@ -1,18 +1,19 @@
 from typing import Dict, Optional, Tuple, Type
 
+from mev_inspect.schemas.classifiers import Classifier, ClassifierSpec
 from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
-from mev_inspect.schemas.classifiers import ClassifierSpec, Classifier
 
 from .aave import AAVE_CLASSIFIER_SPECS
+from .balancer import BALANCER_CLASSIFIER_SPECS
+from .bancor import BANCOR_CLASSIFIER_SPECS
+from .compound import COMPOUND_CLASSIFIER_SPECS
+from .cryptopunks import CRYPTOPUNKS_CLASSIFIER_SPECS
 from .curve import CURVE_CLASSIFIER_SPECS
 from .erc20 import ERC20_CLASSIFIER_SPECS
 from .uniswap import UNISWAP_CLASSIFIER_SPECS
-from .weth import WETH_CLASSIFIER_SPECS, WETH_ADDRESS
+from .weth import WETH_ADDRESS, WETH_CLASSIFIER_SPECS
 from .zero_ex import ZEROX_CLASSIFIER_SPECS
-from .balancer import BALANCER_CLASSIFIER_SPECS
-from .compound import COMPOUND_CLASSIFIER_SPECS
-from .cryptopunks import CRYPTOPUNKS_CLASSIFIER_SPECS
-from .bancor import BANCOR_CLASSIFIER_SPECS
+
 
 ALL_CLASSIFIER_SPECS = (
     ERC20_CLASSIFIER_SPECS

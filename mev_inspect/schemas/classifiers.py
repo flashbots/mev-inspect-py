@@ -3,9 +3,9 @@ from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
+from .swaps import Swap
 from .traces import Classification, DecodedCallTrace, Protocol
 from .transfers import Transfer
-from .swaps import Swap
 
 
 class Classifier(ABC):

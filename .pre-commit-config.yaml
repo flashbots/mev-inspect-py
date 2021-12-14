@@ -2,8 +2,15 @@ repos:
 -   repo: https://github.com/ambv/black
     rev: 20.8b1
     hooks:
-    - id: black
-      language_version: python3.9
+      - id: black
+        language_version: python3.9
+-   repo: local
+    hooks:
+      - id: isort
+        name: isort
+        entry: poetry run isort .
+        language: system
+        types: [python]
 -   repo: local
     hooks:
     - id: pylint

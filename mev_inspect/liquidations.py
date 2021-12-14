@@ -2,11 +2,8 @@ from typing import List
 
 from mev_inspect.aave_liquidations import get_aave_liquidations
 from mev_inspect.compound_liquidations import get_compound_liquidations
-from mev_inspect.schemas.traces import (
-    ClassifiedTrace,
-    Classification,
-)
 from mev_inspect.schemas.liquidations import Liquidation
+from mev_inspect.schemas.traces import Classification, ClassifiedTrace
 
 
 def has_liquidations(classified_traces: List[ClassifiedTrace]) -> bool:

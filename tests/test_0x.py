@@ -1,7 +1,7 @@
-from mev_inspect.schemas.swaps import Swap
-from mev_inspect.swaps import get_swaps
-from mev_inspect.schemas.traces import Protocol
 from mev_inspect.classifiers.trace import TraceClassifier
+from mev_inspect.schemas.swaps import Swap
+from mev_inspect.schemas.traces import Protocol
+from mev_inspect.swaps import get_swaps
 from tests.utils import load_test_block
 
 

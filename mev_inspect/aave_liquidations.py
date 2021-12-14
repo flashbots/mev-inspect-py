@@ -1,21 +1,17 @@
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
-from mev_inspect.traces import (
-    get_child_traces,
-    is_child_of_any_address,
-)
+from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.traces import (
-    ClassifiedTrace,
     CallTrace,
-    DecodedCallTrace,
     Classification,
+    ClassifiedTrace,
+    DecodedCallTrace,
     Protocol,
 )
-
-
-from mev_inspect.transfers import get_transfer
 from mev_inspect.schemas.transfers import Transfer
-from mev_inspect.schemas.liquidations import Liquidation
+from mev_inspect.traces import get_child_traces, is_child_of_any_address
+from mev_inspect.transfers import get_transfer
+
 
 AAVE_CONTRACT_ADDRESSES: List[str] = [
     # AAVE Proxy

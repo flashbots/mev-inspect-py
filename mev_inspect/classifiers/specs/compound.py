@@ -1,11 +1,10 @@
-from mev_inspect.schemas.traces import (
-    Protocol,
-)
 from mev_inspect.schemas.classifiers import (
     ClassifierSpec,
     LiquidationClassifier,
     SeizeClassifier,
 )
+from mev_inspect.schemas.traces import Protocol
+
 
 COMPOUND_V2_CETH_SPEC = ClassifierSpec(
     abi_name="CEther",

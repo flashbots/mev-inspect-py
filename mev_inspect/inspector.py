@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import traceback
+
 from asyncio import CancelledError
 from typing import Optional
 
@@ -12,6 +13,7 @@ from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.inspect_block import inspect_block
 from mev_inspect.provider import get_base_provider
+
 
 logger = logging.getLogger(__name__)
 

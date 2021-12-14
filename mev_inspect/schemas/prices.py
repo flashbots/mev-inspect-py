@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+
 WBTC_TOKEN_ADDRESS = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
 LINK_TOKEN_ADDRESS = "0x514910771af9ca656af840dff83e8264ecf986ca"
 YEARN_TOKEN_ADDRESS = "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e"

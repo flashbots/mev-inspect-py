@@ -1,14 +1,15 @@
 import json
+
 from typing import List
 
 from mev_inspect.models.punks import (
-    PunkSnipeModel,
-    PunkBidModel,
     PunkBidAcceptanceModel,
+    PunkBidModel,
+    PunkSnipeModel,
 )
-from mev_inspect.schemas.punk_snipe import PunkSnipe
-from mev_inspect.schemas.punk_bid import PunkBid
 from mev_inspect.schemas.punk_accept_bid import PunkBidAcceptance
+from mev_inspect.schemas.punk_bid import PunkBid
+from mev_inspect.schemas.punk_snipe import PunkSnipe
 
 
 def delete_punk_bid_acceptances_for_block(

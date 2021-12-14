@@ -1,13 +1,9 @@
 from typing import List, Optional
 
 from mev_inspect.classifiers.specs import get_classifier
-from mev_inspect.schemas.traces import (
-    ClassifiedTrace,
-    Classification,
-    DecodedCallTrace,
-)
 from mev_inspect.schemas.classifiers import SwapClassifier
 from mev_inspect.schemas.swaps import Swap
+from mev_inspect.schemas.traces import Classification, ClassifiedTrace, DecodedCallTrace
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.traces import get_traces_by_transaction_hash
 from mev_inspect.transfers import (

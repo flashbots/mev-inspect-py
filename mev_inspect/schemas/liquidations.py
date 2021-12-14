@@ -1,5 +1,7 @@
 from typing import List, Optional
+
 from pydantic import BaseModel
+
 from mev_inspect.schemas.traces import Protocol
 
 
