@@ -10,7 +10,6 @@ from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.prices import fetch_all_supported_prices
 
-
 RPC_URL_ENV = "RPC_URL"
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)

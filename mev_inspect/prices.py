@@ -14,7 +14,6 @@ from mev_inspect.schemas.prices import (
 )
 from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS
 
-
 SUPPORTED_TOKENS = [
     WETH_ADDRESS,
     ETH_TOKEN_ADDRESS,

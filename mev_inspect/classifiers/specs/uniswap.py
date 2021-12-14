@@ -6,7 +6,6 @@ from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
 from mev_inspect.schemas.transfers import Transfer
 
-
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
 UNISWAP_V3_POOL_ABI_NAME = "UniswapV3Pool"
 

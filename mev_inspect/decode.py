@@ -1,14 +1,12 @@
 from typing import Dict, Optional
 
 import eth_utils.abi
-
 from eth_abi import decode_abi
 from eth_abi.exceptions import InsufficientDataBytes, NonEmptyPaddingBytes
 from hexbytes._utils import hexstr_to_bytes
 
 from mev_inspect.schemas.abi import ABI, ABIFunctionDescription
 from mev_inspect.schemas.call_data import CallData
-
 
 # 0x + 8 characters
 SELECTOR_LENGTH = 10

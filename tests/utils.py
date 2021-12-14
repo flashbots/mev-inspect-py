@@ -1,10 +1,8 @@
 import json
 import os
-
 from typing import Dict
 
 from mev_inspect.schemas.blocks import Block
-
 
 THIS_FILE_DIRECTORY = os.path.dirname(__file__)
 TEST_BLOCKS_DIRECTORY = os.path.join(THIS_FILE_DIRECTORY, "blocks")

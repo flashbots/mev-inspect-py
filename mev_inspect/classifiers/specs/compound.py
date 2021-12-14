@@ -5,7 +5,6 @@ from mev_inspect.schemas.classifiers import (
 )
 from mev_inspect.schemas.traces import Protocol
 
-
 COMPOUND_V2_CETH_SPEC = ClassifierSpec(
     abi_name="CEther",
     protocol=Protocol.compound_v2,

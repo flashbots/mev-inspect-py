@@ -4,7 +4,6 @@ from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.traces import Protocol
 from tests.utils import load_comp_markets, load_cream_markets, load_test_block
 
-
 comp_markets = load_comp_markets()
 cream_markets = load_cream_markets()
 

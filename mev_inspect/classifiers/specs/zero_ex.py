@@ -5,7 +5,6 @@ from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
 from mev_inspect.schemas.transfers import Transfer
 
-
 ANY_TAKER_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 RFQ_SIGNATURES = [
