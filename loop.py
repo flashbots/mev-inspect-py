@@ -3,7 +3,6 @@ import time
 
 from mev_inspect.signal_handler import GracefulKiller
 
-
 logging.basicConfig(filename="loop.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,6 @@ from enum import Enum
 from typing import List, Optional, Union
 
 import eth_utils.abi
-
 from pydantic import BaseModel
 from typing_extensions import Literal
 from web3 import Web3

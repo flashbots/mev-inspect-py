@@ -6,7 +6,6 @@ from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
 from mev_inspect.schemas.transfers import Transfer
 
-
 BALANCER_V1_POOL_ABI_NAME = "BPool"
 
 

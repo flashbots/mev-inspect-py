@@ -1,5 +1,4 @@
 import logging
-
 from typing import Optional
 
 from sqlalchemy import orm
@@ -37,7 +36,6 @@ from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_snipes
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
-
 
 logger = logging.getLogger(__name__)
 

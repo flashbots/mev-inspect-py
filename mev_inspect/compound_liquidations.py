@@ -4,7 +4,6 @@ from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.traces import Classification, ClassifiedTrace, Protocol
 from mev_inspect.traces import get_child_traces
 
-
 V2_COMPTROLLER_ADDRESS = "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"
 V2_C_ETHER = "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5"
 CREAM_COMPTROLLER_ADDRESS = "0x3d5BC3c8d13dcB8bF317092d84783c2697AE9258"

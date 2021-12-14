@@ -1,5 +1,4 @@
 import json
-
 from typing import List
 
 from mev_inspect.models.miner_payments import MinerPaymentModel

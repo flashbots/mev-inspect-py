@@ -12,7 +12,6 @@ from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.traces import get_child_traces, is_child_of_any_address
 from mev_inspect.transfers import get_transfer
 
-
 AAVE_CONTRACT_ADDRESSES: List[str] = [
     # AAVE Proxy
     "0x398ec7346dcd622edc5ae82352f02be94c62d119",

@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import random
-
 from asyncio.exceptions import TimeoutError
 from typing import Any, Callable, Collection, Coroutine, Type
 
@@ -15,7 +14,6 @@ from requests.exceptions import ConnectionError, HTTPError, Timeout, TooManyRedi
 from web3 import Web3
 from web3.middleware.exception_retry_request import check_if_retry_on_failure
 from web3.types import RPCEndpoint, RPCResponse
-
 
 request_exceptions = (ConnectionError, HTTPError, Timeout, TooManyRedirects)
 aiohttp_exceptions = (

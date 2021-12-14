@@ -13,7 +13,6 @@ from mev_inspect.schemas.prices import (
 )
 from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS
 
-
 COINBASE_API_BASE = "https://www.coinbase.com/api/v2"
 COINBASE_TOKEN_NAME_BY_ADDRESS = {
     WETH_ADDRESS: "weth",
