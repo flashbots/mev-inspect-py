@@ -5,8 +5,7 @@ from mev_inspect.classifiers.trace import TraceClassifier
 from tests.utils import load_test_block
 
 
-def test_fillLimitOrder_swap():
-
+def test_fillLimitOrder_swap(trace_classifier: TraceClassifier):
     transaction_hash = (
         "0xa043976d736ec8dc930c0556dffd0a86a4bfc80bf98fb7995c791fb4dc488b5d"
     )
@@ -29,15 +28,13 @@ def test_fillLimitOrder_swap():
     )
 
     block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
     result = get_swaps(classified_traces)
 
     assert result.count(swap) == 1
 
 
-def test__fillLimitOrder_swap():
-
+def test__fillLimitOrder_swap(trace_classifier: TraceClassifier):
     transaction_hash = (
         "0x9255addffa2dbeb9560c5e20e78a78c949488d2054c70b2155c39f9e28394cbf"
     )
@@ -60,15 +57,13 @@ def test__fillLimitOrder_swap():
     )
 
     block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
     result = get_swaps(classified_traces)
 
     assert result.count(swap) == 1
 
 
-def test_RfqLimitOrder_swap():
-
+def test_RfqLimitOrder_swap(trace_classifier: TraceClassifier):
     transaction_hash = (
         "0x1c948eb7c59ddbe6b916cf68f5df86eb44a7c9e728221fcd8ab750f137fd2a0f"
     )
@@ -91,15 +86,13 @@ def test_RfqLimitOrder_swap():
     )
 
     block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
     result = get_swaps(classified_traces)
 
     assert result.count(swap) == 1
 
 
-def test__RfqLimitOrder_swap():
-
+def test__RfqLimitOrder_swap(trace_classifier: TraceClassifier):
     transaction_hash = (
         "0x4f66832e654f8a4d773d9769571155df3722401343247376d6bb56626db29b90"
     )
@@ -122,7 +115,6 @@ def test__RfqLimitOrder_swap():
     )
 
     block = load_test_block(block_number)
-    trace_classifier = TraceClassifier()
     classified_traces = trace_classifier.classify(block.traces)
     result = get_swaps(classified_traces)
 
