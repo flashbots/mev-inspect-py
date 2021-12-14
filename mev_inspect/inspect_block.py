@@ -34,6 +34,7 @@ from mev_inspect.crud.transfers import delete_transfers_for_block, write_transfe
 from mev_inspect.liquidations import get_liquidations
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_snipes
+from mev_inspect.sandwiches import get_sandwiches
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
 
@@ -98,6 +99,12 @@ async def inspect_block(
 
     delete_liquidations_for_block(inspect_db_session, block_number)
     write_liquidations(inspect_db_session, liquidations)
+
+    sandwiches = get_sandwiches(swaps)
+    logger.info(f"Block: {block_number} -- Found {len(sandwiches)} sandwiches")
+
+    delete_sandwiches_for_block(inspect_db_session, block_number)
+    write_sandwiches(inspect_db_session, sandwiches)
 
     punk_bids = get_punk_bids(classified_traces)
     delete_punk_bids_for_block(inspect_db_session, block_number)
