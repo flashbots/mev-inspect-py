@@ -14,6 +14,7 @@ def test_fillLimitOrder_swap(trace_classifier: TraceClassifier):
     swap = Swap(
         abi_name="INativeOrdersFeature",
         transaction_hash=transaction_hash,
+        transaction_position=2,
         block_number=block_number,
         trace_address=[0, 2, 0, 1],
         contract_address="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
@@ -43,6 +44,7 @@ def test__fillLimitOrder_swap(trace_classifier: TraceClassifier):
     swap = Swap(
         abi_name="INativeOrdersFeature",
         transaction_hash=transaction_hash,
+        transaction_position=8,
         block_number=block_number,
         trace_address=[0, 1],
         contract_address="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
@@ -72,6 +74,7 @@ def test_RfqLimitOrder_swap(trace_classifier: TraceClassifier):
     swap = Swap(
         abi_name="INativeOrdersFeature",
         transaction_hash=transaction_hash,
+        transaction_position=9,
         block_number=block_number,
         trace_address=[0, 1, 13, 0, 1],
         contract_address="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
@@ -101,6 +104,7 @@ def test__RfqLimitOrder_swap(trace_classifier: TraceClassifier):
     swap = Swap(
         abi_name="INativeOrdersFeature",
         transaction_hash=transaction_hash,
+        transaction_position=168,
         block_number=block_number,
         trace_address=[1, 0, 1, 0, 1],
         contract_address="0xdef1c0ded9bec7f1a1670819833240f027b25eff",

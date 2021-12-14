@@ -58,6 +58,7 @@ class ClassifiedTrace(Trace):
     value: Optional[int]
     gas_used: Optional[int]
     transaction_hash: str
+    transaction_position: int
     protocol: Optional[Protocol]
     function_name: Optional[str]
     function_signature: Optional[str]
