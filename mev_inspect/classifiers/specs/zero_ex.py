@@ -247,7 +247,8 @@ def _get_taker_token_in_amount(
         for transfer in child_transfers:
             if transfer.to_address == taker_address:
                 return transfer.amount
-    return 0
+
+    raise ValueError("Unable to find transfers matching 0x order.")
 
 
 def _get_0x_token_in_data(
