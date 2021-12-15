@@ -234,7 +234,7 @@ def _get_taker_token_in_amount(
     if trace.error is not None:
         return 0
 
-    if len(child_transfers) != 2:
+    if len(child_transfers) < 2:
         raise ValueError(
             f"A settled order should consist of 2 child transfers, not {len(child_transfers)}."
         )
