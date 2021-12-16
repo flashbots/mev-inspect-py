@@ -122,6 +122,7 @@ def test_cream_token_liquidation(trace_classifier: TraceClassifier):
             debt_token_address="0x44fbebd2f576670a6c33f6fc0b00aa8c5753b322",
             debt_purchase_amount=14857434973806369550,
             received_amount=1547215810826,
+            received_token_address="0x697256caa3ccafd62bb6d3aa1c7c5671786a5fd9",
             protocol=Protocol.cream,
             transaction_hash=transaction_hash,
             trace_address=[],
