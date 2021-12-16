@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 WBTC_TOKEN_ADDRESS = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
 LINK_TOKEN_ADDRESS = "0x514910771af9ca656af840dff83e8264ecf986ca"
@@ -15,3 +15,7 @@ class Price(BaseModel):
     token_address: str
     timestamp: datetime
     usd_price: float
+
+    @validator("token_address")
+    def lower_token_address(cls, v: str) -> str:
+        return v.lower()
