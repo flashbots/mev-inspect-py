@@ -221,10 +221,16 @@ ZEROX_CLASSIFIER_SPECS = ZEROX_CONTRACT_SPECS + ZEROX_GENERIC_SPECS
 
 
 def _get_taker_token_in_amount(
-    taker_address: str, token_in_address: str, child_transfers: List[Transfer]
+    trace: DecodedCallTrace,
+    taker_address: str,
+    token_in_address: str,
+    child_transfers: List[Transfer],
 ) -> int:
 
-    if len(child_transfers) != 2:
+    if trace.error is not None:
+        return 0
+
+    if len(child_transfers) < 2:
         raise ValueError(
             f"A settled order should consist of 2 child transfers, not {len(child_transfers)}."
         )
@@ -237,7 +243,8 @@ def _get_taker_token_in_amount(
         for transfer in child_transfers:
             if transfer.to_address == taker_address:
                 return transfer.amount
-    return 0
+
+    raise RuntimeError("Unable to find transfers matching 0x order.")
 
 
 def _get_0x_token_in_data(
@@ -259,7 +266,7 @@ def _get_0x_token_in_data(
         )
 
     token_in_amount = _get_taker_token_in_amount(
-        taker_address, token_in_address, child_transfers
+        trace, taker_address, token_in_address, child_transfers
     )
 
     return token_in_address, token_in_amount
