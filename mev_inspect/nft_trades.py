@@ -5,6 +5,10 @@ from mev_inspect.schemas.nft_trade import NftTrade
 from mev_inspect.schemas.traces import Classification, ClassifiedTrace, DecodedCallTrace
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.traces import get_traces_by_transaction_hash
+from mev_inspect.transfers import (
+    get_child_transfers,
+    remove_child_transfers_of_transfers,
+)
 
 def get_nft_trades(traces: List[ClassifiedTrace]) -> List[NftTrade]:
     nft_trades = []
@@ -29,16 +33,28 @@ def _get_nft_trades_for_transaction(
             continue
 
         elif trace.classification == Classification.nft_trade:
-            nft_transfer = _parse_trade(trace)
-
-            nft_trades.append(nft_transfer)
+            child_transfers = get_child_transfers(
+                trace.transaction_hash,
+                trace.trace_address,
+                traces,
+            )
+            nft_transfer = _parse_trade(
+                trace,
+                remove_child_transfers_of_transfers(child_transfers),
+            )
+            
+            if nft_transfer is not None:
+                nft_trades.append(nft_transfer)
 
     return nft_trades
 
-def _parse_trade(trace: DecodedCallTrace) -> Optional[NftTrade]:
+def _parse_trade(
+    trace: DecodedCallTrace,
+    child_transfers: List[Transfer],
+) -> Optional[NftTrade]:
     classifier = get_classifier(trace)
 
     if classifier is not None and issubclass(classifier, NftTradeClassifier):
-        return classifier.parse_trade(trace)
+        return classifier.parse_trade(trace, child_transfers)
 
     return None

@@ -1,42 +1,30 @@
-from typing import List
-from mev_inspect.classifiers.helpers import _filter_transfers
+from typing import List, Optional
+from mev_inspect.classifiers.helpers import _filter_transfers, create_nft_trade_from_transfers
 from mev_inspect.schemas.classifiers import ClassifierSpec, NftTradeClassifier
 from mev_inspect.schemas.nft_trade import NftTrade
 from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
 from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS, Transfer
 
-OPENSEA_ETH_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
+OPENSEA_WALLET_ADDRESS = "0x5b3256965e7c3cf26e11fcaf296dfc8807c01073"
 
 class OpenseaClassifier(NftTradeClassifier):    
     @staticmethod
-    def parse_trade(trace: DecodedCallTrace) -> NftTrade:
-        uints = trace.inputs.get("uints")
+    def parse_trade(
+        trace: DecodedCallTrace,
+        child_transfers: List[Transfer],
+    ) -> Optional[NftTrade]:
         addresses = trace.inputs.get("addrs")
         buy_maker = addresses[1]
         sell_maker = addresses[8]
-        base_price = uints[4]
-        payment_token = addresses[6]
         target = addresses[4]
 
-        if payment_token == OPENSEA_ETH_TOKEN_ADDRESS:
-            # Opensea uses the zero-address as a sentinel value for Ether. Convert this
-            # to the normal eth token address.
-            payment_token = ETH_TOKEN_ADDRESS
-
-        return NftTrade(
-            abi_name=trace.abi_name,
-            transaction_hash=trace.transaction_hash,
-            transaction_position=trace.transaction_position,
-            block_number=trace.block_number,
-            trace_address=trace.trace_address,
-            protocol=trace.protocol,
-            error=trace.error,
+        return create_nft_trade_from_transfers(
+            trace,
+            child_transfers,
+            collection_address=target,
             seller_address=sell_maker,
             buyer_address=buy_maker,
-            payment_token=payment_token,
-            payment_amount=base_price,
-            collection_address=target,
-            token_uri=0 # Todo
+            exchange_wallet_address=OPENSEA_WALLET_ADDRESS,
         )
 
 

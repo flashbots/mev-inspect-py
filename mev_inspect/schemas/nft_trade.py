@@ -17,4 +17,4 @@ class NftTrade(BaseModel):
     payment_token: str
     payment_amount: int
     collection_address: str
-    token_uri: int
+    token_id: int

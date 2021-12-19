@@ -60,7 +60,10 @@ class NftTradeClassifier(Classifier):
 
     @staticmethod
     @abstractmethod
-    def parse_trade(trace: DecodedCallTrace) -> NftTrade:
+    def parse_trade(
+        trace: DecodedCallTrace,
+        child_transfers: List[Transfer],
+    ) -> Optional[NftTrade]:
         return NotImplementedError()
 
 
