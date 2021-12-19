@@ -1,5 +1,5 @@
 from typing import List, Optional, Sequence
-from mev_inspect.schemas.nft_trade import NftTrade
+from mev_inspect.schemas.nft_trades import NftTrade
 
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import ClassifiedTrace, DecodedCallTrace

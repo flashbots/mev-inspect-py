@@ -1,7 +1,7 @@
 from typing import List, Optional
 from mev_inspect.classifiers.helpers import _filter_transfers, create_nft_trade_from_transfers
 from mev_inspect.schemas.classifiers import ClassifierSpec, NftTradeClassifier
-from mev_inspect.schemas.nft_trade import NftTrade
+from mev_inspect.schemas.nft_trades import NftTrade
 from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
 from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS, Transfer
 

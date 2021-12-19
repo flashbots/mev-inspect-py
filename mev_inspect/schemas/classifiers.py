@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from .swaps import Swap
 from .traces import Classification, DecodedCallTrace, Protocol
 from .transfers import Transfer
-from .nft_trade import NftTrade
+from .nft_trades import NftTrade
 
 
 class Classifier(ABC):
