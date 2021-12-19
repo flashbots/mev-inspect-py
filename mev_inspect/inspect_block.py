@@ -26,6 +26,7 @@ from mev_inspect.crud.punks import (
     write_punk_snipes,
 )
 from mev_inspect.crud.sandwiches import delete_sandwiches_for_block, write_sandwiches
+from mev_inspect.nft_trades import get_nft_trades
 from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
 from mev_inspect.crud.traces import (
     delete_classified_traces_for_block,
@@ -120,6 +121,9 @@ async def inspect_block(
 
     delete_punk_snipes_for_block(inspect_db_session, block_number)
     write_punk_snipes(inspect_db_session, punk_snipes)
+
+    nft_trades = get_nft_trades(classified_traces)
+    logger.info(f"Block: {block_number} -- Found {len(nft_trades)} nft trades")
 
     miner_payments = get_miner_payments(
         block.miner, block.base_fee_per_gas, classified_traces, block.receipts

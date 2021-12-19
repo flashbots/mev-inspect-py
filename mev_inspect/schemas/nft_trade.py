@@ -1,0 +1,20 @@
+from typing import List, Optional
+from mev_inspect.schemas.traces import Protocol
+
+from pydantic import BaseModel
+
+
+class NftTrade(BaseModel):
+    abi_name: str
+    transaction_hash: str
+    transaction_position: int
+    block_number: int
+    trace_address: List[int]
+    protocol: Optional[Protocol]
+    error: Optional[str]
+    seller_address: str
+    buyer_address: str
+    payment_token: str
+    payment_amount: int
+    collection_address: str
+    token_uri: int
