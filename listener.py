@@ -65,14 +65,10 @@ async def inspect_next_block(
 
     if last_written_block is None:
         # maintain lag if no blocks written yet
-        last_written_block = latest_block_number - 1
+        last_written_block = latest_block_number - BLOCK_NUMBER_LAG - 1
 
     if last_written_block < (latest_block_number - BLOCK_NUMBER_LAG):
-        block_number = (
-            latest_block_number
-            if last_written_block is None
-            else last_written_block + 1
-        )
+        block_number = last_written_block + 1
 
         logger.info(f"Writing block: {block_number}")
 
