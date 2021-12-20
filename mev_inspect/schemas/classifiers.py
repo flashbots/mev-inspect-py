@@ -3,10 +3,10 @@ from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
+from .nft_trades import NftTrade
 from .swaps import Swap
 from .traces import Classification, DecodedCallTrace, Protocol
 from .transfers import Transfer
-from .nft_trades import NftTrade
 
 
 class Classifier(ABC):
@@ -53,6 +53,7 @@ class SeizeClassifier(Classifier):
     def get_classification() -> Classification:
         return Classification.seize
 
+
 class NftTradeClassifier(Classifier):
     @staticmethod
     def get_classification() -> Classification:
@@ -64,7 +65,7 @@ class NftTradeClassifier(Classifier):
         trace: DecodedCallTrace,
         child_transfers: List[Transfer],
     ) -> Optional[NftTrade]:
-        return NotImplementedError()
+        raise NotImplementedError()
 
 
 class ClassifierSpec(BaseModel):

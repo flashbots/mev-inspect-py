@@ -17,6 +17,7 @@ from mev_inspect.crud.miner_payments import (
     delete_miner_payments_for_block,
     write_miner_payments,
 )
+from mev_inspect.crud.nft_trades import delete_nft_trades_for_block, write_nft_trades
 from mev_inspect.crud.punks import (
     delete_punk_bid_acceptances_for_block,
     delete_punk_bids_for_block,
@@ -32,15 +33,13 @@ from mev_inspect.crud.traces import (
     write_classified_traces,
 )
 from mev_inspect.crud.transfers import delete_transfers_for_block, write_transfers
-from mev_inspect.crud.nft_trades import delete_nft_trades_for_block, write_nft_trades
-
 from mev_inspect.liquidations import get_liquidations
 from mev_inspect.miner_payments import get_miner_payments
+from mev_inspect.nft_trades import get_nft_trades
 from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_snipes
 from mev_inspect.sandwiches import get_sandwiches
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
-from mev_inspect.nft_trades import get_nft_trades
 
 logger = logging.getLogger(__name__)
 

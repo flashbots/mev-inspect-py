@@ -1,5 +1,3 @@
-
-
 """Create NFT Trades table
 
 Revision ID: 3c54832385e3
@@ -15,6 +13,7 @@ revision = "3c54832385e3"
 down_revision = "15ba9c27ee8a"
 branch_labels = None
 depends_on = None
+
 
 def upgrade():
     op.create_table(

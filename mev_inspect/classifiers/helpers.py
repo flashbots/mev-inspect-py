@@ -1,9 +1,10 @@
 from typing import List, Optional, Sequence
-from mev_inspect.schemas.nft_trades import NftTrade
 
+from mev_inspect.schemas.nft_trades import NftTrade
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import ClassifiedTrace, DecodedCallTrace
 from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS, Transfer
+
 
 def create_nft_trade_from_transfers(
     trace: DecodedCallTrace,
@@ -12,32 +13,35 @@ def create_nft_trade_from_transfers(
     seller_address: str,
     buyer_address: str,
     exchange_wallet_address: Optional[str],
-) -> NftTrade:
-    transfers_to_buyer = _filter_transfers(
-        child_transfers, to_address=buyer_address
-    )
-    transfers_to_seller = _filter_transfers(
-        child_transfers, to_address=seller_address
-    )
+) -> Optional[NftTrade]:
+    transfers_to_buyer = _filter_transfers(child_transfers, to_address=buyer_address)
+    transfers_to_seller = _filter_transfers(child_transfers, to_address=seller_address)
 
     if len(transfers_to_buyer) != 1 or len(transfers_to_seller) != 1:
         return None
-    
+
     if transfers_to_buyer[0].token_address != collection_address:
         return None
-    
+
     payment_token = transfers_to_seller[0].token_address
     payment_amount = transfers_to_seller[0].amount
     token_id = transfers_to_buyer[0].amount
 
     if exchange_wallet_address is not None:
         transfers_from_seller_to_exchange = _filter_transfers(
-            child_transfers, from_address=seller_address, to_address=exchange_wallet_address
+            child_transfers,
+            from_address=seller_address,
+            to_address=exchange_wallet_address,
         )
         transfers_from_buyer_to_exchange = _filter_transfers(
-            child_transfers, from_address=buyer_address, to_address=exchange_wallet_address
+            child_transfers,
+            from_address=buyer_address,
+            to_address=exchange_wallet_address,
         )
-        for fee in [*transfers_from_seller_to_exchange, *transfers_from_buyer_to_exchange]:
+        for fee in [
+            *transfers_from_seller_to_exchange,
+            *transfers_from_buyer_to_exchange,
+        ]:
             # Assumes that exchange fees are paid with the same token as the sale
             payment_amount -= fee.amount
 
@@ -54,8 +58,9 @@ def create_nft_trade_from_transfers(
         payment_token=payment_token,
         payment_amount=payment_amount,
         collection_address=collection_address,
-        token_id=token_id
+        token_id=token_id,
     )
+
 
 def create_swap_from_pool_transfers(
     trace: DecodedCallTrace,

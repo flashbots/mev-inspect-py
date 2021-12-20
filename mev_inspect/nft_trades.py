@@ -1,4 +1,5 @@
 from typing import List, Optional
+
 from mev_inspect.classifiers.specs import get_classifier
 from mev_inspect.schemas.classifiers import NftTradeClassifier
 from mev_inspect.schemas.nft_trades import NftTrade
@@ -10,13 +11,12 @@ from mev_inspect.transfers import (
     remove_child_transfers_of_transfers,
 )
 
+
 def get_nft_trades(traces: List[ClassifiedTrace]) -> List[NftTrade]:
     nft_trades = []
 
     for _, transaction_traces in get_traces_by_transaction_hash(traces).items():
-        nft_trades += _get_nft_trades_for_transaction(
-            list(transaction_traces)
-        )
+        nft_trades += _get_nft_trades_for_transaction(list(transaction_traces))
 
     return nft_trades
 
@@ -42,11 +42,12 @@ def _get_nft_trades_for_transaction(
                 trace,
                 remove_child_transfers_of_transfers(child_transfers),
             )
-            
+
             if nft_trade is not None:
                 nft_trades.append(nft_trade)
 
     return nft_trades
+
 
 def _parse_trade(
     trace: DecodedCallTrace,

@@ -1,7 +1,8 @@
 from typing import List, Optional
-from mev_inspect.schemas.traces import Protocol
 
 from pydantic import BaseModel
+
+from mev_inspect.schemas.traces import Protocol
 
 
 class NftTrade(BaseModel):
