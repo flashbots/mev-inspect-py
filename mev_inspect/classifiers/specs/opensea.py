@@ -1,9 +1,9 @@
 from typing import List, Optional
-from mev_inspect.classifiers.helpers import _filter_transfers, create_nft_trade_from_transfers
+from mev_inspect.classifiers.helpers import create_nft_trade_from_transfers
 from mev_inspect.schemas.classifiers import ClassifierSpec, NftTradeClassifier
 from mev_inspect.schemas.nft_trades import NftTrade
 from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
-from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS, Transfer
+from mev_inspect.schemas.transfers import Transfer
 
 OPENSEA_WALLET_ADDRESS = "0x5b3256965e7c3cf26e11fcaf296dfc8807c01073"
 
@@ -33,7 +33,7 @@ OPENSEA_SPEC= ClassifierSpec(
     protocol=Protocol.opensea,
     valid_contract_addresses=["0x7be8076f4ea4a4ad08075c2508e481d6c946d12b"],
     classifiers={
-        "atomicMatch_(address[14],uint256[18],uint8[8],bytes,bytes,bytes,bytes,bytes,bytes,uint8[2],bytes32[5])": OpenseaClassifier, # TODO actual types
+        "atomicMatch_(address[14],uint256[18],uint8[8],bytes,bytes,bytes,bytes,bytes,bytes,uint8[2],bytes32[5])": OpenseaClassifier,
     },
 )
 
