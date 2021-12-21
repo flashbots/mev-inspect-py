@@ -10,7 +10,7 @@ from web3.eth import AsyncEth
 
 from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.inspect_block import inspect_block
+from mev_inspect.inspect_block import inspect_block, inspect_many_blocks
 from mev_inspect.provider import get_base_provider
 
 logger = logging.getLogger(__name__)
@@ -50,12 +50,23 @@ class MEVInspector:
             trace_db_session=self.trace_db_session,
         )
 
-    async def inspect_many_blocks(self, after_block: int, before_block: int):
+    async def inspect_many_blocks(
+        self,
+        after_block: int,
+        before_block: int,
+        block_batch_size: int = 10,
+    ):
         tasks = []
-        for block_number in range(after_block, before_block):
+        for block_number in range(after_block, before_block, block_batch_size):
+            batch_after_block = block_number
+            batch_before_block = min(block_number + block_batch_size, before_block)
+
             tasks.append(
                 asyncio.ensure_future(
-                    self.safe_inspect_block(block_number=block_number)
+                    self.safe_inspect_many_blocks(
+                        after_block_number=batch_after_block,
+                        before_block_number=batch_before_block,
+                    )
                 )
             )
         logger.info(f"Gathered {len(tasks)} blocks to inspect")
@@ -67,13 +78,18 @@ class MEVInspector:
             logger.error(f"Existed due to {type(e)}")
             traceback.print_exc()
 
-    async def safe_inspect_block(self, block_number: int):
+    async def safe_inspect_many_blocks(
+        self,
+        after_block_number: int,
+        before_block_number: int,
+    ):
         async with self.max_concurrency:
-            return await inspect_block(
+            return await inspect_many_blocks(
                 self.inspect_db_session,
                 self.base_provider,
                 self.w3,
                 self.trace_classifier,
-                block_number,
+                after_block_number,
+                before_block_number,
                 trace_db_session=self.trace_db_session,
             )
