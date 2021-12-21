@@ -4,15 +4,19 @@ from typing import List
 from mev_inspect.models.transfers import TransferModel
 from mev_inspect.schemas.transfers import Transfer
 
+from .shared import delete_by_block_range
 
-def delete_transfers_for_block(
+
+def delete_transfers_for_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
-    (
-        db_session.query(TransferModel)
-        .filter(TransferModel.block_number == block_number)
-        .delete()
+    delete_by_block_range(
+        db_session,
+        TransferModel,
+        after_block_number,
+        before_block_number,
     )
 
     db_session.commit()

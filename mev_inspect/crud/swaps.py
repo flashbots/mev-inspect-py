@@ -4,17 +4,20 @@ from typing import List
 from mev_inspect.models.swaps import SwapModel
 from mev_inspect.schemas.swaps import Swap
 
+from .shared import delete_by_block_range
 
-def delete_swaps_for_block(
+
+def delete_swaps_for_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
-    (
-        db_session.query(SwapModel)
-        .filter(SwapModel.block_number == block_number)
-        .delete()
+    delete_by_block_range(
+        db_session,
+        SwapModel,
+        after_block_number,
+        before_block_number,
     )
-
     db_session.commit()
 
 
