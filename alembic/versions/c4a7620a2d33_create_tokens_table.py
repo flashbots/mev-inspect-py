@@ -22,9 +22,7 @@ def upgrade():
         sa.Column("decimals", sa.Numeric, nullable=False),
         sa.PrimaryKeyConstraint("token_address"),
     )
-    pass
 
 
 def downgrade():
     op.drop_table("tokens")
-    pass
