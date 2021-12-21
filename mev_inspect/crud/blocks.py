@@ -3,13 +3,22 @@ from datetime import datetime
 from mev_inspect.schemas.blocks import Block
 
 
-def delete_block(
+def delete_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
     db_session.execute(
-        "DELETE FROM blocks WHERE block_number = :block_number",
-        params={"block_number": block_number},
+        """
+        DELETE FROM blocks
+        WHERE
+            block_number >= :after_block_number AND
+            block_number < :before_block_number
+        """,
+        params={
+            "after_block_number": after_block_number,
+            "before_block_number": before_block_number,
+        },
     )
     db_session.commit()
 

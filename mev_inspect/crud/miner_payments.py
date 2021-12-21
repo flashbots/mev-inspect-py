@@ -4,17 +4,20 @@ from typing import List
 from mev_inspect.models.miner_payments import MinerPaymentModel
 from mev_inspect.schemas.miner_payments import MinerPayment
 
+from .shared import delete_by_block_range
 
-def delete_miner_payments_for_block(
+
+def delete_miner_payments_for_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
-    (
-        db_session.query(MinerPaymentModel)
-        .filter(MinerPaymentModel.block_number == block_number)
-        .delete()
+    delete_by_block_range(
+        db_session,
+        MinerPaymentModel,
+        after_block_number,
+        before_block_number,
     )
-
     db_session.commit()
 
 
