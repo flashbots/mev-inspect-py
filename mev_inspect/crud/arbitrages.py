@@ -40,6 +40,7 @@ def write_arbitrages(
                 start_amount=arbitrage.start_amount,
                 end_amount=arbitrage.end_amount,
                 profit_amount=arbitrage.profit_amount,
+                error=arbitrage.error,
             )
         )
 
