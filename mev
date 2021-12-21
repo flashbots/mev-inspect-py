@@ -13,7 +13,7 @@ function db(){
     username=$(get_kube_db_secret "username")
     password=$(get_kube_db_secret "password")
 
-    kubectl run -i --rm --tty postgres-client \
+    kubectl run -i --rm --tty postgres-client-$RANDOM \
         --env="PGPASSWORD=$password"  \
         --image=jbergknoff/postgresql-client \
         -- $DB_NAME --host=$host --user=$username
