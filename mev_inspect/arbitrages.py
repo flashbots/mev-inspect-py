@@ -45,16 +45,37 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
     if len(start_ends) == 0:
         return []
 
-    # for (start, end) in filtered_start_ends:
-    for (start, end) in start_ends:
-        potential_intermediate_swaps = [
-            swap for swap in swaps if swap is not start and swap is not end
-        ]
-        routes = _get_all_routes(start, end, potential_intermediate_swaps)
+    used_swaps = []
 
-        for route in routes:
-            start_amount = route[0].token_in_amount
-            end_amount = route[-1].token_out_amount
+    for (start, ends) in start_ends:
+        if start in used_swaps:
+            continue
+
+        longest_route = None
+
+        for end in ends:
+            if end in used_swaps:
+                continue
+
+            potential_intermediate_swaps = [
+                swap
+                for swap in swaps
+                if (swap is not start and swap is not end and swap not in used_swaps)
+            ]
+
+            routes = _get_all_routes(
+                start,
+                end,
+                potential_intermediate_swaps,
+            )
+
+            for route in routes:
+                if longest_route is None or len(route) > len(longest_route):
+                    longest_route = route
+
+        if longest_route is not None:
+            start_amount = longest_route[0].token_in_amount
+            end_amount = longest_route[-1].token_out_amount
             profit_amount = end_amount - start_amount
             error = None
             for swap in route:
@@ -62,17 +83,20 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
                     error = swap.error
 
             arb = Arbitrage(
-                swaps=route,
-                block_number=route[0].block_number,
-                transaction_hash=route[0].transaction_hash,
-                account_address=route[0].from_address,
-                profit_token_address=route[0].token_in_address,
+                swaps=longest_route,
+                block_number=longest_route[0].block_number,
+                transaction_hash=longest_route[0].transaction_hash,
+                account_address=longest_route[0].from_address,
+                profit_token_address=longest_route[0].token_in_address,
                 start_amount=start_amount,
                 end_amount=end_amount,
                 profit_amount=profit_amount,
                 error=error,
             )
+
             all_arbitrages.append(arb)
+            used_swaps.extend(longest_route)
+
     if len(all_arbitrages) == 1:
         return all_arbitrages
     else:
@@ -83,7 +107,7 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
         ]
 
 
-def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, Swap]]:
+def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, List[Swap]]]:
     """
     Gets the set of all possible opening and closing swap pairs in an arbitrage via
     - swap[start].token_in == swap[end].token_out
@@ -92,9 +116,12 @@ def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, Swap]]:
     - not swap[end].to_address in all_pool_addresses
     """
     pool_addrs = [swap.contract_address for swap in swaps]
-    valid_start_ends: List[Tuple[Swap, Swap]] = []
+    valid_start_ends: List[Tuple[Swap, List[Swap]]] = []
+
     for index, potential_start_swap in enumerate(swaps):
+        ends_for_start = []
         remaining_swaps = swaps[:index] + swaps[index + 1 :]
+
         for potential_end_swap in remaining_swaps:
             if (
                 potential_start_swap.token_in_address
@@ -102,7 +129,12 @@ def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, Swap]]:
                 and potential_start_swap.from_address == potential_end_swap.to_address
                 and not potential_start_swap.from_address in pool_addrs
             ):
-                valid_start_ends.append((potential_start_swap, potential_end_swap))
+
+                ends_for_start.append(potential_end_swap)
+
+        if len(ends_for_start) > 0:
+            valid_start_ends.append((potential_start_swap, ends_for_start))
+
     return valid_start_ends
 
 
