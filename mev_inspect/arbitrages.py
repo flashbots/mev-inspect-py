@@ -132,7 +132,7 @@ def _get_shortest_route(
 
 def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, List[Swap]]]:
     """
-    Gets the set of all possible opening and closing swap pairs in an arbitrage via
+    Gets the set of all possible openings and corresponding closing swaps for an arbitrage via
     - swap[start].token_in == swap[end].token_out
     - swap[start].from_address == swap[end].to_address
     - not swap[start].from_address in all_pool_addresses
