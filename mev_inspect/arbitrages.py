@@ -51,7 +51,7 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
         if start in used_swaps:
             continue
 
-        longest_route = None
+        shortest_route = None
 
         for end in ends:
             if end in used_swaps:
@@ -70,12 +70,12 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
             )
 
             for route in routes:
-                if longest_route is None or len(route) > len(longest_route):
-                    longest_route = route
+                if shortest_route is None or len(route) < len(shortest_route):
+                    shortest_route = route
 
-        if longest_route is not None:
-            start_amount = longest_route[0].token_in_amount
-            end_amount = longest_route[-1].token_out_amount
+        if shortest_route is not None:
+            start_amount = shortest_route[0].token_in_amount
+            end_amount = shortest_route[-1].token_out_amount
             profit_amount = end_amount - start_amount
             error = None
             for swap in route:
@@ -83,11 +83,11 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
                     error = swap.error
 
             arb = Arbitrage(
-                swaps=longest_route,
-                block_number=longest_route[0].block_number,
-                transaction_hash=longest_route[0].transaction_hash,
-                account_address=longest_route[0].from_address,
-                profit_token_address=longest_route[0].token_in_address,
+                swaps=shortest_route,
+                block_number=shortest_route[0].block_number,
+                transaction_hash=shortest_route[0].transaction_hash,
+                account_address=shortest_route[0].from_address,
+                profit_token_address=shortest_route[0].token_in_address,
                 start_amount=start_amount,
                 end_amount=end_amount,
                 profit_amount=profit_amount,
@@ -95,7 +95,7 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
             )
 
             all_arbitrages.append(arb)
-            used_swaps.extend(longest_route)
+            used_swaps.extend(shortest_route)
 
     if len(all_arbitrages) == 1:
         return all_arbitrages
