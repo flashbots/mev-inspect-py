@@ -52,15 +52,16 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
         ]
         routes = _get_all_routes(start, end, potential_intermediate_swaps)
 
-        error = ""
-        for swap in swaps:
-            if swap.error is not None:
-                error = swap.error
+        error = None
 
         for route in routes:
             start_amount = route[0].token_in_amount
             end_amount = route[-1].token_out_amount
             profit_amount = end_amount - start_amount
+
+            for swap in route:
+                if swap.error is not None:
+                    error = swap.error
 
             arb = Arbitrage(
                 swaps=route,
