@@ -1,5 +1,5 @@
 from itertools import groupby
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from mev_inspect.schemas.arbitrages import Arbitrage
 from mev_inspect.schemas.swaps import Swap
@@ -45,37 +45,14 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
     if len(start_ends) == 0:
         return []
 
-    used_swaps = []
+    used_swaps: List[Swap] = []
 
     for (start, ends) in start_ends:
-        if start in used_swaps:
-            continue
+        route = _get_shortest_route_from_start(start, ends, swaps, used_swaps)
 
-        shortest_route = None
-
-        for end in ends:
-            if end in used_swaps:
-                continue
-
-            potential_intermediate_swaps = [
-                swap
-                for swap in swaps
-                if (swap is not start and swap is not end and swap not in used_swaps)
-            ]
-
-            routes = _get_all_routes(
-                start,
-                end,
-                potential_intermediate_swaps,
-            )
-
-            for route in routes:
-                if shortest_route is None or len(route) < len(shortest_route):
-                    shortest_route = route
-
-        if shortest_route is not None:
-            start_amount = shortest_route[0].token_in_amount
-            end_amount = shortest_route[-1].token_out_amount
+        if route is not None:
+            start_amount = route[0].token_in_amount
+            end_amount = route[-1].token_out_amount
             profit_amount = end_amount - start_amount
             error = None
             for swap in route:
@@ -83,11 +60,11 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
                     error = swap.error
 
             arb = Arbitrage(
-                swaps=shortest_route,
-                block_number=shortest_route[0].block_number,
-                transaction_hash=shortest_route[0].transaction_hash,
-                account_address=shortest_route[0].from_address,
-                profit_token_address=shortest_route[0].token_in_address,
+                swaps=route,
+                block_number=route[0].block_number,
+                transaction_hash=route[0].transaction_hash,
+                account_address=route[0].from_address,
+                profit_token_address=route[0].token_in_address,
                 start_amount=start_amount,
                 end_amount=end_amount,
                 profit_amount=profit_amount,
@@ -95,7 +72,7 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
             )
 
             all_arbitrages.append(arb)
-            used_swaps.extend(shortest_route)
+            used_swaps.extend(route)
 
     if len(all_arbitrages) == 1:
         return all_arbitrages
@@ -105,6 +82,44 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
             for arb in all_arbitrages
             if (arb.swaps[0].trace_address < arb.swaps[-1].trace_address)
         ]
+
+
+def _get_shortest_route_from_start(
+    start_swap: Swap,
+    end_swaps: List[Swap],
+    all_swaps: List[Swap],
+    used_swaps: List[Swap],
+) -> Optional[List[Swap]]:
+    if start_swap in used_swaps:
+        return None
+
+    shortest_route = None
+
+    for end_swap in end_swaps:
+        if end_swap in used_swaps:
+            continue
+
+        potential_intermediate_swaps = [
+            swap
+            for swap in all_swaps
+            if (
+                swap is not start_swap
+                and swap is not end_swap
+                and swap not in used_swaps
+            )
+        ]
+
+        routes = _get_all_routes(
+            start_swap,
+            end_swap,
+            potential_intermediate_swaps,
+        )
+
+        for route in routes:
+            if shortest_route is None or len(route) < len(shortest_route):
+                shortest_route = route
+
+    return shortest_route
 
 
 def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, List[Swap]]]:
