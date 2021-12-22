@@ -104,7 +104,7 @@ def _get_shortest_route(
     if len(other_swaps) == 0:
         return None
 
-    shortest_route_rest = None
+    shortest_remaining_route = None
 
     for next_swap in other_swaps:
         if start_swap.token_out_address == next_swap.token_in_address and (
@@ -119,15 +119,15 @@ def _get_shortest_route(
             )
 
             if shortest_from_next is not None and (
-                shortest_route_rest is None
-                or len(shortest_from_next) < len(shortest_route_rest)
+                shortest_remaining_route is None
+                or len(shortest_from_next) < len(shortest_remaining_route)
             ):
-                shortest_route_rest = shortest_from_next
+                shortest_remaining_route = shortest_from_next
 
-    if shortest_route_rest is None:
+    if shortest_remaining_route is None:
         return None
     else:
-        return [start_swap] + shortest_route_rest
+        return [start_swap] + shortest_remaining_route
 
 
 def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, List[Swap]]]:
