@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from mev_inspect.arbitrages import _get_shortest_route, get_arbitrages
 from mev_inspect.classifiers.specs.uniswap import (
@@ -175,42 +175,37 @@ def test_get_shortest_route():
     # A -> B, B -> A
     start_swap = create_generic_swap("0xa", "0xb")
     end_swap = create_generic_swap("0xb", "0xa")
-    route = _get_shortest_route(start_swap, [end_swap], [])
-    assert route is not None
-    assert len(route) == 2
+    shortest_route = _get_shortest_route(start_swap, [end_swap], [])
+    assert shortest_route is not None
+    assert len(shortest_route) == 2
 
     # A->B, B->C, C->A
     start_swap = create_generic_swap("0xa", "0xb")
     other_swaps = [create_generic_swap("0xb", "0xc")]
     end_swap = create_generic_swap("0xc", "0xa")
-    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
-    assert route is not None
-    assert len(route) == 3
+    shortest_route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+    assert shortest_route is not None
+    assert len(shortest_route) == 3
 
     # A->B, B->C, C->A + A->D
     other_swaps.append(create_generic_swap("0xa", "0xd"))
-    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
-    assert route is not None
-    assert len(route) == 3
+    shortest_route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+    assert shortest_route is not None
+    assert len(shortest_route) == 3
 
     # A->B, B->C, C->A + A->D B->E
     other_swaps.append(create_generic_swap("0xb", "0xe"))
-    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
-    assert route is not None
-    assert len(route) == 3
+    shortest_route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+    assert shortest_route is not None
+    assert len(shortest_route) == 3
 
     # A->B, B->A, B->C, C->A
     other_swaps = [create_generic_swap("0xb", "0xa"), create_generic_swap("0xb", "0xc")]
-    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
-    expected_smallest_route = [["0xa", "0xb"], ["0xb", "0xc"], ["0xc", "0xa"]]
+    actual_shortest_route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+    expected_shortest_route = [("0xa", "0xb"), ("0xb", "0xc"), ("0xc", "0xa")]
 
-    assert route is not None
-    assert len(route) == len(expected_smallest_route)
-    for i, [expected_token_in, expected_token_out] in enumerate(
-        expected_smallest_route
-    ):
-        assert expected_token_in == route[i].token_in_address
-        assert expected_token_out == route[i].token_out_address
+    assert actual_shortest_route is not None
+    _assert_route_tokens_equal(actual_shortest_route, expected_shortest_route)
 
     # A->B, B->C, C->D, D->A, B->D
     end_swap = create_generic_swap("0xd", "0xa")
@@ -219,12 +214,21 @@ def test_get_shortest_route():
         create_generic_swap("0xc", "0xd"),
         create_generic_swap("0xb", "0xd"),
     ]
-    expected_smallest_route = [["0xa", "0xb"], ["0xb", "0xd"], ["0xd", "0xa"]]
-    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
-    assert len(route) == 3
+    expected_shortest_route = [("0xa", "0xb"), ("0xb", "0xd"), ("0xd", "0xa")]
+    actual_shortest_route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+
+    assert actual_shortest_route is not None
+    _assert_route_tokens_equal(actual_shortest_route, expected_shortest_route)
+
+
+def _assert_route_tokens_equal(
+    route: List[Swap],
+    expected_token_in_out_pairs: List[Tuple[str, str]],
+) -> None:
+    assert len(route) == len(expected_token_in_out_pairs)
 
     for i, [expected_token_in, expected_token_out] in enumerate(
-        expected_smallest_route
+        expected_token_in_out_pairs
     ):
         assert expected_token_in == route[i].token_in_address
         assert expected_token_out == route[i].token_out_address
