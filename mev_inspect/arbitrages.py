@@ -93,7 +93,6 @@ def _get_shortest_route(
     end_swaps: List[Swap],
     all_swaps: List[Swap],
 ) -> Optional[List[Swap]]:
-    # TODO - add max length
     for end_swap in end_swaps:
         if start_swap.token_out_address == end_swap.token_in_address:
             return [start_swap, end_swap]
