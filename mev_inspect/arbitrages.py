@@ -56,9 +56,8 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
             start_amount = route[0].token_in_amount
             end_amount = route[-1].token_out_amount
             profit_amount = end_amount - start_amount
-
+            error = None
             for swap in route:
-                error = None
                 if swap.error is not None:
                     error = swap.error
 
