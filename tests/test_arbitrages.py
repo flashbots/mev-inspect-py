@@ -1,6 +1,6 @@
 from typing import List
 
-from mev_inspect.arbitrages import _get_all_routes, get_arbitrages
+from mev_inspect.arbitrages import _get_shortest_route, get_arbitrages
 from mev_inspect.classifiers.specs.uniswap import (
     UNISWAP_V2_PAIR_ABI_NAME,
     UNISWAP_V3_POOL_ABI_NAME,
@@ -171,39 +171,46 @@ def test_three_pool_arbitrage(get_transaction_hashes, get_addresses):
     assert arbitrage.profit_amount == first_token_out_amount - first_token_in_amount
 
 
-def test_get_all_routes():
+def test_get_shortest_route():
     # A -> B, B -> A
     start_swap = create_generic_swap("0xa", "0xb")
     end_swap = create_generic_swap("0xb", "0xa")
-    routes = _get_all_routes(start_swap, end_swap, [])
-    assert len(routes) == 1
+    route = _get_shortest_route(start_swap, [end_swap], [])
+    assert route is not None
+    assert len(route) == 2
 
     # A->B, B->C, C->A
     start_swap = create_generic_swap("0xa", "0xb")
     other_swaps = [create_generic_swap("0xb", "0xc")]
     end_swap = create_generic_swap("0xc", "0xa")
-    routes = _get_all_routes(start_swap, end_swap, other_swaps)
-    assert len(routes) == 1
+    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+    assert route is not None
+    assert len(route) == 3
 
     # A->B, B->C, C->A + A->D
     other_swaps.append(create_generic_swap("0xa", "0xd"))
-    routes = _get_all_routes(start_swap, end_swap, other_swaps)
-    assert len(routes) == 1
+    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+    assert route is not None
+    assert len(route) == 3
 
     # A->B, B->C, C->A + A->D B->E
     other_swaps.append(create_generic_swap("0xb", "0xe"))
-    routes = _get_all_routes(start_swap, end_swap, other_swaps)
-    assert len(routes) == 1
+    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+    assert route is not None
+    assert len(route) == 3
 
     # A->B, B->A, B->C, C->A
     other_swaps = [create_generic_swap("0xb", "0xa"), create_generic_swap("0xb", "0xc")]
-    routes = _get_all_routes(start_swap, end_swap, other_swaps)
-    assert len(routes) == 1
-    expect_simple_route = [["0xa", "0xb"], ["0xb", "0xc"], ["0xc", "0xa"]]
-    assert len(routes[0]) == len(expect_simple_route)
-    for i in range(len(expect_simple_route)):
-        assert expect_simple_route[i][0] == routes[0][i].token_in_address
-        assert expect_simple_route[i][1] == routes[0][i].token_out_address
+    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+    expected_smallest_route = [["0xa", "0xb"], ["0xb", "0xc"], ["0xc", "0xa"]]
+
+    assert route is not None
+    assert len(route) == len(expected_smallest_route)
+    for i, [expected_token_in, expected_token_out] in enumerate(
+        expected_smallest_route
+    ):
+        assert expected_token_in == route[i].token_in_address
+        assert expected_token_out == route[i].token_out_address
 
     # A->B, B->C, C->D, D->A, B->D
     end_swap = create_generic_swap("0xd", "0xa")
@@ -212,8 +219,15 @@ def test_get_all_routes():
         create_generic_swap("0xc", "0xd"),
         create_generic_swap("0xb", "0xd"),
     ]
-    routes = _get_all_routes(start_swap, end_swap, other_swaps)
-    assert len(routes) == 2
+    expected_smallest_route = [["0xa", "0xb"], ["0xb", "0xd"], ["0xd", "0xa"]]
+    route = _get_shortest_route(start_swap, [end_swap], other_swaps)
+    assert len(route) == 3
+
+    for i, [expected_token_in, expected_token_out] in enumerate(
+        expected_smallest_route
+    ):
+        assert expected_token_in == route[i].token_in_address
+        assert expected_token_out == route[i].token_out_address
 
 
 def create_generic_swap(
