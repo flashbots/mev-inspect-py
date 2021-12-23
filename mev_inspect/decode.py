@@ -38,7 +38,7 @@ class ABIDecoder:
 
         try:
             decoded = decode_abi(types, hexstr_to_bytes(params))
-        except (InsufficientDataBytes, NonEmptyPaddingBytes):
+        except (InsufficientDataBytes, NonEmptyPaddingBytes, OverflowError):
             return None
 
         return CallData(
