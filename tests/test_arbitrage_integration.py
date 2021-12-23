@@ -67,7 +67,7 @@ def test_reverting_arbitrage(trace_classifier: TraceClassifier):
     assert len(swaps) == 38
 
     arbitrages = get_arbitrages(list(swaps))
-    assert len(arbitrages) == 21
+    assert len(arbitrages) == 4
 
     arbitrage_1 = [
         arb
