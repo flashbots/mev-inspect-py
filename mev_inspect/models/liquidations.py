@@ -16,3 +16,4 @@ class LiquidationModel(Base):
     transaction_hash = Column(String, primary_key=True)
     trace_address = Column(ARRAY(Integer), primary_key=True)
     block_number = Column(Numeric, nullable=False)
+    error = Column(String, nullable=True)

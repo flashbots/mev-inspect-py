@@ -75,8 +75,9 @@ class MEVInspector:
         except CancelledError:
             logger.info("Requested to exit, cleaning up...")
         except Exception as e:
-            logger.error(f"Existed due to {type(e)}")
+            logger.error(f"Exited due to {type(e)}")
             traceback.print_exc()
+            raise
 
     async def safe_inspect_many_blocks(
         self,
