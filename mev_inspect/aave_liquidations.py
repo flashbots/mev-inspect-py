@@ -70,6 +70,7 @@ def get_aave_liquidations(
                     transaction_hash=trace.transaction_hash,
                     trace_address=trace.trace_address,
                     block_number=trace.block_number,
+                    error=trace.error,
                 )
             )
 
