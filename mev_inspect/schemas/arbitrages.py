@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -14,3 +14,4 @@ class Arbitrage(BaseModel):
     start_amount: int
     end_amount: int
     profit_amount: int
+    error: Optional[str]

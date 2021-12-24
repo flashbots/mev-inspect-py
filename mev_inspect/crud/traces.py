@@ -4,15 +4,19 @@ from typing import List
 from mev_inspect.models.traces import ClassifiedTraceModel
 from mev_inspect.schemas.traces import ClassifiedTrace
 
+from .shared import delete_by_block_range
 
-def delete_classified_traces_for_block(
+
+def delete_classified_traces_for_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
-    (
-        db_session.query(ClassifiedTraceModel)
-        .filter(ClassifiedTraceModel.block_number == block_number)
-        .delete()
+    delete_by_block_range(
+        db_session,
+        ClassifiedTraceModel,
+        after_block_number,
+        before_block_number,
     )
 
     db_session.commit()

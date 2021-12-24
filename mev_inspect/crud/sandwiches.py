@@ -4,17 +4,20 @@ from uuid import uuid4
 from mev_inspect.models.sandwiches import SandwichModel
 from mev_inspect.schemas.sandwiches import Sandwich
 
+from .shared import delete_by_block_range
 
-def delete_sandwiches_for_block(
+
+def delete_sandwiches_for_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
-    (
-        db_session.query(SandwichModel)
-        .filter(SandwichModel.block_number == block_number)
-        .delete()
+    delete_by_block_range(
+        db_session,
+        SandwichModel,
+        after_block_number,
+        before_block_number,
     )
-
     db_session.commit()
 
 

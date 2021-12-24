@@ -16,3 +16,4 @@ class Liquidation(BaseModel):
     transaction_hash: str
     trace_address: List[int]
     block_number: str
+    error: Optional[str]

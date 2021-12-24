@@ -10,17 +10,20 @@ from mev_inspect.schemas.punk_accept_bid import PunkBidAcceptance
 from mev_inspect.schemas.punk_bid import PunkBid
 from mev_inspect.schemas.punk_snipe import PunkSnipe
 
+from .shared import delete_by_block_range
 
-def delete_punk_bid_acceptances_for_block(
+
+def delete_punk_bid_acceptances_for_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
-    (
-        db_session.query(PunkBidAcceptanceModel)
-        .filter(PunkBidAcceptanceModel.block_number == block_number)
-        .delete()
+    delete_by_block_range(
+        db_session,
+        PunkBidAcceptanceModel,
+        after_block_number,
+        before_block_number,
     )
-
     db_session.commit()
 
 
@@ -37,16 +40,17 @@ def write_punk_bid_acceptances(
     db_session.commit()
 
 
-def delete_punk_bids_for_block(
+def delete_punk_bids_for_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
-    (
-        db_session.query(PunkBidModel)
-        .filter(PunkBidModel.block_number == block_number)
-        .delete()
+    delete_by_block_range(
+        db_session,
+        PunkBidModel,
+        after_block_number,
+        before_block_number,
     )
-
     db_session.commit()
 
 
@@ -60,16 +64,17 @@ def write_punk_bids(
     db_session.commit()
 
 
-def delete_punk_snipes_for_block(
+def delete_punk_snipes_for_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
-    (
-        db_session.query(PunkSnipeModel)
-        .filter(PunkSnipeModel.block_number == block_number)
-        .delete()
+    delete_by_block_range(
+        db_session,
+        PunkSnipeModel,
+        after_block_number,
+        before_block_number,
     )
-
     db_session.commit()
 
 

@@ -4,10 +4,13 @@ from mev_inspect.classifiers.specs.weth import WETH_ADDRESS
 from mev_inspect.schemas.coinbase import CoinbasePrices, CoinbasePricesResponse
 from mev_inspect.schemas.prices import (
     AAVE_TOKEN_ADDRESS,
+    CDAI_TOKEN_ADDRESS,
+    CUSDC_TOKEN_ADDRESS,
+    DAI_TOKEN_ADDRESS,
     LINK_TOKEN_ADDRESS,
     REN_TOKEN_ADDRESS,
     UNI_TOKEN_ADDRESS,
-    USDC_TOKEN_ADDRESS_ADDRESS,
+    USDC_TOKEN_ADDRESS,
     WBTC_TOKEN_ADDRESS,
     YEARN_TOKEN_ADDRESS,
 )
@@ -22,8 +25,11 @@ COINBASE_TOKEN_NAME_BY_ADDRESS = {
     YEARN_TOKEN_ADDRESS: "yearn-finance",
     AAVE_TOKEN_ADDRESS: "aave",
     UNI_TOKEN_ADDRESS: "uniswap",
-    USDC_TOKEN_ADDRESS_ADDRESS: "usdc",
+    USDC_TOKEN_ADDRESS: "usdc",
+    DAI_TOKEN_ADDRESS: "dai",
     REN_TOKEN_ADDRESS: "ren",
+    CUSDC_TOKEN_ADDRESS: "compound-usd-coin",
+    CDAI_TOKEN_ADDRESS: "compound-dai",
 }
 
 

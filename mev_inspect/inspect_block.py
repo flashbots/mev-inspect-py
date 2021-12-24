@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import orm
 from web3 import Web3
@@ -7,37 +7,49 @@ from web3 import Web3
 from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.crud.arbitrages import delete_arbitrages_for_block, write_arbitrages
-from mev_inspect.crud.blocks import delete_block, write_block
+from mev_inspect.crud.arbitrages import delete_arbitrages_for_blocks, write_arbitrages
+from mev_inspect.crud.blocks import delete_blocks, write_block
 from mev_inspect.crud.liquidations import (
-    delete_liquidations_for_block,
+    delete_liquidations_for_blocks,
     write_liquidations,
 )
 from mev_inspect.crud.miner_payments import (
-    delete_miner_payments_for_block,
+    delete_miner_payments_for_blocks,
     write_miner_payments,
 )
-from mev_inspect.crud.nft_trades import delete_nft_trades_for_block, write_nft_trades
+from mev_inspect.crud.nft_trades import delete_nft_trades_for_blocks, write_nft_trades
 from mev_inspect.crud.punks import (
-    delete_punk_bid_acceptances_for_block,
-    delete_punk_bids_for_block,
-    delete_punk_snipes_for_block,
+    delete_punk_bid_acceptances_for_blocks,
+    delete_punk_bids_for_blocks,
+    delete_punk_snipes_for_blocks,
     write_punk_bid_acceptances,
     write_punk_bids,
     write_punk_snipes,
 )
-from mev_inspect.crud.sandwiches import delete_sandwiches_for_block, write_sandwiches
-from mev_inspect.crud.swaps import delete_swaps_for_block, write_swaps
+from mev_inspect.crud.sandwiches import delete_sandwiches_for_blocks, write_sandwiches
+from mev_inspect.crud.swaps import delete_swaps_for_blocks, write_swaps
 from mev_inspect.crud.traces import (
-    delete_classified_traces_for_block,
+    delete_classified_traces_for_blocks,
     write_classified_traces,
 )
-from mev_inspect.crud.transfers import delete_transfers_for_block, write_transfers
+from mev_inspect.crud.transfers import delete_transfers_for_blocks, write_transfers
 from mev_inspect.liquidations import get_liquidations
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.nft_trades import get_nft_trades
 from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_snipes
 from mev_inspect.sandwiches import get_sandwiches
+from mev_inspect.schemas.arbitrages import Arbitrage
+from mev_inspect.schemas.blocks import Block
+from mev_inspect.schemas.liquidations import Liquidation
+from mev_inspect.schemas.miner_payments import MinerPayment
+from mev_inspect.schemas.nft_trades import NftTrade
+from mev_inspect.schemas.punk_accept_bid import PunkBidAcceptance
+from mev_inspect.schemas.punk_bid import PunkBid
+from mev_inspect.schemas.punk_snipe import PunkSnipe
+from mev_inspect.schemas.sandwiches import Sandwich
+from mev_inspect.schemas.swaps import Swap
+from mev_inspect.schemas.traces import ClassifiedTrace
+from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
 
@@ -53,85 +65,166 @@ async def inspect_block(
     trace_db_session: Optional[orm.Session],
     should_write_classified_traces: bool = True,
 ):
-    block = await create_from_block_number(
+    await inspect_many_blocks(
+        inspect_db_session,
         base_provider,
         w3,
+        trace_classifier,
         block_number,
+        block_number + 1,
         trace_db_session,
+        should_write_classified_traces,
     )
 
-    logger.info(f"Block: {block_number} -- Total traces: {len(block.traces)}")
 
-    delete_block(inspect_db_session, block_number)
+async def inspect_many_blocks(
+    inspect_db_session: orm.Session,
+    base_provider,
+    w3: Web3,
+    trace_classifier: TraceClassifier,
+    after_block_number: int,
+    before_block_number: int,
+    trace_db_session: Optional[orm.Session],
+    should_write_classified_traces: bool = True,
+):
+    all_blocks: List[Block] = []
+    all_classified_traces: List[ClassifiedTrace] = []
+    all_transfers: List[Transfer] = []
+    all_swaps: List[Swap] = []
+    all_arbitrages: List[Arbitrage] = []
+    all_liqudations: List[Liquidation] = []
+    all_sandwiches: List[Sandwich] = []
+
+    all_punk_bids: List[PunkBid] = []
+    all_punk_bid_acceptances: List[PunkBidAcceptance] = []
+    all_punk_snipes: List[PunkSnipe] = []
+
+    all_miner_payments: List[MinerPayment] = []
+
+    all_nft_trades: List[NftTrade] = []
+
+    for block_number in range(after_block_number, before_block_number):
+        block = await create_from_block_number(
+            base_provider,
+            w3,
+            block_number,
+            trace_db_session,
+        )
+
+        logger.info(f"Block: {block_number} -- Total traces: {len(block.traces)}")
+
+        total_transactions = len(
+            set(
+                t.transaction_hash
+                for t in block.traces
+                if t.transaction_hash is not None
+            )
+        )
+        logger.info(
+            f"Block: {block_number} -- Total transactions: {total_transactions}"
+        )
+
+        classified_traces = trace_classifier.classify(block.traces)
+        logger.info(
+            f"Block: {block_number} -- Returned {len(classified_traces)} classified traces"
+        )
+
+        transfers = get_transfers(classified_traces)
+        logger.info(f"Block: {block_number} -- Found {len(transfers)} transfers")
+
+        swaps = get_swaps(classified_traces)
+        logger.info(f"Block: {block_number} -- Found {len(swaps)} swaps")
+
+        arbitrages = get_arbitrages(swaps)
+        logger.info(f"Block: {block_number} -- Found {len(arbitrages)} arbitrages")
+
+        liquidations = get_liquidations(classified_traces)
+        logger.info(f"Block: {block_number} -- Found {len(liquidations)} liquidations")
+
+        sandwiches = get_sandwiches(swaps)
+        logger.info(f"Block: {block_number} -- Found {len(sandwiches)} sandwiches")
+
+        punk_bids = get_punk_bids(classified_traces)
+        punk_bid_acceptances = get_punk_bid_acceptances(classified_traces)
+        punk_snipes = get_punk_snipes(punk_bids, punk_bid_acceptances)
+        logger.info(f"Block: {block_number} -- Found {len(punk_snipes)} punk snipes")
+
+        nft_trades = get_nft_trades(classified_traces)
+        logger.info(f"Block: {block_number} -- Found {len(nft_trades)} nft trades")
+
+        miner_payments = get_miner_payments(
+            block.miner, block.base_fee_per_gas, classified_traces, block.receipts
+        )
+
+        all_blocks.append(block)
+        all_classified_traces.extend(classified_traces)
+        all_transfers.extend(transfers)
+        all_swaps.extend(swaps)
+        all_arbitrages.extend(arbitrages)
+        all_liqudations.extend(liquidations)
+        all_sandwiches.extend(sandwiches)
+
+        all_punk_bids.extend(punk_bids)
+        all_punk_bid_acceptances.extend(punk_bid_acceptances)
+        all_punk_snipes.extend(punk_snipes)
+
+        all_nft_trades.extend(nft_trades)
+
+        all_miner_payments.extend(miner_payments)
+
+    delete_blocks(inspect_db_session, after_block_number, before_block_number)
     write_block(inspect_db_session, block)
 
-    total_transactions = len(
-        set(t.transaction_hash for t in block.traces if t.transaction_hash is not None)
-    )
-    logger.info(f"Block: {block_number} -- Total transactions: {total_transactions}")
-
-    classified_traces = trace_classifier.classify(block.traces)
-    logger.info(
-        f"Block: {block_number} -- Returned {len(classified_traces)} classified traces"
-    )
-
     if should_write_classified_traces:
-        delete_classified_traces_for_block(inspect_db_session, block_number)
+        delete_classified_traces_for_blocks(
+            inspect_db_session, after_block_number, before_block_number
+        )
         write_classified_traces(inspect_db_session, classified_traces)
 
-    transfers = get_transfers(classified_traces)
-    logger.info(f"Block: {block_number} -- Found {len(transfers)} transfers")
-
-    delete_transfers_for_block(inspect_db_session, block_number)
+    delete_transfers_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
     write_transfers(inspect_db_session, transfers)
 
-    swaps = get_swaps(classified_traces)
-    logger.info(f"Block: {block_number} -- Found {len(swaps)} swaps")
-
-    delete_swaps_for_block(inspect_db_session, block_number)
+    delete_swaps_for_blocks(inspect_db_session, after_block_number, before_block_number)
     write_swaps(inspect_db_session, swaps)
 
-    arbitrages = get_arbitrages(swaps)
-    logger.info(f"Block: {block_number} -- Found {len(arbitrages)} arbitrages")
-
-    delete_arbitrages_for_block(inspect_db_session, block_number)
+    delete_arbitrages_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
     write_arbitrages(inspect_db_session, arbitrages)
 
-    liquidations = get_liquidations(classified_traces)
-    logger.info(f"Block: {block_number} -- Found {len(liquidations)} liquidations")
-
-    delete_liquidations_for_block(inspect_db_session, block_number)
+    delete_liquidations_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
     write_liquidations(inspect_db_session, liquidations)
 
-    sandwiches = get_sandwiches(swaps)
-    logger.info(f"Block: {block_number} -- Found {len(sandwiches)} sandwiches")
-
-    delete_sandwiches_for_block(inspect_db_session, block_number)
+    delete_sandwiches_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
     write_sandwiches(inspect_db_session, sandwiches)
 
-    punk_bids = get_punk_bids(classified_traces)
-    delete_punk_bids_for_block(inspect_db_session, block_number)
+    delete_punk_bids_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
     write_punk_bids(inspect_db_session, punk_bids)
 
-    punk_bid_acceptances = get_punk_bid_acceptances(classified_traces)
-    delete_punk_bid_acceptances_for_block(inspect_db_session, block_number)
+    delete_punk_bid_acceptances_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
     write_punk_bid_acceptances(inspect_db_session, punk_bid_acceptances)
 
-    punk_snipes = get_punk_snipes(punk_bids, punk_bid_acceptances)
-    logger.info(f"Block: {block_number} -- Found {len(punk_snipes)} punk snipes")
-
-    delete_punk_snipes_for_block(inspect_db_session, block_number)
+    delete_punk_snipes_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
     write_punk_snipes(inspect_db_session, punk_snipes)
 
-    nft_trades = get_nft_trades(classified_traces)
-    logger.info(f"Block: {block_number} -- Found {len(nft_trades)} nft trades")
-
-    delete_nft_trades_for_block(inspect_db_session, block_number)
+    delete_nft_trades_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
     write_nft_trades(inspect_db_session, nft_trades)
 
-    miner_payments = get_miner_payments(
-        block.miner, block.base_fee_per_gas, classified_traces, block.receipts
+    delete_miner_payments_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
     )
-
-    delete_miner_payments_for_block(inspect_db_session, block_number)
     write_miner_payments(inspect_db_session, miner_payments)

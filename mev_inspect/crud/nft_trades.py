@@ -1,20 +1,22 @@
 import json
 from typing import List
 
+from mev_inspect.crud.shared import delete_by_block_range
 from mev_inspect.models.nft_trades import NftTradeModel
 from mev_inspect.schemas.nft_trades import NftTrade
 
 
-def delete_nft_trades_for_block(
+def delete_nft_trades_for_blocks(
     db_session,
-    block_number: int,
+    after_block_number: int,
+    before_block_number: int,
 ) -> None:
-    (
-        db_session.query(NftTradeModel)
-        .filter(NftTradeModel.block_number == block_number)
-        .delete()
+    delete_by_block_range(
+        db_session,
+        NftTradeModel,
+        after_block_number,
+        before_block_number,
     )
-
     db_session.commit()
 
 

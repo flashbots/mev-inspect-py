@@ -14,3 +14,4 @@ class ArbitrageModel(Base):
     start_amount = Column(Numeric, nullable=False)
     end_amount = Column(Numeric, nullable=False)
     profit_amount = Column(Numeric, nullable=False)
+    error = Column(String, nullable=True)

@@ -23,6 +23,7 @@ case "$1" in
   stop)
         echo -n "Stopping daemon: "$NAME
 	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+    rm $PIDFILE
         echo "."
 	;;
   tail)
@@ -31,6 +32,7 @@ case "$1" in
   restart)
         echo -n "Restarting daemon: "$NAME
 	start-stop-daemon --stop --quiet --oknodo --retry 30 --pidfile $PIDFILE
+    rm $PIDFILE
 	start-stop-daemon \
         --background \
         --chdir /app \
