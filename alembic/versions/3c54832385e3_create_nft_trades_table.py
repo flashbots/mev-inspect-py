@@ -28,7 +28,7 @@ def upgrade():
         sa.Column("error", sa.String(256), nullable=True),
         sa.Column("seller_address", sa.String(256), nullable=False),
         sa.Column("buyer_address", sa.String(256), nullable=False),
-        sa.Column("payment_token", sa.String(256), nullable=False),
+        sa.Column("payment_token_address", sa.String(256), nullable=False),
         sa.Column("payment_amount", sa.Numeric, nullable=False),
         sa.Column("collection_address", sa.String(256), nullable=False),
         sa.Column("token_id", sa.Numeric, nullable=False),

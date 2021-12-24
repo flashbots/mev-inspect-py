@@ -15,7 +15,7 @@ class NftTradeModel(Base):
     error = Column(String, nullable=True)
     seller_address = Column(String, nullable=False)
     buyer_address = Column(String, nullable=False)
-    payment_token = Column(String, nullable=False)
+    payment_token_address = Column(String, nullable=False)
     payment_amount = Column(Numeric, nullable=False)
     collection_address = Column(String, nullable=False)
     token_id = Column(Numeric, nullable=False)

@@ -15,7 +15,7 @@ class NftTrade(BaseModel):
     error: Optional[str]
     seller_address: str
     buyer_address: str
-    payment_token: str
+    payment_token_address: str
     payment_amount: int
     collection_address: str
     token_id: int
