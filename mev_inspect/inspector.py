@@ -11,9 +11,16 @@ from web3.eth import AsyncEth
 from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.inspect_block import inspect_block, inspect_many_blocks
+from mev_inspect.methods import get_block_receipts, trace_block
 from mev_inspect.provider import get_base_provider
 
 logger = logging.getLogger(__name__)
+
+
+# add missing parity methods
+# this is a bit gross
+AsyncEth.trace_block = trace_block
+AsyncEth.get_block_receipts = get_block_receipts
 
 
 class MEVInspector:
@@ -27,14 +34,15 @@ class MEVInspector:
     ):
         self.inspect_db_session = inspect_db_session
         self.trace_db_session = trace_db_session
-        self.base_provider = get_base_provider(rpc, request_timeout=request_timeout)
-        self.w3 = Web3(self.base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
+
+        base_provider = get_base_provider(rpc, request_timeout=request_timeout)
+        self.w3 = Web3(base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
+
         self.trace_classifier = TraceClassifier()
         self.max_concurrency = asyncio.Semaphore(max_concurrency)
 
     async def create_from_block(self, block_number: int):
         return await create_from_block_number(
-            base_provider=self.base_provider,
             w3=self.w3,
             block_number=block_number,
             trace_db_session=self.trace_db_session,
@@ -43,7 +51,6 @@ class MEVInspector:
     async def inspect_single_block(self, block: int):
         return await inspect_block(
             self.inspect_db_session,
-            self.base_provider,
             self.w3,
             self.trace_classifier,
             block,
@@ -87,7 +94,6 @@ class MEVInspector:
         async with self.max_concurrency:
             return await inspect_many_blocks(
                 self.inspect_db_session,
-                self.base_provider,
                 self.w3,
                 self.trace_classifier,
                 after_block_number,

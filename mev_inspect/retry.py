@@ -1,7 +1,7 @@
-import asyncio
 import logging
 import random
 from asyncio.exceptions import TimeoutError
+from time import sleep
 from typing import Any, Callable, Collection, Coroutine, Type
 
 from aiohttp.client_exceptions import (
@@ -49,13 +49,14 @@ async def exception_retry_with_backoff_middleware(
                     logger.error(
                         f"Request for method {method}, block: {int(params[0], 16)}, retrying: {i}/{retries}"
                     )
-                    if i < retries - 1:
+                    if i < (retries - 1):
                         backoff_time = backoff_time_seconds * (
                             random.uniform(5, 10) ** i
                         )
-                        await asyncio.sleep(backoff_time)
+                        # use blocking sleep to prevent new tries on
+                        # concurrent requests during sleep
+                        sleep(backoff_time)
                         continue
-
                     else:
                         raise
             return None
