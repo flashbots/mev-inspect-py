@@ -15,9 +15,7 @@ class OpenseaClassifier(NftTradeClassifier):
         trace: DecodedCallTrace,
         child_transfers: List[Transfer],
     ) -> Optional[NftTrade]:
-        addresses = trace.inputs.get("addrs")
-        if addresses is None:
-            return None
+        addresses = trace.inputs["addrs"]
         buy_maker = addresses[1]
         sell_maker = addresses[8]
         target = addresses[4]
