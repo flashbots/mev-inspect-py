@@ -8,7 +8,7 @@ from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.crud.arbitrages import delete_arbitrages_for_blocks, write_arbitrages
-from mev_inspect.crud.blocks import delete_blocks, write_block
+from mev_inspect.crud.blocks import delete_blocks, write_blocks
 from mev_inspect.crud.liquidations import (
     delete_liquidations_for_blocks,
     write_liquidations,
@@ -89,7 +89,7 @@ async def inspect_many_blocks(
     all_transfers: List[Transfer] = []
     all_swaps: List[Swap] = []
     all_arbitrages: List[Arbitrage] = []
-    all_liqudations: List[Liquidation] = []
+    all_liquidations: List[Liquidation] = []
     all_sandwiches: List[Sandwich] = []
 
     all_punk_bids: List[PunkBid] = []
@@ -153,7 +153,7 @@ async def inspect_many_blocks(
         all_transfers.extend(transfers)
         all_swaps.extend(swaps)
         all_arbitrages.extend(arbitrages)
-        all_liqudations.extend(liquidations)
+        all_liquidations.extend(liquidations)
         all_sandwiches.extend(sandwiches)
 
         all_punk_bids.extend(punk_bids)
@@ -163,53 +163,53 @@ async def inspect_many_blocks(
         all_miner_payments.extend(miner_payments)
 
     delete_blocks(inspect_db_session, after_block_number, before_block_number)
-    write_block(inspect_db_session, block)
+    write_blocks(inspect_db_session, all_blocks)
 
     if should_write_classified_traces:
         delete_classified_traces_for_blocks(
             inspect_db_session, after_block_number, before_block_number
         )
-        write_classified_traces(inspect_db_session, classified_traces)
+        write_classified_traces(inspect_db_session, all_classified_traces)
 
     delete_transfers_for_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
-    write_transfers(inspect_db_session, transfers)
+    write_transfers(inspect_db_session, all_transfers)
 
     delete_swaps_for_blocks(inspect_db_session, after_block_number, before_block_number)
-    write_swaps(inspect_db_session, swaps)
+    write_swaps(inspect_db_session, all_swaps)
 
     delete_arbitrages_for_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
-    write_arbitrages(inspect_db_session, arbitrages)
+    write_arbitrages(inspect_db_session, all_arbitrages)
 
     delete_liquidations_for_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
-    write_liquidations(inspect_db_session, liquidations)
+    write_liquidations(inspect_db_session, all_liquidations)
 
     delete_sandwiches_for_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
-    write_sandwiches(inspect_db_session, sandwiches)
+    write_sandwiches(inspect_db_session, all_sandwiches)
 
     delete_punk_bids_for_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
-    write_punk_bids(inspect_db_session, punk_bids)
+    write_punk_bids(inspect_db_session, all_punk_bids)
 
     delete_punk_bid_acceptances_for_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
-    write_punk_bid_acceptances(inspect_db_session, punk_bid_acceptances)
+    write_punk_bid_acceptances(inspect_db_session, all_punk_bid_acceptances)
 
     delete_punk_snipes_for_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
-    write_punk_snipes(inspect_db_session, punk_snipes)
+    write_punk_snipes(inspect_db_session, all_punk_snipes)
 
     delete_miner_payments_for_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
-    write_miner_payments(inspect_db_session, miner_payments)
+    write_miner_payments(inspect_db_session, all_miner_payments)
