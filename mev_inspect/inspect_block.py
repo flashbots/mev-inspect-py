@@ -222,7 +222,7 @@ async def inspect_many_blocks(
     delete_nft_trades_for_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
-    write_nft_trades(inspect_db_session, nft_trades)
+    write_nft_trades(inspect_db_session, all_nft_trades)
 
     delete_miner_payments_for_blocks(
         inspect_db_session, after_block_number, before_block_number

@@ -1,7 +1,7 @@
 """Create NFT Trades table
 
 Revision ID: 3c54832385e3
-Revises: 15ba9c27ee8a
+Revises: 4b9d289f2d74
 Create Date: 2021-12-19 22:50:28.936516
 
 """
@@ -10,7 +10,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "3c54832385e3"
-down_revision = "15ba9c27ee8a"
+down_revision = "4b9d289f2d74"
 branch_labels = None
 depends_on = None
 
