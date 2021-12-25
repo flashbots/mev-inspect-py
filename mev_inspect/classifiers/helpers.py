@@ -1,8 +1,64 @@
 from typing import List, Optional, Sequence
 
+from mev_inspect.schemas.nft_trades import NftTrade
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import ClassifiedTrace, DecodedCallTrace
 from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS, Transfer
+
+
+def create_nft_trade_from_transfers(
+    trace: DecodedCallTrace,
+    child_transfers: List[Transfer],
+    collection_address: str,
+    seller_address: str,
+    buyer_address: str,
+    exchange_wallet_address: str,
+) -> Optional[NftTrade]:
+    transfers_to_buyer = _filter_transfers(child_transfers, to_address=buyer_address)
+    transfers_to_seller = _filter_transfers(child_transfers, to_address=seller_address)
+
+    if len(transfers_to_buyer) != 1 or len(transfers_to_seller) != 1:
+        return None
+
+    if transfers_to_buyer[0].token_address != collection_address:
+        return None
+
+    payment_token_address = transfers_to_seller[0].token_address
+    payment_amount = transfers_to_seller[0].amount
+    token_id = transfers_to_buyer[0].amount
+
+    transfers_from_seller_to_exchange = _filter_transfers(
+        child_transfers,
+        from_address=seller_address,
+        to_address=exchange_wallet_address,
+    )
+    transfers_from_buyer_to_exchange = _filter_transfers(
+        child_transfers,
+        from_address=buyer_address,
+        to_address=exchange_wallet_address,
+    )
+    for fee in [
+        *transfers_from_seller_to_exchange,
+        *transfers_from_buyer_to_exchange,
+    ]:
+        # Assumes that exchange fees are paid with the same token as the sale
+        payment_amount -= fee.amount
+
+    return NftTrade(
+        abi_name=trace.abi_name,
+        transaction_hash=trace.transaction_hash,
+        transaction_position=trace.transaction_position,
+        block_number=trace.block_number,
+        trace_address=trace.trace_address,
+        protocol=trace.protocol,
+        error=trace.error,
+        seller_address=seller_address,
+        buyer_address=buyer_address,
+        payment_token_address=payment_token_address,
+        payment_amount=payment_amount,
+        collection_address=collection_address,
+        token_id=token_id,
+    )
 
 
 def create_swap_from_pool_transfers(

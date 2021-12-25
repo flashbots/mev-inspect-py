@@ -33,6 +33,7 @@ class Classification(Enum):
     seize = "seize"
     punk_bid = "punk_bid"
     punk_accept_bid = "punk_accept_bid"
+    nft_trade = "nft_trade"
 
 
 class Protocol(Enum):
@@ -48,6 +49,7 @@ class Protocol(Enum):
     cream = "cream"
     cryptopunks = "cryptopunks"
     bancor = "bancor"
+    opensea = "opensea"
 
 
 class ClassifiedTrace(Trace):

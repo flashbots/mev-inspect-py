@@ -17,6 +17,7 @@ from mev_inspect.crud.miner_payments import (
     delete_miner_payments_for_blocks,
     write_miner_payments,
 )
+from mev_inspect.crud.nft_trades import delete_nft_trades_for_blocks, write_nft_trades
 from mev_inspect.crud.punks import (
     delete_punk_bid_acceptances_for_blocks,
     delete_punk_bids_for_blocks,
@@ -34,12 +35,14 @@ from mev_inspect.crud.traces import (
 from mev_inspect.crud.transfers import delete_transfers_for_blocks, write_transfers
 from mev_inspect.liquidations import get_liquidations
 from mev_inspect.miner_payments import get_miner_payments
+from mev_inspect.nft_trades import get_nft_trades
 from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_snipes
 from mev_inspect.sandwiches import get_sandwiches
 from mev_inspect.schemas.arbitrages import Arbitrage
 from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.miner_payments import MinerPayment
+from mev_inspect.schemas.nft_trades import NftTrade
 from mev_inspect.schemas.punk_accept_bid import PunkBidAcceptance
 from mev_inspect.schemas.punk_bid import PunkBid
 from mev_inspect.schemas.punk_snipe import PunkSnipe
@@ -98,6 +101,8 @@ async def inspect_many_blocks(
 
     all_miner_payments: List[MinerPayment] = []
 
+    all_nft_trades: List[NftTrade] = []
+
     for block_number in range(after_block_number, before_block_number):
         block = await create_from_block_number(
             base_provider,
@@ -144,6 +149,9 @@ async def inspect_many_blocks(
         punk_snipes = get_punk_snipes(punk_bids, punk_bid_acceptances)
         logger.info(f"Block: {block_number} -- Found {len(punk_snipes)} punk snipes")
 
+        nft_trades = get_nft_trades(classified_traces)
+        logger.info(f"Block: {block_number} -- Found {len(nft_trades)} nft trades")
+
         miner_payments = get_miner_payments(
             block.miner, block.base_fee_per_gas, classified_traces, block.receipts
         )
@@ -159,6 +167,8 @@ async def inspect_many_blocks(
         all_punk_bids.extend(punk_bids)
         all_punk_bid_acceptances.extend(punk_bid_acceptances)
         all_punk_snipes.extend(punk_snipes)
+
+        all_nft_trades.extend(nft_trades)
 
         all_miner_payments.extend(miner_payments)
 
@@ -208,6 +218,11 @@ async def inspect_many_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
     write_punk_snipes(inspect_db_session, punk_snipes)
+
+    delete_nft_trades_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
+    write_nft_trades(inspect_db_session, all_nft_trades)
 
     delete_miner_payments_for_blocks(
         inspect_db_session, after_block_number, before_block_number
