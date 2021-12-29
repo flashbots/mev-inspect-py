@@ -79,20 +79,22 @@ def _find_block(
     block_number: int,
 ) -> Optional[Block]:
     block_timestamp = _find_block_timestamp(trace_db_session, block_number)
-    traces = _find_traces(trace_db_session, block_number)
-    receipts = _find_receipts(trace_db_session, block_number)
-    base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
+    if block_timestamp is None:
+        return None
 
-    if (
-        block_timestamp is None
-        or traces is None
-        or receipts is None
-        or base_fee_per_gas is None
-    ):
+    base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
+    if base_fee_per_gas is None:
+        return None
+
+    traces = _find_traces(trace_db_session, block_number)
+    if traces is None:
+        return None
+
+    receipts = _find_receipts(trace_db_session, block_number)
+    if receipts is None:
         return None
 
     miner_address = _get_miner_address_from_traces(traces)
-
     if miner_address is None:
         return None
 
