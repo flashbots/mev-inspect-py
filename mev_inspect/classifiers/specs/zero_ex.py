@@ -25,6 +25,8 @@ class ZeroExSwapClassifier(SwapClassifier):
         prior_transfers: List[Transfer],
         child_transfers: List[Transfer],
     ) -> Optional[Swap]:
+        if len(child_transfers) < 2:
+            return None
 
         token_in_address, token_in_amount = _get_0x_token_in_data(
             trace, child_transfers
