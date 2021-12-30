@@ -24,7 +24,6 @@ async def get_latest_block_number(base_provider) -> int:
 
 
 async def create_from_block_number(
-    base_provider,
     w3: Web3,
     block_number: int,
     trace_db_session: Optional[orm.Session],
@@ -35,34 +34,22 @@ async def create_from_block_number(
         block = _find_block(trace_db_session, block_number)
 
     if block is None:
-        block = await _fetch_block(w3, base_provider, block_number)
+        block = await _fetch_block(w3, block_number)
         return block
     else:
         return block
 
 
-async def _fetch_block(w3, base_provider, block_number: int, retries: int = 0) -> Block:
+async def _fetch_block(w3, block_number: int) -> Block:
     block_json, receipts_json, traces_json, base_fee_per_gas = await asyncio.gather(
         w3.eth.get_block(block_number),
-        base_provider.make_request("eth_getBlockReceipts", [block_number]),
-        base_provider.make_request("trace_block", [block_number]),
+        w3.eth.get_block_receipts(block_number),
+        w3.eth.trace_block(block_number),
         fetch_base_fee_per_gas(w3, block_number),
     )
 
-    try:
-        receipts: List[Receipt] = [
-            Receipt(**receipt) for receipt in receipts_json["result"]
-        ]
-        traces = [Trace(**trace_json) for trace_json in traces_json["result"]]
-    except KeyError as e:
-        logger.warning(
-            f"Failed to create objects from block: {block_number}: {e}, retrying: {retries + 1} / 3"
-        )
-        if retries < 3:
-            await asyncio.sleep(5)
-            return await _fetch_block(w3, base_provider, block_number, retries)
-        else:
-            raise
+    receipts: List[Receipt] = [Receipt(**receipt) for receipt in receipts_json]
+    traces = [Trace(**trace_json) for trace_json in traces_json]
 
     return Block(
         block_number=block_number,
