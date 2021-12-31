@@ -45,10 +45,9 @@ case "$1" in
   backfill)
         start_block_number=$2
         end_block_number=$3
-        n_workers=$4
 
-        echo "Backfilling from $start_block_number to $end_block_number with $n_workers workers"
-        poetry run python backfill.py $start_block_number $end_block_number $n_workers
+        echo "Backfilling from $start_block_number to $end_block_number"
+        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-blocks $start_block_number $end_block_number
 	;;
   inspect)
         block_number=$2

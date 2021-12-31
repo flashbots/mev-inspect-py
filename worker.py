@@ -36,10 +36,10 @@ dramatiq.set_broker(broker)
 @contextmanager
 def session_scope(Session=None):
     if Session is None:
-        return None
-
-    with Session() as session:
-        yield session
+        yield None
+    else:
+        with Session() as session:
+            yield session
 
 
 @dramatiq.actor

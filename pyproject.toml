@@ -35,6 +35,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 inspect-block = 'cli:inspect_block_command'
 inspect-many-blocks = 'cli:inspect_many_blocks_command'
+enqueue-many-blocks = 'cli:enqueue_many_blocks_command'
 fetch-block = 'cli:fetch_block_command'
 fetch-all-prices = 'cli:fetch_all_prices'
 
