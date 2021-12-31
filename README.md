@@ -133,14 +133,30 @@ To see progress and failed batches, connect to Redis with
 ./mev redis
 ```
 
-then query keys keys and values using the [spec shared by dramatiq](https://github.com/Bogdanp/dramatiq/blob/24cbc0dc551797783f41b08ea461e1b5d23a4058/dramatiq/brokers/redis/dispatch.lua#L24-L43)
-
-To watch the logs for a given pod, take its pod name using the above, then run:
+For total messages, query:
 ```
-kubectl logs -f pod/mev-inspect-backfill-abcdefg
+HLEN dramatiq:default.msgs
 ```
 
-(where `mev-inspect-backfill-abcdefg` is your actual pod name)
+For messages failed and waiting to retry in the delay queue (DQ), query:
+```
+HGETALL dramatiq:default.DQ.msgs
+```
+
+For messages permanently failed in the dead letter queue (XQ), query:
+```
+HGETALL dramatiq:default.XQ.msgs
+```
+
+For more information on queues, see the [spec shared by dramatiq](https://github.com/Bogdanp/dramatiq/blob/24cbc0dc551797783f41b08ea461e1b5d23a4058/dramatiq/brokers/redis/dispatch.lua#L24-L43)
+
+
+To watch the logs for a given worker pod, take its pod name using the above, then run:
+```
+kubectl logs -f pod/mev-inspect-worker-abcdefg
+```
+
+(where `mev-inspect-worker-abcdefg` is your actual pod name)
 
 
 ### Exploring
