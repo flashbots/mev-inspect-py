@@ -128,6 +128,13 @@ You can see worker pods spin up then complete by watching the status of all pods
 watch kubectl get pods
 ```
 
+To see progress and failed batches, connect to Redis with
+```
+./mev redis
+```
+
+then query keys keys and values using the [spec shared by dramatiq](https://github.com/Bogdanp/dramatiq/blob/24cbc0dc551797783f41b08ea461e1b5d23a4058/dramatiq/brokers/redis/dispatch.lua#L24-L43)
+
 To watch the logs for a given pod, take its pod name using the above, then run:
 ```
 kubectl logs -f pod/mev-inspect-backfill-abcdefg

@@ -23,6 +23,16 @@ function db(){
         -- $DB_NAME --host=$host --user=$username
 }
 
+function redis(){
+    echo "To continue, enter 'shift + r'"
+    redis_password=$(get_kube_secret "redis" "redis-password")
+    kubectl run -i --rm --tty \
+        --namespace default redis-client-$RANDOM \
+        --env REDIS_PASSWORD=$redis_password \
+        --image docker.io/bitnami/redis:6.2.6-debian-10-r0 \
+        --command -- redis-cli -h redis-master -a $redis_password
+}
+
 case "$1" in
   db)
         echo "Connecting to $DB_NAME"
@@ -30,13 +40,7 @@ case "$1" in
 	;;
   redis)
         echo "Connecting to redis"
-        echo "To continue enter 'shift + r'"
-        redis_password=$(get_kube_secret "redis" "redis-password")
-        kubectl run -i --rm --tty \
-            --namespace default redis-client-$RANDOM \
-            --env REDIS_PASSWORD=$redis_password \
-            --image docker.io/bitnami/redis:6.2.6-debian-10-r0 \
-            --command -- redis-cli -h redis-master -a $redis_password
+        redis
     ;;
   listener)
         kubectl exec -ti deploy/mev-inspect -- ./listener $2
