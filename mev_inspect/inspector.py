@@ -76,7 +76,7 @@ class MEVInspector:
                     )
                 )
             )
-        logger.info(f"Gathered {len(tasks)} blocks to inspect")
+        logger.info(f"Gathered {before_block-after_block} blocks to inspect")
         try:
             await asyncio.gather(*tasks)
         except CancelledError:
