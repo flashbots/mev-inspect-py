@@ -103,11 +103,24 @@ And stop the listener with:
 
 ### Backfilling
 
-For larger backfills, you can inspect many blocks in parallel using kubernetes
+For larger backfills, you can inspect many blocks in parallel
 
-To inspect blocks 12914944 to 12915044 divided across 10 worker pods:
+To inspect blocks 12914944 to 12915044, run
 ```
-./mev backfill 12914944 12915044 10
+./mev backfill 12914944 12915044
+```
+
+This queues the blocks in Redis to be pulled off by the mev-inspect-worker service
+
+To increase or decrease parallelism, update the replicaCount value for the mev-inspect-workers helm chart
+
+Locally, this can be done by editing Tiltfile and changing "replicaCount=1" to your desired parallelism:
+```
+k8s_yaml(helm(
+    './k8s/mev-inspect-workers',
+    name='mev-inspect-workers',
+    set=["replicaCount=1"],
+))
 ```
 
 You can see worker pods spin up then complete by watching the status of all pods

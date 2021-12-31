@@ -47,7 +47,11 @@ k8s_resource(
     resource_deps=["postgresql-postgresql", "redis-master"],
 )
 
-k8s_yaml(helm('./k8s/mev-inspect-workers', name='mev-inspect-workers'))
+k8s_yaml(helm(
+    './k8s/mev-inspect-workers',
+    name='mev-inspect-workers',
+    set=["replicaCount=1"],
+))
 k8s_resource(
     workload="mev-inspect-workers",
     resource_deps=["postgresql-postgresql", "redis-master"],
