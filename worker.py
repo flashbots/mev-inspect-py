@@ -1,5 +1,7 @@
 import asyncio
+import logging
 import os
+import sys
 import threading
 from contextlib import contextmanager
 
@@ -15,6 +17,8 @@ InspectSession = get_inspect_sessionmaker()
 TraceSession = get_trace_sessionmaker()
 
 thread_local = threading.local()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class AsyncMiddleware(Middleware):
@@ -35,11 +39,14 @@ class InspectorMiddleware(Middleware):
         self, _broker, worker
     ):  # pylint: disable=unused-argument
         if not hasattr(thread_local, "inspector"):
+            logger.info("Building inspector")
             thread_local.inspector = MEVInspector(
                 rpc,
                 max_concurrency=5,
                 request_timeout=300,
             )
+        else:
+            logger.info("Inspector already exists")
 
 
 rpc = os.environ["RPC_URL"]
