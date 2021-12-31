@@ -34,7 +34,6 @@ case "$1" in
         redis_password=$(get_kube_secret "redis" "redis-password")
         kubectl run -i --rm --tty \
             --namespace default redis-client-$RANDOM \
-            --restart='Never' \
             --env REDIS_PASSWORD=$redis_password \
             --image docker.io/bitnami/redis:6.2.6-debian-10-r0 \
             --command -- redis-cli -h redis-master -a $redis_password
