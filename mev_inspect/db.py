@@ -1,5 +1,5 @@
 import os
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable, List, Optional
 
 from sqlalchemy import create_engine, orm
 from sqlalchemy.orm import sessionmaker
@@ -67,12 +67,6 @@ def get_trace_session() -> Optional[orm.Session]:
     return None
 
 
-def _clean_csv_value(value: Optional[Any]) -> str:
-    if value is None:
-        return r"\N"
-    return str(value).replace("\n", "\\n")
-
-
 def write_as_csv(
     db_session,
     table_name: str,
@@ -84,3 +78,16 @@ def write_as_csv(
 
     with db_session.connection().connection.cursor() as cursor:
         cursor.copy_from(csv_iterator, table_name, sep="|")
+
+
+def _clean_csv_value(value: Optional[Any]) -> str:
+    if value is None:
+        return r"\N"
+    return str(value).replace("\n", "\\n")
+
+
+def to_postgres_list(values: List[Any]) -> str:
+    if len(values) == 0:
+        return "{}"
+
+    return "{" + ",".join(map(str, values)) + "}"

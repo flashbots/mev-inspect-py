@@ -1,8 +1,8 @@
 import json
 from datetime import datetime, timezone
-from typing import Any, List
+from typing import List
 
-from mev_inspect.db import write_as_csv
+from mev_inspect.db import to_postgres_list, write_as_csv
 from mev_inspect.models.traces import ClassifiedTraceModel
 from mev_inspect.schemas.traces import ClassifiedTrace
 
@@ -47,7 +47,7 @@ def write_classified_traces(
             trace.value,
             trace.gas_used,
             trace.error,
-            _to_csv_list(trace.trace_address),
+            to_postgres_list(trace.trace_address),
             trace.transaction_position,
         )
         for trace in classified_traces
@@ -58,10 +58,3 @@ def write_classified_traces(
 
 def _inputs_as_json(trace) -> str:
     return json.dumps(json.loads(trace.json(include={"inputs"}))["inputs"])
-
-
-def _to_csv_list(values: List[Any]) -> str:
-    if len(values) == 0:
-        return "{}"
-
-    return "{" + ",".join(map(str, values)) + "}"
