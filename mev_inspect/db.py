@@ -1,5 +1,6 @@
+import io
 import os
-from typing import Optional
+from typing import Any, Iterable, Optional
 
 from sqlalchemy import create_engine, orm
 from sqlalchemy.orm import sessionmaker
@@ -63,3 +64,25 @@ def get_trace_session() -> Optional[orm.Session]:
         return Session()
 
     return None
+
+
+def _clean_csv_value(value: Optional[Any]) -> str:
+    if value is None:
+        return r"\N"
+    return str(value).replace("\n", "\\n")
+
+
+def write_as_csv(
+    db_session,
+    table_name: str,
+    items: Iterable[Iterable[Any]],
+) -> None:
+    csv_file_like_object = io.StringIO()
+
+    for item in items:
+        csv_file_like_object.write("|".join(map(_clean_csv_value, item)) + "\n")
+
+    csv_file_like_object.seek(0)
+
+    with db_session.connection().connection.cursor() as cursor:
+        cursor.copy_from(csv_file_like_object, table_name, sep="|")
