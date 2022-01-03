@@ -1,3 +1,5 @@
+"""This is taken from https://hakibenita.com/fast-load-data-python-postgresql"""
+
 import io
 from typing import Iterator, Optional
 
