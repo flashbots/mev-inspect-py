@@ -168,6 +168,7 @@ async def inspect_many_blocks(
 
         all_miner_payments.extend(miner_payments)
 
+    logger.info("Writing data")
     delete_blocks(inspect_db_session, after_block_number, before_block_number)
     write_blocks(inspect_db_session, all_blocks)
 
@@ -224,3 +225,4 @@ async def inspect_many_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
     write_miner_payments(inspect_db_session, all_miner_payments)
+    logger.info("Done writing")

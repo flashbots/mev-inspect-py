@@ -37,13 +37,14 @@ async def run():
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
 
-    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session)
+    inspector = MEVInspector(rpc)
     base_provider = get_base_provider(rpc)
 
     while not killer.kill_now:
         await inspect_next_block(
             inspector,
             inspect_db_session,
+            trace_db_session,
             base_provider,
             healthcheck_url,
         )
@@ -54,6 +55,7 @@ async def run():
 async def inspect_next_block(
     inspector: MEVInspector,
     inspect_db_session,
+    trace_db_session,
     base_provider,
     healthcheck_url,
 ):
@@ -72,7 +74,11 @@ async def inspect_next_block(
 
         logger.info(f"Writing block: {block_number}")
 
-        await inspector.inspect_single_block(block=block_number)
+        await inspector.inspect_single_block(
+            inspect_db_session=inspect_db_session,
+            trace_db_session=trace_db_session,
+            block=block_number,
+        )
         update_latest_block(inspect_db_session, block_number)
 
         if healthcheck_url:

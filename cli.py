@@ -3,6 +3,7 @@ import os
 import sys
 
 import click
+from worker import inspect_many_blocks_task
 
 from mev_inspect.concurrency import coro
 from mev_inspect.crud.prices import write_prices
@@ -29,8 +30,13 @@ async def inspect_block_command(block_number: int, rpc: str):
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
 
-    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session)
-    await inspector.inspect_single_block(block=block_number)
+    inspector = MEVInspector(rpc)
+
+    await inspector.inspect_single_block(
+        inspect_db_session=inspect_db_session,
+        trace_db_session=trace_db_session,
+        block=block_number,
+    )
 
 
 @cli.command()
@@ -38,11 +44,14 @@ async def inspect_block_command(block_number: int, rpc: str):
 @click.option("--rpc", default=lambda: os.environ.get(RPC_URL_ENV, ""))
 @coro
 async def fetch_block_command(block_number: int, rpc: str):
-    inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
 
-    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session)
-    block = await inspector.create_from_block(block_number=block_number)
+    inspector = MEVInspector(rpc)
+    block = await inspector.create_from_block(
+        block_number=block_number,
+        trace_db_session=trace_db_session,
+    )
+
     print(block.json())
 
 
@@ -72,14 +81,26 @@ async def inspect_many_blocks_command(
 
     inspector = MEVInspector(
         rpc,
-        inspect_db_session,
-        trace_db_session,
         max_concurrency=max_concurrency,
         request_timeout=request_timeout,
     )
     await inspector.inspect_many_blocks(
-        after_block=after_block, before_block=before_block
+        inspect_db_session=inspect_db_session,
+        trace_db_session=trace_db_session,
+        after_block=after_block,
+        before_block=before_block,
     )
+
+
+@cli.command()
+@click.argument("after_block", type=int)
+@click.argument("before_block", type=int)
+@click.argument("batch_size", type=int, default=10)
+def enqueue_many_blocks_command(after_block: int, before_block: int, batch_size: int):
+    for batch_after_block in range(after_block, before_block, batch_size):
+        batch_before_block = min(batch_after_block + batch_size, before_block)
+        logger.info(f"Sending {batch_after_block} to {batch_before_block}")
+        inspect_many_blocks_task.send(batch_after_block, batch_before_block)
 
 
 @cli.command()
