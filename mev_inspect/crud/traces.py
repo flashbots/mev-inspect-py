@@ -1,6 +1,8 @@
 import json
-from typing import List
+from datetime import datetime, timezone
+from typing import Any, List
 
+from mev_inspect.db import write_as_csv
 from mev_inspect.models.traces import ClassifiedTraceModel
 from mev_inspect.schemas.traces import ClassifiedTrace
 
@@ -26,30 +28,40 @@ def write_classified_traces(
     db_session,
     classified_traces: List[ClassifiedTrace],
 ) -> None:
-    models = []
-    for trace in classified_traces:
-        inputs_json = (json.loads(trace.json(include={"inputs"}))["inputs"],)
-        models.append(
-            ClassifiedTraceModel(
-                transaction_hash=trace.transaction_hash,
-                transaction_position=trace.transaction_position,
-                block_number=trace.block_number,
-                classification=trace.classification.value,
-                trace_type=trace.type.value,
-                trace_address=trace.trace_address,
-                protocol=str(trace.protocol),
-                abi_name=trace.abi_name,
-                function_name=trace.function_name,
-                function_signature=trace.function_signature,
-                inputs=inputs_json,
-                from_address=trace.from_address,
-                to_address=trace.to_address,
-                gas=trace.gas,
-                value=trace.value,
-                gas_used=trace.gas_used,
-                error=trace.error,
-            )
+    now = datetime.now(timezone.utc)
+    items = (
+        (
+            now,  # classified_at - gets a default
+            trace.transaction_hash,
+            trace.block_number,
+            trace.classification.value,
+            trace.type.value,
+            str(trace.protocol),
+            trace.abi_name,
+            trace.function_name,
+            trace.function_signature,
+            _inputs_as_json(trace),
+            trace.from_address,
+            trace.to_address,
+            trace.gas,
+            trace.value,
+            trace.gas_used,
+            trace.error,
+            _to_csv_list(trace.trace_address),
+            trace.transaction_position,
         )
+        for trace in classified_traces
+    )
 
-    db_session.bulk_save_objects(models)
-    db_session.commit()
+    write_as_csv(db_session, "classified_traces", items)
+
+
+def _inputs_as_json(trace) -> str:
+    return json.dumps(json.loads(trace.json(include={"inputs"}))["inputs"])
+
+
+def _to_csv_list(values: List[Any]) -> str:
+    if len(values) == 0:
+        return "{}"
+
+    return "{" + ",".join(map(str, values)) + "}"
