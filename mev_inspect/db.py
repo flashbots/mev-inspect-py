@@ -34,20 +34,32 @@ def _get_engine(uri: str):
     )
 
 
-def _get_session(uri: str):
-    Session = sessionmaker(bind=_get_engine(uri))
-    return Session()
+def _get_sessionmaker(uri: str):
+    return sessionmaker(bind=_get_engine(uri))
 
 
-def get_inspect_session() -> orm.Session:
+def get_inspect_sessionmaker():
     uri = get_inspect_database_uri()
-    return _get_session(uri)
+    return _get_sessionmaker(uri)
 
 
-def get_trace_session() -> Optional[orm.Session]:
+def get_trace_sessionmaker():
     uri = get_trace_database_uri()
 
     if uri is not None:
-        return _get_session(uri)
+        return _get_sessionmaker(uri)
+
+    return None
+
+
+def get_inspect_session() -> orm.Session:
+    Session = get_inspect_sessionmaker()
+    return Session()
+
+
+def get_trace_session() -> Optional[orm.Session]:
+    Session = get_trace_sessionmaker()
+    if Session is not None:
+        return Session()
 
     return None

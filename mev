@@ -4,14 +4,18 @@ set -e
 
 DB_NAME=mev_inspect
 
+function get_kube_secret(){
+    kubectl get secrets $1 -o jsonpath="{.data.$2}" | base64 --decode
+}
+
 function get_kube_db_secret(){
     kubectl get secrets mev-inspect-db-credentials -o jsonpath="{.data.$1}" | base64 --decode
 }
 
 function db(){
-    host=$(get_kube_db_secret "host")
-    username=$(get_kube_db_secret "username")
-    password=$(get_kube_db_secret "password")
+    host=$(get_kube_secret "mev-inspect-db-credentials" "host")
+    username=$(get_kube_secret "mev-inspect-db-credentials" "username")
+    password=$(get_kube_secret "mev-inspect-db-credentials" "password")
 
     kubectl run -i --rm --tty postgres-client-$RANDOM \
         --env="PGPASSWORD=$password"  \
@@ -19,21 +23,34 @@ function db(){
         -- $DB_NAME --host=$host --user=$username
 }
 
+function redis(){
+    echo "To continue, enter 'shift + r'"
+    redis_password=$(get_kube_secret "redis" "redis-password")
+    kubectl run -i --rm --tty \
+        --namespace default redis-client-$RANDOM \
+        --env REDIS_PASSWORD=$redis_password \
+        --image docker.io/bitnami/redis:6.2.6-debian-10-r0 \
+        --command -- redis-cli -h redis-master -a $redis_password
+}
+
 case "$1" in
   db)
         echo "Connecting to $DB_NAME"
         db
 	;;
+  redis)
+        echo "Connecting to redis"
+        redis
+    ;;
   listener)
         kubectl exec -ti deploy/mev-inspect -- ./listener $2
 	;;
   backfill)
         start_block_number=$2
         end_block_number=$3
-        n_workers=$4
 
-        echo "Backfilling from $start_block_number to $end_block_number with $n_workers workers"
-        python backfill.py $start_block_number $end_block_number $n_workers
+        echo "Backfilling from $start_block_number to $end_block_number"
+        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-blocks $start_block_number $end_block_number
 	;;
   inspect)
         block_number=$2

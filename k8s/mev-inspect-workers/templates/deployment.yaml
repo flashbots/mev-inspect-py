@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "mev-inspect.fullname" . }}
+  name: {{ include "mev-inspect-worker.fullname" . }}
   labels:
-    {{- include "mev-inspect.labels" . | nindent 4 }}
+    {{- include "mev-inspect-worker.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "mev-inspect.selectorLabels" . | nindent 6 }}
+      {{- include "mev-inspect-worker.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -16,7 +16,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "mev-inspect.selectorLabels" . | nindent 8 }}
+        {{- include "mev-inspect-worker.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -30,7 +30,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args: ["run", "python", "loop.py"]
+          args: ["run", "dramatiq", "worker", "--threads=1", "--processes=1"]
           livenessProbe:
             exec:
               command:

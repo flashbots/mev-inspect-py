@@ -103,11 +103,24 @@ And stop the listener with:
 
 ### Backfilling
 
-For larger backfills, you can inspect many blocks in parallel using kubernetes
+For larger backfills, you can inspect many blocks in parallel
 
-To inspect blocks 12914944 to 12915044 divided across 10 worker pods:
+To inspect blocks 12914944 to 12915044, run
 ```
-./mev backfill 12914944 12915044 10
+./mev backfill 12914944 12915044
+```
+
+This queues the blocks in Redis to be pulled off by the mev-inspect-worker service
+
+To increase or decrease parallelism, update the replicaCount value for the mev-inspect-workers helm chart
+
+Locally, this can be done by editing Tiltfile and changing "replicaCount=1" to your desired parallelism:
+```
+k8s_yaml(helm(
+    './k8s/mev-inspect-workers',
+    name='mev-inspect-workers',
+    set=["replicaCount=1"],
+))
 ```
 
 You can see worker pods spin up then complete by watching the status of all pods
@@ -115,12 +128,35 @@ You can see worker pods spin up then complete by watching the status of all pods
 watch kubectl get pods
 ```
 
-To watch the logs for a given pod, take its pod name using the above, then run:
+To see progress and failed batches, connect to Redis with
 ```
-kubectl logs -f pod/mev-inspect-backfill-abcdefg
+./mev redis
 ```
 
-(where `mev-inspect-backfill-abcdefg` is your actual pod name)
+For total messages, query:
+```
+HLEN dramatiq:default.msgs
+```
+
+For messages failed and waiting to retry in the delay queue (DQ), query:
+```
+HGETALL dramatiq:default.DQ.msgs
+```
+
+For messages permanently failed in the dead letter queue (XQ), query:
+```
+HGETALL dramatiq:default.XQ.msgs
+```
+
+For more information on queues, see the [spec shared by dramatiq](https://github.com/Bogdanp/dramatiq/blob/24cbc0dc551797783f41b08ea461e1b5d23a4058/dramatiq/brokers/redis/dispatch.lua#L24-L43)
+
+
+To watch the logs for a given worker pod, take its pod name using the above, then run:
+```
+kubectl logs -f pod/mev-inspect-worker-abcdefg
+```
+
+(where `mev-inspect-worker-abcdefg` is your actual pod name)
 
 
 ### Exploring

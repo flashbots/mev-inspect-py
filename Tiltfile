@@ -8,6 +8,11 @@ helm_remote("postgresql",
             set=["postgresqlPassword=password", "postgresqlDatabase=mev_inspect"],
 )
 
+helm_remote("redis",
+            repo_name="bitnami",
+            repo_url="https://charts.bitnami.com/bitnami",
+)
+
 k8s_yaml(configmap_from_dict("mev-inspect-rpc", inputs = {
     "url" : os.environ["RPC_URL"],
 }))
@@ -37,7 +42,20 @@ docker_build("mev-inspect-py", ".",
     ],
 )
 k8s_yaml(helm('./k8s/mev-inspect', name='mev-inspect'))
-k8s_resource(workload="mev-inspect", resource_deps=["postgresql-postgresql"])
+k8s_resource(
+    workload="mev-inspect",
+    resource_deps=["postgresql-postgresql", "redis-master"],
+)
+
+k8s_yaml(helm(
+    './k8s/mev-inspect-workers',
+    name='mev-inspect-workers',
+    set=["replicaCount=1"],
+))
+k8s_resource(
+    workload="mev-inspect-workers",
+    resource_deps=["postgresql-postgresql", "redis-master"],
+)
 
 # uncomment to enable price monitor
 # k8s_yaml(helm('./k8s/mev-inspect-prices', name='mev-inspect-prices'))
