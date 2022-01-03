@@ -1,5 +1,6 @@
+import io
 from datetime import datetime
-from typing import List
+from typing import Any, List, Optional
 
 from mev_inspect.schemas.blocks import Block
 
@@ -24,20 +25,32 @@ def delete_blocks(
     db_session.commit()
 
 
+def clean_csv_value(value: Optional[Any]) -> str:
+    if value is None:
+        return r"\N"
+    return str(value).replace("\n", "\\n")
+
+
 def write_blocks(
     db_session,
     blocks: List[Block],
 ) -> None:
-    block_params = [
-        {
-            "block_number": block.block_number,
-            "block_timestamp": datetime.fromtimestamp(block.block_timestamp),
-        }
-        for block in blocks
-    ]
+    csv_file_like_object = io.StringIO()
+    for block in blocks:
+        csv_file_like_object.write(
+            "|".join(
+                map(
+                    clean_csv_value,
+                    (
+                        block.block_number,
+                        datetime.fromtimestamp(block.block_timestamp),
+                    ),
+                )
+            )
+            + "\n"
+        )
 
-    db_session.execute(
-        "INSERT INTO blocks (block_number, block_timestamp) VALUES (:block_number, :block_timestamp)",
-        params=block_params,
-    )
-    db_session.commit()
+    csv_file_like_object.seek(0)
+
+    with db_session.connection().connection.cursor() as cursor:
+        cursor.copy_from(csv_file_like_object, "blocks", sep="|")
