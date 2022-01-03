@@ -1,9 +1,10 @@
-import io
 import os
 from typing import Any, Iterable, Optional
 
 from sqlalchemy import create_engine, orm
 from sqlalchemy.orm import sessionmaker
+
+from mev_inspect.string_io import StringIteratorIO
 
 
 def get_trace_database_uri() -> Optional[str]:
@@ -77,12 +78,9 @@ def write_as_csv(
     table_name: str,
     items: Iterable[Iterable[Any]],
 ) -> None:
-    csv_file_like_object = io.StringIO()
-
-    for item in items:
-        csv_file_like_object.write("|".join(map(_clean_csv_value, item)) + "\n")
-
-    csv_file_like_object.seek(0)
+    csv_iterator = StringIteratorIO(
+        ("|".join(map(_clean_csv_value, item)) + "\n" for item in items)
+    )
 
     with db_session.connection().connection.cursor() as cursor:
-        cursor.copy_from(csv_file_like_object, table_name, sep="|")
+        cursor.copy_from(csv_iterator, table_name, sep="|")
