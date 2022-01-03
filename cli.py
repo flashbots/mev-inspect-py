@@ -3,7 +3,6 @@ import os
 import sys
 
 import click
-from worker import inspect_many_blocks_task
 
 from mev_inspect.concurrency import coro
 from mev_inspect.crud.prices import write_prices
@@ -97,6 +96,10 @@ async def inspect_many_blocks_command(
 @click.argument("before_block", type=int)
 @click.argument("batch_size", type=int, default=10)
 def enqueue_many_blocks_command(after_block: int, before_block: int, batch_size: int):
+    from worker import (  # pylint: disable=import-outside-toplevel
+        inspect_many_blocks_task,
+    )
+
     for batch_after_block in range(after_block, before_block, batch_size):
         batch_before_block = min(batch_after_block + batch_size, before_block)
         logger.info(f"Sending {batch_after_block} to {batch_before_block}")
