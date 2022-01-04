@@ -57,4 +57,6 @@ def write_classified_traces(
 
 
 def _inputs_as_json(trace) -> str:
-    return json.dumps(json.loads(trace.json(include={"inputs"}))["inputs"])
+    inputs = json.dumps(json.loads(trace.json(include={"inputs"}))["inputs"])
+    inputs_with_array = f"[{inputs}]"
+    return inputs_with_array
