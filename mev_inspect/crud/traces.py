@@ -28,10 +28,10 @@ def write_classified_traces(
     db_session,
     classified_traces: List[ClassifiedTrace],
 ) -> None:
-    now = datetime.now(timezone.utc)
+    classified_at = datetime.now(timezone.utc)
     items = (
         (
-            now,  # classified_at - gets a default
+            classified_at,
             trace.transaction_hash,
             trace.block_number,
             trace.classification.value,
