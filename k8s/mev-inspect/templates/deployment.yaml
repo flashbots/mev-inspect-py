@@ -37,7 +37,8 @@ spec:
               - ls
               - /
             initialDelaySeconds: 20
-            periodSeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
