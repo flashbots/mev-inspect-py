@@ -28,11 +28,11 @@ class ZeroExSwapClassifier(SwapClassifier):
         if len(child_transfers) < 2:
             return None
 
-        token_in_address, token_in_amount = _get_0x_token_in_data(
+        token_out_address, token_out_amount = _get_0x_token_out_data(
             trace, child_transfers
         )
 
-        token_out_address, token_out_amount = _get_0x_token_out_data(trace)
+        token_in_address, token_in_amount = _get_0x_token_in_data(trace)
 
         return Swap(
             abi_name=trace.abi_name,
@@ -222,10 +222,10 @@ ZEROX_GENERIC_SPECS = [
 ZEROX_CLASSIFIER_SPECS = ZEROX_CONTRACT_SPECS + ZEROX_GENERIC_SPECS
 
 
-def _get_taker_token_in_amount(
+def _get_taker_token_transfer_amount(
     trace: DecodedCallTrace,
     taker_address: str,
-    token_in_address: str,
+    token_address: str,
     child_transfers: List[Transfer],
 ) -> int:
 
@@ -239,7 +239,7 @@ def _get_taker_token_in_amount(
 
     if taker_address == ANY_TAKER_ADDRESS:
         for transfer in child_transfers:
-            if transfer.token_address == token_in_address:
+            if transfer.token_address == token_address:
                 return transfer.amount
     else:
         for transfer in child_transfers:
@@ -249,12 +249,11 @@ def _get_taker_token_in_amount(
     raise RuntimeError("Unable to find transfers matching 0x order.")
 
 
-def _get_0x_token_in_data(
+def _get_0x_token_out_data(
     trace: DecodedCallTrace, child_transfers: List[Transfer]
 ) -> Tuple[str, int]:
-
     order: List = trace.inputs["order"]
-    token_in_address = order[0]
+    token_out_address = order[0]
 
     if trace.function_signature in RFQ_SIGNATURES:
         taker_address = order[5]
@@ -267,17 +266,16 @@ def _get_0x_token_in_data(
             f"0x orderbook function {trace.function_signature} is not supported"
         )
 
-    token_in_amount = _get_taker_token_in_amount(
-        trace, taker_address, token_in_address, child_transfers
+    token_out_amount = _get_taker_token_transfer_amount(
+        trace, taker_address, token_out_address, child_transfers
     )
 
-    return token_in_address, token_in_amount
-
-
-def _get_0x_token_out_data(trace: DecodedCallTrace) -> Tuple[str, int]:
-
-    order: List = trace.inputs["order"]
-    token_out_address = order[1]
-    token_out_amount = trace.inputs["takerTokenFillAmount"]
-
     return token_out_address, token_out_amount
+
+
+def _get_0x_token_in_data(trace: DecodedCallTrace) -> Tuple[str, int]:
+    order: List = trace.inputs["order"]
+    token_in_address = order[1]
+    token_in_amount = trace.inputs["takerTokenFillAmount"]
+
+    return token_in_address, token_in_amount
