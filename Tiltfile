@@ -11,6 +11,7 @@ helm_remote("postgresql",
 helm_remote("redis",
             repo_name="bitnami",
             repo_url="https://charts.bitnami.com/bitnami",
+            set=["global.redis.password=password"],
 )
 
 k8s_yaml(configmap_from_dict("mev-inspect-rpc", inputs = {
