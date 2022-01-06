@@ -52,11 +52,11 @@ def get_aave_liquidations(
                 trace.transaction_hash, trace.trace_address, traces
             )
             (debt_token_address, debt_purchase_amount) = _get_debt_data(
-                trace, child_traces, liquidator
+                child_traces, liquidator
             )
 
             (received_token_address, received_amount) = _get_received_data(
-                trace, child_traces, liquidator
+                child_traces, liquidator
             )
 
             liquidations.append(
@@ -79,7 +79,7 @@ def get_aave_liquidations(
 
 
 def _get_received_data(
-    liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
+    child_traces: List[ClassifiedTrace], liquidator: str
 ) -> Tuple[str, int]:
 
     """Look for and return liquidator payback from liquidation"""
@@ -92,18 +92,15 @@ def _get_received_data(
 
             if child_transfer is not None:
 
-                if (
-                    child_transfer.to_address == liquidator
-                    and child.from_address in AAVE_CONTRACT_ADDRESSES
-                ):
+                if child_transfer.to_address == liquidator:
 
                     return child_transfer.token_address, child_transfer.amount
 
-    return liquidation.inputs["_collateral"], 0
+    raise RuntimeError("Transfer from AAVE to liquidator not found!")
 
 
 def _get_debt_data(
-    liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
+    child_traces: List[ClassifiedTrace], liquidator: str
 ) -> Tuple[str, int]:
     """Get transfer from liquidator to AAVE"""
 
@@ -119,4 +116,4 @@ def _get_debt_data(
 
                     return child_transfer.token_address, child_transfer.amount
 
-    return liquidation.inputs["_reserve"], 0
+    raise RuntimeError("Transfer from liquidator to AAVE not found!")
