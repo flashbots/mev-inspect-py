@@ -12,21 +12,6 @@ from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.traces import get_child_traces, is_child_of_any_address
 from mev_inspect.transfers import get_transfer
 
-AAVE_CONTRACT_ADDRESSES: List[str] = [
-    # AAVE Proxy
-    "0x398ec7346dcd622edc5ae82352f02be94c62d119",
-    # AAVE V2
-    "0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9",
-    # AAVE V1
-    "0x3dfd23a6c5e8bbcfc9581d2e864a68feb6a076d3",
-    # AAVE V2 WETH
-    "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
-    # AAVE AMM Market DAI
-    "0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4",
-    "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
-    "0xbcca60bb61934080951369a648fb03df4f96263c",
-]
-
 
 def get_aave_liquidations(
     traces: List[ClassifiedTrace],
