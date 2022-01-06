@@ -48,6 +48,7 @@ class Protocol(Enum):
     cream = "cream"
     cryptopunks = "cryptopunks"
     bancor = "bancor"
+    lido = "lido"
 
 
 class ClassifiedTrace(Trace):
