@@ -23,7 +23,6 @@ AAVE_CONTRACT_ADDRESSES: List[str] = [
     "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
     # AAVE AMM Market DAI
     "0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4",
-    # AAVE i
     "0x030ba81f1c18d280636f32af80b9aad02cf0854e",
     "0xbcca60bb61934080951369a648fb03df4f96263c",
 ]
@@ -52,18 +51,20 @@ def get_aave_liquidations(
             child_traces = get_child_traces(
                 trace.transaction_hash, trace.trace_address, traces
             )
+            (debt_token_address, debt_purchase_amount) = _get_debt_data(
+                trace, child_traces, liquidator
+            )
 
-            (
-                received_token_address,
-                received_amount,
-            ) = _get_payback_token_and_amount(trace, child_traces, liquidator)
+            (received_token_address, received_amount) = _get_received_data(
+                trace, child_traces, liquidator
+            )
 
             liquidations.append(
                 Liquidation(
                     liquidated_user=trace.inputs["_user"],
-                    debt_token_address=trace.inputs["_reserve"],
+                    debt_token_address=debt_token_address,
                     liquidator_user=liquidator,
-                    debt_purchase_amount=trace.inputs["_purchaseAmount"],
+                    debt_purchase_amount=debt_purchase_amount,
                     protocol=Protocol.aave,
                     received_amount=received_amount,
                     received_token_address=received_token_address,
@@ -77,7 +78,7 @@ def get_aave_liquidations(
     return liquidations
 
 
-def _get_payback_token_and_amount(
+def _get_received_data(
     liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
 ) -> Tuple[str, int]:
 
@@ -99,3 +100,23 @@ def _get_payback_token_and_amount(
                     return child_transfer.token_address, child_transfer.amount
 
     return liquidation.inputs["_collateral"], 0
+
+
+def _get_debt_data(
+    liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
+) -> Tuple[str, int]:
+    """Get transfer from liquidator to AAVE"""
+
+    for child in child_traces:
+
+        if isinstance(child, CallTrace):
+
+            child_transfer: Optional[Transfer] = get_transfer(child)
+
+            if child_transfer is not None:
+
+                if child_transfer.from_address == liquidator:
+
+                    return child_transfer.token_address, child_transfer.amount
+
+    return liquidation.inputs["_reserve"], 0

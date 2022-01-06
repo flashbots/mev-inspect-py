@@ -102,7 +102,7 @@ def test_multiple_liquidations_in_block(trace_classifier: TraceClassifier):
         liquidated_user="0x6c6541ae8a7c6a6f968124a5ff2feac8f0c7875b",
         liquidator_user="0x7185e240d8e9e2d692cbc68d30eecf965e9a7feb",
         debt_token_address="0x4fabb145d64652a948d72533023f6e7a623c7c53",
-        debt_purchase_amount=457700000000000000000,
+        debt_purchase_amount=228905512631913119672,
         received_amount=10111753901939162887,
         received_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
         protocol=Protocol.aave,
