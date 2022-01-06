@@ -155,7 +155,7 @@ def test_liquidations_with_eth_transfer(trace_classifier: TraceClassifier):
         liquidated_user="0xad346c7762f74c78da86d2941c6eb546e316fbd0",
         liquidator_user="0x27239549dd40e1d60f5b80b0c4196923745b1fd2",
         debt_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
-        debt_purchase_amount=1809152000000000000,
+        debt_purchase_amount=1040737791751147957,
         received_amount=15636807387264000,
         received_token_address=ETH_TOKEN_ADDRESS,
         protocol=Protocol.aave,
