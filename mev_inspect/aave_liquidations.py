@@ -2,7 +2,6 @@ from typing import List, Optional, Tuple
 
 from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.traces import (
-    CallTrace,
     Classification,
     ClassifiedTrace,
     DecodedCallTrace,
@@ -71,15 +70,13 @@ def _get_received_data(
 
     for child in child_traces:
 
-        if isinstance(child, CallTrace):
+        child_transfer: Optional[Transfer] = get_transfer(child)
 
-            child_transfer: Optional[Transfer] = get_transfer(child)
+        if child_transfer is not None:
 
-            if child_transfer is not None:
+            if child_transfer.to_address == liquidator:
 
-                if child_transfer.to_address == liquidator:
-
-                    return child_transfer.token_address, child_transfer.amount
+                return child_transfer.token_address, child_transfer.amount
 
     raise RuntimeError("Transfer from AAVE to liquidator not found!")
 
@@ -91,14 +88,12 @@ def _get_debt_data(
 
     for child in child_traces:
 
-        if isinstance(child, CallTrace):
+        child_transfer: Optional[Transfer] = get_transfer(child)
 
-            child_transfer: Optional[Transfer] = get_transfer(child)
+        if child_transfer is not None:
 
-            if child_transfer is not None:
+            if child_transfer.from_address == liquidator:
 
-                if child_transfer.from_address == liquidator:
-
-                    return child_transfer.token_address, child_transfer.amount
+                return child_transfer.token_address, child_transfer.amount
 
     raise RuntimeError("Transfer from liquidator to AAVE not found!")
