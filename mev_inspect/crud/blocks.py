@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+from mev_inspect.db import write_as_csv
 from mev_inspect.schemas.blocks import Block
 
 
@@ -28,16 +29,11 @@ def write_blocks(
     db_session,
     blocks: List[Block],
 ) -> None:
-    block_params = [
-        {
-            "block_number": block.block_number,
-            "block_timestamp": datetime.fromtimestamp(block.block_timestamp),
-        }
+    items_generator = (
+        (
+            block.block_number,
+            datetime.fromtimestamp(block.block_timestamp),
+        )
         for block in blocks
-    ]
-
-    db_session.execute(
-        "INSERT INTO blocks (block_number, block_timestamp) VALUES (:block_number, :block_timestamp)",
-        params=block_params,
     )
-    db_session.commit()
+    write_as_csv(db_session, "blocks", items_generator)

@@ -38,6 +38,8 @@ class InspectorMiddleware(Middleware):
     def before_process_message(
         self, _broker, worker
     ):  # pylint: disable=unused-argument
+        rpc = os.environ["RPC_URL"]
+
         if not hasattr(thread_local, "inspector"):
             logger.info("Building inspector")
             thread_local.inspector = MEVInspector(
@@ -49,7 +51,6 @@ class InspectorMiddleware(Middleware):
             logger.info("Inspector already exists")
 
 
-rpc = os.environ["RPC_URL"]
 broker = RedisBroker(host="redis-master", password=os.environ["REDIS_PASSWORD"])
 broker.add_middleware(AsyncMiddleware())
 broker.add_middleware(InspectorMiddleware())
