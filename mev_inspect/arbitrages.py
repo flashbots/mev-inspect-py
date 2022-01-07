@@ -4,6 +4,8 @@ from typing import List, Optional, Tuple
 from mev_inspect.schemas.arbitrages import Arbitrage
 from mev_inspect.schemas.swaps import Swap
 
+MAX_TOKEN_AMOUNT_PERCENT_DIFFERENCE = 0.01
+
 
 def get_arbitrages(swaps: List[Swap]) -> List[Arbitrage]:
     get_transaction_hash = lambda swap: swap.transaction_hash
@@ -101,7 +103,7 @@ def _get_shortest_route(
         return None
 
     for end_swap in end_swaps:
-        if start_swap.token_out_address == end_swap.token_in_address:
+        if _swap_outs_match_swap_ins(start_swap, end_swap):
             return [start_swap, end_swap]
 
     if max_route_length is not None and max_route_length == 2:
@@ -173,8 +175,16 @@ def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, List[Swap]]]
 
 
 def _swap_outs_match_swap_ins(swap_out, swap_in) -> bool:
-    return swap_out.token_out_address == swap_in.token_in_address and (
+    if swap_out.token_out_address == swap_in.token_in_address and (
         swap_out.contract_address == swap_in.from_address
         or swap_out.to_address == swap_in.contract_address
         or swap_out.to_address == swap_in.from_address
-    )
+    ):
+        amount_percent_difference = abs(
+            (float(swap_out.token_out_amount) / swap_in.token_in_amount) - 1.0
+        )
+
+        if amount_percent_difference < MAX_TOKEN_AMOUNT_PERCENT_DIFFERENCE:
+            return True
+
+    return False
