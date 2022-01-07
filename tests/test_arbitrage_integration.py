@@ -60,20 +60,20 @@ def test_arbitrage_real_block(trace_classifier: TraceClassifier):
 
 
 def test_reverting_arbitrage(trace_classifier: TraceClassifier):
-    block = load_test_block(11473321)
+    block = load_test_block(12483198)
     classified_traces = trace_classifier.classify(block.traces)
 
     swaps = get_swaps(classified_traces)
     assert len(swaps) == 38
 
     arbitrages = get_arbitrages(list(swaps))
-    assert len(arbitrages) == 4
+    assert len(arbitrages) == 5
 
-    arbitrage_1 = [
+    reverting_arbitrage = [
         arb
         for arb in arbitrages
         if arb.transaction_hash
-        == "0x565146ec57af69208b4a37e3a138ab85c6a6ff358fffb0077824a7378a67c4d6"
+        == "0x23a4dc7044666d3d4cc2d394a8017fc9d6b87018c20390d35266cea1af783e8a"
     ][0]
 
-    assert arbitrage_1.error == "Reverted"
+    assert reverting_arbitrage.error == "Reverted"
