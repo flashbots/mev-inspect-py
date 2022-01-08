@@ -3,9 +3,9 @@
 set -e
 
 NAME=listener
-PIDFILE=/var/run/$NAME.pid
-DAEMON=/root/.poetry/bin/poetry
-DAEMON_OPTS="run python listener.py"
+PIDFILE=/home/flashbot/$NAME.pid
+DAEMON=/bin/bash
+DAEMON_OPTS='-c "poetry run python listener.py"'
 
 case "$1" in
   start)
@@ -13,11 +13,12 @@ case "$1" in
 	start-stop-daemon \
         --background \
         --chdir /app \
+        --chuid flashbot \
         --start \
         --quiet \
         --pidfile $PIDFILE \
         --make-pidfile \
-        --startas $DAEMON -- $DAEMON_OPTS
+        --startas /bin/bash -- -c "poetry run python listener.py"
         echo "."
 	;;
   stop)
@@ -36,11 +37,12 @@ case "$1" in
 	start-stop-daemon \
         --background \
         --chdir /app \
+        --chuid flashbot \
         --start \
         --quiet \
         --pidfile $PIDFILE \
         --make-pidfile \
-        --startas $DAEMON -- $DAEMON_OPTS
+        --startas /bin/bash -- -c "poetry run python listener.py"
         echo "."
     ;;
 
