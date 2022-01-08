@@ -28,8 +28,7 @@ def _get_sandwich_starting_with_swap(
     front_swap: Swap,
     rest_swaps: List[Swap],
 ) -> Optional[Sandwich]:
-
-    sandwicher_address = front_swap.from_address
+    sandwicher_address = front_swap.to_address
     sandwiched_swaps = []
 
     for other_swap in rest_swaps:
