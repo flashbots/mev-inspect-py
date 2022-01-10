@@ -14,7 +14,7 @@ from mev_inspect.transfers import get_transfer
 
 def get_aave_liquidations(
     traces: List[ClassifiedTrace],
-) -> List[Liquidation]:
+) -> Optional[List[Liquidation]]:
 
     """Inspect list of classified traces and identify liquidation"""
     liquidations: List[Liquidation] = []
@@ -39,9 +39,15 @@ def get_aave_liquidations(
                 trace, child_traces, liquidator
             )
 
+            if debt_purchase_amount == 0:
+                continue
+
             (received_token_address, received_amount) = _get_received_data(
                 trace, child_traces, liquidator
             )
+
+            if received_amount == 0:
+                continue
 
             liquidations.append(
                 Liquidation(
@@ -63,7 +69,9 @@ def get_aave_liquidations(
 
 
 def _get_received_data(
-    liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
+    liquidation_trace: DecodedCallTrace,
+    child_traces: List[ClassifiedTrace],
+    liquidator: str,
 ) -> Tuple[str, int]:
 
     """Look for and return liquidator payback from liquidation"""
@@ -74,17 +82,13 @@ def _get_received_data(
         if child_transfer is not None and child_transfer.to_address == liquidator:
             return child_transfer.token_address, child_transfer.amount
 
-    if liquidation.error is not None:
-        return liquidation.inputs["_collateral"], 0
-
-    else:
-        raise RuntimeError(
-            f"No payback or input data found for liquidation in tx: {liquidation.transaction_hash}"
-        )
+    return liquidation_trace.inputs["_collateral"], 0
 
 
 def _get_debt_data(
-    liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
+    liquidation_trace: DecodedCallTrace,
+    child_traces: List[ClassifiedTrace],
+    liquidator: str,
 ) -> Tuple[str, int]:
     """Get transfer from liquidator to AAVE"""
 
@@ -97,10 +101,7 @@ def _get_debt_data(
             if child_transfer.from_address == liquidator:
                 return child_transfer.token_address, child_transfer.amount
 
-    if liquidation.error is not None:
-        return liquidation.inputs["_reserve"], liquidation.inputs["_purchaseAmount"]
-
-    else:
-        raise RuntimeError(
-            f"No transfer or input data found for liquidation in tx: {liquidation.transaction_hash}"
-        )
+    return (
+        liquidation_trace.inputs["_reserve"],
+        liquidation_trace.inputs["_purchaseAmount"],
+    )
