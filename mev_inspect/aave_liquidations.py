@@ -36,11 +36,11 @@ def get_aave_liquidations(
                 trace.transaction_hash, trace.trace_address, traces
             )
             (debt_token_address, debt_purchase_amount) = _get_debt_data(
-                child_traces, liquidator
+                trace, child_traces, liquidator
             )
 
             (received_token_address, received_amount) = _get_received_data(
-                child_traces, liquidator
+                trace, child_traces, liquidator
             )
 
             liquidations.append(
@@ -63,26 +63,28 @@ def get_aave_liquidations(
 
 
 def _get_received_data(
-    child_traces: List[ClassifiedTrace], liquidator: str
+    liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
 ) -> Tuple[str, int]:
 
     """Look for and return liquidator payback from liquidation"""
-
     for child in child_traces:
 
         child_transfer: Optional[Transfer] = get_transfer(child)
 
-        if child_transfer is not None:
+        if child_transfer is not None and child_transfer.to_address == liquidator:
+            return child_transfer.token_address, child_transfer.amount
 
-            if child_transfer.to_address == liquidator:
+    if liquidation.error is not None:
+        return liquidation.inputs["_collateral"], 0
 
-                return child_transfer.token_address, child_transfer.amount
-
-    raise RuntimeError("Transfer from AAVE to liquidator not found!")
+    else:
+        raise RuntimeError(
+            f"No payback or input data found for liquidation in tx: {liquidation.transaction_hash}"
+        )
 
 
 def _get_debt_data(
-    child_traces: List[ClassifiedTrace], liquidator: str
+    liquidation: DecodedCallTrace, child_traces: List[ClassifiedTrace], liquidator: str
 ) -> Tuple[str, int]:
     """Get transfer from liquidator to AAVE"""
 
@@ -93,7 +95,12 @@ def _get_debt_data(
         if child_transfer is not None:
 
             if child_transfer.from_address == liquidator:
-
                 return child_transfer.token_address, child_transfer.amount
 
-    raise RuntimeError("Transfer from liquidator to AAVE not found!")
+    if liquidation.error is not None:
+        return liquidation.inputs["_reserve"], liquidation.inputs["_purchaseAmount"]
+
+    else:
+        raise RuntimeError(
+            f"No transfer or input data found for liquidation in tx: {liquidation.transaction_hash}"
+        )
