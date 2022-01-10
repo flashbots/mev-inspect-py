@@ -4,6 +4,9 @@ from mev_inspect.classifiers.specs.weth import WETH_ADDRESS
 from mev_inspect.coinbase import fetch_coinbase_prices
 from mev_inspect.schemas.prices import (
     AAVE_TOKEN_ADDRESS,
+    CDAI_TOKEN_ADDRESS,
+    CUSDC_TOKEN_ADDRESS,
+    DAI_TOKEN_ADDRESS,
     LINK_TOKEN_ADDRESS,
     REN_TOKEN_ADDRESS,
     UNI_TOKEN_ADDRESS,
@@ -15,15 +18,18 @@ from mev_inspect.schemas.prices import (
 from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS
 
 SUPPORTED_TOKENS = [
-    WETH_ADDRESS,
+    AAVE_TOKEN_ADDRESS,
+    CDAI_TOKEN_ADDRESS,
+    CUSDC_TOKEN_ADDRESS,
+    DAI_TOKEN_ADDRESS,
     ETH_TOKEN_ADDRESS,
     LINK_TOKEN_ADDRESS,
-    AAVE_TOKEN_ADDRESS,
-    USDC_TOKEN_ADDRESS,
     REN_TOKEN_ADDRESS,
-    WBTC_TOKEN_ADDRESS,
-    YEARN_TOKEN_ADDRESS,
     UNI_TOKEN_ADDRESS,
+    USDC_TOKEN_ADDRESS,
+    WBTC_TOKEN_ADDRESS,
+    WETH_ADDRESS,
+    YEARN_TOKEN_ADDRESS,
 ]
 
 
