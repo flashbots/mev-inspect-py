@@ -14,7 +14,7 @@ from mev_inspect.transfers import get_transfer
 
 def get_aave_liquidations(
     traces: List[ClassifiedTrace],
-) -> Optional[List[Liquidation]]:
+) -> List[Liquidation]:
 
     """Inspect list of classified traces and identify liquidation"""
     liquidations: List[Liquidation] = []
