@@ -21,7 +21,7 @@ COINBASE_TOKEN_NAME_BY_ADDRESS = {
     WETH_ADDRESS: "weth",
     ETH_TOKEN_ADDRESS: "ethereum",
     WBTC_TOKEN_ADDRESS: "wrapped-bitcoin",
-    LINK_TOKEN_ADDRESS: "link",
+    LINK_TOKEN_ADDRESS: "chainlink",
     YEARN_TOKEN_ADDRESS: "yearn-finance",
     AAVE_TOKEN_ADDRESS: "aave",
     UNI_TOKEN_ADDRESS: "uniswap",
