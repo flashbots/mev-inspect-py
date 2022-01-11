@@ -36,12 +36,18 @@ def get_aave_liquidations(
                 trace.transaction_hash, trace.trace_address, traces
             )
             (debt_token_address, debt_purchase_amount) = _get_debt_data(
-                child_traces, liquidator
+                trace, child_traces, liquidator
             )
 
+            if debt_purchase_amount == 0:
+                continue
+
             (received_token_address, received_amount) = _get_received_data(
-                child_traces, liquidator
+                trace, child_traces, liquidator
             )
+
+            if received_amount == 0:
+                continue
 
             liquidations.append(
                 Liquidation(
@@ -63,26 +69,26 @@ def get_aave_liquidations(
 
 
 def _get_received_data(
-    child_traces: List[ClassifiedTrace], liquidator: str
+    liquidation_trace: DecodedCallTrace,
+    child_traces: List[ClassifiedTrace],
+    liquidator: str,
 ) -> Tuple[str, int]:
 
     """Look for and return liquidator payback from liquidation"""
-
     for child in child_traces:
 
         child_transfer: Optional[Transfer] = get_transfer(child)
 
-        if child_transfer is not None:
+        if child_transfer is not None and child_transfer.to_address == liquidator:
+            return child_transfer.token_address, child_transfer.amount
 
-            if child_transfer.to_address == liquidator:
-
-                return child_transfer.token_address, child_transfer.amount
-
-    raise RuntimeError("Transfer from AAVE to liquidator not found!")
+    return liquidation_trace.inputs["_collateral"], 0
 
 
 def _get_debt_data(
-    child_traces: List[ClassifiedTrace], liquidator: str
+    liquidation_trace: DecodedCallTrace,
+    child_traces: List[ClassifiedTrace],
+    liquidator: str,
 ) -> Tuple[str, int]:
     """Get transfer from liquidator to AAVE"""
 
@@ -93,7 +99,9 @@ def _get_debt_data(
         if child_transfer is not None:
 
             if child_transfer.from_address == liquidator:
-
                 return child_transfer.token_address, child_transfer.amount
 
-    raise RuntimeError("Transfer from liquidator to AAVE not found!")
+    return (
+        liquidation_trace.inputs["_reserve"],
+        0,
+    )
