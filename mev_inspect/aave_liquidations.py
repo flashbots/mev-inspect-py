@@ -103,5 +103,5 @@ def _get_debt_data(
 
     return (
         liquidation_trace.inputs["_reserve"],
-        liquidation_trace.inputs["_purchaseAmount"],
+        0,
     )
