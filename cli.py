@@ -8,7 +8,7 @@ from mev_inspect.concurrency import coro
 from mev_inspect.crud.prices import write_prices
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
-from mev_inspect.prices import fetch_all_supported_prices
+from mev_inspect.prices import fetch_prices
 
 RPC_URL_ENV = "RPC_URL"
 
@@ -112,7 +112,7 @@ async def fetch_all_prices():
     inspect_db_session = get_inspect_session()
 
     logger.info("Fetching prices")
-    prices = await fetch_all_supported_prices()
+    prices = fetch_prices()
 
     logger.info("Writing prices")
     write_prices(inspect_db_session, prices)

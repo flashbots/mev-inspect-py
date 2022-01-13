@@ -2,6 +2,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, validator
 
+from mev_inspect.classifiers.specs.weth import WETH_ADDRESS
+from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS
+
 WBTC_TOKEN_ADDRESS = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
 LINK_TOKEN_ADDRESS = "0x514910771af9ca656af840dff83e8264ecf986ca"
 YEARN_TOKEN_ADDRESS = "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e"
@@ -13,11 +16,39 @@ REN_TOKEN_ADDRESS = "0x408e41876cccdc0f92210600ef50372656052a38"
 CUSDC_TOKEN_ADDRESS = "0x39aa39c021dfbae8fac545936693ac917d5e7563"
 CDAI_TOKEN_ADDRESS = "0x5d3a536e4d6dbd6114cc1ead35777bab948e3643"
 
+TOKEN_ADDRESSES = [
+    WBTC_TOKEN_ADDRESS,
+    LINK_TOKEN_ADDRESS,
+    YEARN_TOKEN_ADDRESS,
+    AAVE_TOKEN_ADDRESS,
+    UNI_TOKEN_ADDRESS,
+    USDC_TOKEN_ADDRESS,
+    DAI_TOKEN_ADDRESS,
+    REN_TOKEN_ADDRESS,
+    CUSDC_TOKEN_ADDRESS,
+    CDAI_TOKEN_ADDRESS,
+]
+
+TOKEN_NAME_BY_ADDRESS = {
+    WETH_ADDRESS: "weth",
+    ETH_TOKEN_ADDRESS: "ethereum",
+    WBTC_TOKEN_ADDRESS: "wrapped-bitcoin",
+    LINK_TOKEN_ADDRESS: "chainlink",
+    YEARN_TOKEN_ADDRESS: "yearn-finance",
+    AAVE_TOKEN_ADDRESS: "aave",
+    UNI_TOKEN_ADDRESS: "uniswap",
+    USDC_TOKEN_ADDRESS: "usd-coin",
+    DAI_TOKEN_ADDRESS: "dai",
+    REN_TOKEN_ADDRESS: "republic-protocol",
+    CUSDC_TOKEN_ADDRESS: "compound-usd-coin",
+    CDAI_TOKEN_ADDRESS: "cdai",
+}
+
 
 class Price(BaseModel):
     token_address: str
+    usd_price: int
     timestamp: datetime
-    usd_price: float
 
     @validator("token_address")
     def lower_token_address(cls, v: str) -> str:
