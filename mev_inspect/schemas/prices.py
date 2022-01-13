@@ -47,7 +47,7 @@ TOKEN_NAME_BY_ADDRESS = {
 
 class Price(BaseModel):
     token_address: str
-    usd_price: int
+    usd_price: float
     timestamp: datetime
 
     @validator("token_address")
