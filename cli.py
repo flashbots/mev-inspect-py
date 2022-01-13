@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import fileinput
 
 import click
 
@@ -90,6 +91,16 @@ async def inspect_many_blocks_command(
         before_block=before_block,
     )
 
+@cli.command()
+def enqueue_block_list_command():
+    from worker import (  # pylint: disable=import-outside-toplevel
+        inspect_many_blocks_task,
+    )
+
+    for block_string in fileinput.input():
+        block = int(block_string)
+        logger.info(f"Sending {block} to {block+1}")
+        inspect_many_blocks_task.send(block, block+1)
 
 @cli.command()
 @click.argument("after_block", type=int)
