@@ -45,6 +45,10 @@ case "$1" in
   listener)
         kubectl exec -ti deploy/mev-inspect -- ./listener $2
 	;;
+  block-list)
+        echo "Backfilling blocks from stdin"
+        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-block-list
+	;;
   backfill)
         after_block_number=$2
         before_block_number=$3
