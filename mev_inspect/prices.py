@@ -3,7 +3,7 @@ from typing import List
 
 from pycoingecko import CoinGeckoAPI
 
-from mev_inspect.schemas.prices import TOKEN_ADDRESSES, TOKEN_NAME_BY_ADDRESS, Price
+from mev_inspect.schemas.prices import COINGECKO_ID_BY_ADDRESS, TOKEN_ADDRESSES, Price
 
 
 def fetch_prices() -> List[Price]:
@@ -12,7 +12,7 @@ def fetch_prices() -> List[Price]:
 
     for token_address in TOKEN_ADDRESSES:
         price_data = cg.get_coin_market_chart_by_id(
-            id=TOKEN_NAME_BY_ADDRESS[token_address], vs_currency="usd", days="max"
+            id=COINGECKO_ID_BY_ADDRESS[token_address], vs_currency="usd", days="max"
         )
         price_time_series = price_data["prices"]
 
