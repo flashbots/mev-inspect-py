@@ -2,6 +2,9 @@ from typing import List, Optional
 
 from mev_inspect.schemas.sandwiches import Sandwich
 from mev_inspect.schemas.swaps import Swap
+from mev_inspect.utils import equal_within_percent
+
+SANDWICH_IN_OUT_MAX_PERCENT_DIFFERENCE = 0.01
 
 
 def get_sandwiches(swaps: List[Swap]) -> List[Sandwich]:
@@ -45,10 +48,12 @@ def _get_sandwich_starting_with_swap(
             elif (
                 other_swap.token_out_address == front_swap.token_in_address
                 and other_swap.token_in_address == front_swap.token_out_address
-                and (
-                    other_swap.to_address == sandwicher_address
-                    or other_swap.from_address == sandwicher_address
+                and equal_within_percent(
+                    other_swap.token_in_amount,
+                    front_swap.token_out_amount,
+                    SANDWICH_IN_OUT_MAX_PERCENT_DIFFERENCE,
                 )
+                and other_swap.from_address == sandwicher_address
             ):
                 if len(sandwiched_swaps) > 0:
                     return Sandwich(

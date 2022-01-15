@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple
 
 from mev_inspect.schemas.arbitrages import Arbitrage
 from mev_inspect.schemas.swaps import Swap
+from mev_inspect.utils import equal_within_percent
 
 MAX_TOKEN_AMOUNT_PERCENT_DIFFERENCE = 0.01
 
@@ -175,16 +176,16 @@ def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, List[Swap]]]
 
 
 def _swap_outs_match_swap_ins(swap_out, swap_in) -> bool:
-    if swap_out.token_out_address == swap_in.token_in_address and (
-        swap_out.contract_address == swap_in.from_address
-        or swap_out.to_address == swap_in.contract_address
-        or swap_out.to_address == swap_in.from_address
-    ):
-        amount_percent_difference = abs(
-            (float(swap_out.token_out_amount) / swap_in.token_in_amount) - 1.0
+    return (
+        swap_out.token_out_address == swap_in.token_in_address
+        and (
+            swap_out.contract_address == swap_in.from_address
+            or swap_out.to_address == swap_in.contract_address
+            or swap_out.to_address == swap_in.from_address
         )
-
-        if amount_percent_difference < MAX_TOKEN_AMOUNT_PERCENT_DIFFERENCE:
-            return True
-
-    return False
+        and equal_within_percent(
+            swap_out.token_out_amount,
+            swap_in.token_in_amount,
+            MAX_TOKEN_AMOUNT_PERCENT_DIFFERENCE,
+        )
+    )
