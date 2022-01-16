@@ -22,3 +22,6 @@ cache
 
 # env
 .envrc
+
+# pycharm
+.idea
