@@ -39,6 +39,7 @@ def write_sandwiches(
                 frontrun_swap_trace_address=sandwich.frontrun_swap.trace_address,
                 backrun_swap_transaction_hash=sandwich.backrun_swap.transaction_hash,
                 backrun_swap_trace_address=sandwich.backrun_swap.trace_address,
+                profit_amount=sandwich.profit_amount,
             )
         )
 
