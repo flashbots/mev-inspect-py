@@ -39,12 +39,12 @@ def get_compound_liquidations(
                     liquidations.append(
                         Liquidation(
                             liquidated_user=trace.inputs["borrower"],
-                            debt_token_address=c_token_collateral,
+                            debt_token_address=trace.to_address,
                             liquidator_user=seize_trace.inputs["liquidator"],
                             debt_purchase_amount=trace.value,
                             protocol=trace.protocol,
                             received_amount=seize_trace.inputs["seizeTokens"],
-                            received_token_address=trace.to_address,
+                            received_token_address=c_token_collateral,
                             transaction_hash=trace.transaction_hash,
                             trace_address=trace.trace_address,
                             block_number=trace.block_number,
