@@ -162,14 +162,18 @@ DEL dramatiq:default.DQ.msgs
 
 For more information on queues, see the [spec shared by dramatiq](https://github.com/Bogdanp/dramatiq/blob/24cbc0dc551797783f41b08ea461e1b5d23a4058/dramatiq/brokers/redis/dispatch.lua#L24-L43)
 
-To query a list of missing blocks in a range, run:
+**Backfilling a list of blocks**
+
+Create a file containing a block per row, for example blocks.txt containing:
 ```
-psql postgresql://postgres:password@localhost:5432/mev_inspect -c "select generate_series(13999471, 13999571) EXCEPT (select distinct block_number from blocks)" --csv -t
+12500000
+12500001
+12500002
 ```
 
-To backfill missing blocks in a range, run:
+Then queue the blocks with
 ```
-psql postgresql://postgres:password@localhost:5432/mev_inspect -c "select generate_series(13999471, 13999571) EXCEPT (select distinct block_number from blocks)" --csv -t | ./mev block-list
+cat blocks.txt | ./mev block-list
 ```
 
 To watch the logs for a given worker pod, take its pod name using the above, then run:
