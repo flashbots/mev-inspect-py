@@ -24,9 +24,9 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
         liquidator = liquidation_trace.from_address
         liquidated = liquidation_trace.inputs["borrower"]
         debt_token_address = liquidation_trace.to_address
-        debt_purchase_amount = liquidation_trace.value
+        debt_purchase_amount = liquidation_trace.inputs["repayAmount"]
         received_token_address = liquidation_trace.inputs["cTokenCollateral"]
-        received_amount = 0
+        received_amount = None
 
         debt_transfer = _get_debt_transfer(liquidator, child_transfers)
 
@@ -45,7 +45,7 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
         elif seize_trace is not None and seize_trace.inputs is not None:
             received_amount = seize_trace.inputs["seizeTokens"]
 
-        if received_amount == 0:
+        if received_amount is None:
             return None
 
         return Liquidation(
