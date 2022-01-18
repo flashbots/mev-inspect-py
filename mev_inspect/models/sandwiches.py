@@ -14,3 +14,5 @@ class SandwichModel(Base):
     frontrun_swap_trace_address = Column(ARRAY(Integer), nullable=False)
     backrun_swap_transaction_hash = Column(String(256), nullable=False)
     backrun_swap_trace_address = Column(ARRAY(Integer), nullable=False)
+    profit_token_address = Column(String(256), nullable=False)
+    profit_amount = Column(Numeric, nullable=False)
