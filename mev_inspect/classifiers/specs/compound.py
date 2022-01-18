@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from mev_inspect.schemas.classifiers import (
     Classification,
@@ -51,7 +51,7 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
             received_amount = seize_trace.inputs['seizeTokens']
 
         return Liquidation(
-            liquidated_user=liquiated,
+            liquidated_user=liquidated,
             debt_token_address=debt_token_address,
             liquidator_user=liquidator,
             debt_purchase_amount=debt_purchase_amount,
@@ -64,7 +64,7 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
             error=liquidation_trace.error,
         )
 
-    return None
+        return None
 
 
 COMPOUND_V2_CETH_SPEC = ClassifierSpec(
