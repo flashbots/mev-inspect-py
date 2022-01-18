@@ -12,7 +12,10 @@ def fetch_prices() -> List[Price]:
 
     for token_address in TOKEN_ADDRESSES:
         price_data = cg.get_coin_market_chart_by_id(
-            id=COINGECKO_ID_BY_ADDRESS[token_address], vs_currency="usd", days="max"
+            id=COINGECKO_ID_BY_ADDRESS[token_address],
+            vs_currency="usd",
+            days="max",
+            interval="daily",
         )
         price_time_series = price_data["prices"]
 
