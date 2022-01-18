@@ -178,3 +178,27 @@ def _filter_transfers(
         filtered_transfers.append(transfer)
 
     return filtered_transfers
+
+
+def _get_received_transfer(
+    liquidator: str, child_transfers: List[Transfer]
+) -> Optional[Transfer]:
+    """Get transfer from AAVE to liquidator"""
+
+    for transfer in child_transfers:
+        if transfer.to_address == liquidator:
+            return transfer
+
+    return None
+
+
+def _get_debt_transfer(
+    liquidator: str, child_transfers: List[Transfer]
+) -> Optional[Transfer]:
+    """Get transfer from liquidator to AAVE"""
+
+    for transfer in child_transfers:
+        if transfer.from_address == liquidator:
+            return transfer
+
+    return None

@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from mev_inspect.classifiers.helpers import _get_debt_transfer, _get_received_transfer
 from mev_inspect.schemas.classifiers import (
     Classification,
     ClassifiedTrace,
@@ -237,24 +238,4 @@ def _get_seize_call(traces: List[ClassifiedTrace]) -> Optional[ClassifiedTrace]:
     for trace in traces:
         if trace.classification == Classification.seize:
             return trace
-    return None
-
-
-def _get_received_transfer(
-    liquidator: str, child_transfers: List[Transfer]
-) -> Optional[Transfer]:
-    """Get transfer from compound to liquidator"""
-    for transfer in child_transfers:
-        if transfer.to_address == liquidator:
-            return transfer
-    return None
-
-
-def _get_debt_transfer(
-    liquidator: str, child_transfers: List[Transfer]
-) -> Optional[Transfer]:
-    """Get transfer from liquidator to compound"""
-    for transfer in child_transfers:
-        if transfer.from_address == liquidator:
-            return transfer
     return None

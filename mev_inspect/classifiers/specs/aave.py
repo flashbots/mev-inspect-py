@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from mev_inspect.classifiers.helpers import _get_debt_transfer, _get_received_transfer
 from mev_inspect.schemas.classifiers import (
     ClassifiedTrace,
     ClassifierSpec,
@@ -90,27 +91,3 @@ ATOKENS_SPEC = ClassifierSpec(
 )
 
 AAVE_CLASSIFIER_SPECS: List[ClassifierSpec] = [AAVE_SPEC, ATOKENS_SPEC]
-
-
-def _get_received_transfer(
-    liquidator: str, child_transfers: List[Transfer]
-) -> Optional[Transfer]:
-    """Get transfer from AAVE to liquidator"""
-
-    for transfer in child_transfers:
-        if transfer.to_address == liquidator:
-            return transfer
-
-    return None
-
-
-def _get_debt_transfer(
-    liquidator: str, child_transfers: List[Transfer]
-) -> Optional[Transfer]:
-    """Get transfer from liquidator to AAVE"""
-
-    for transfer in child_transfers:
-        if transfer.from_address == liquidator:
-            return transfer
-
-    return None
