@@ -107,7 +107,6 @@ def enqueue_many_blocks_command(after_block: int, before_block: int, batch_size:
 
 
 @cli.command()
-@coro
 def fetch_all_prices():
     inspect_db_session = get_inspect_session()
 
