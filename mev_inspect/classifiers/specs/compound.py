@@ -1,6 +1,10 @@
 from typing import List, Optional
 
-from mev_inspect.classifiers.helpers import _get_debt_transfer, _get_received_transfer
+from mev_inspect.classifiers.helpers import (
+    CETH_TOKEN_ADDRESS,
+    _get_debt_transfer,
+    _get_received_transfer,
+)
 from mev_inspect.schemas.classifiers import (
     Classification,
     ClassifiedTrace,
@@ -10,7 +14,6 @@ from mev_inspect.schemas.classifiers import (
     SeizeClassifier,
 )
 from mev_inspect.schemas.liquidations import Liquidation
-from mev_inspect.schemas.prices import CETH_TOKEN_ADDRESS
 from mev_inspect.schemas.traces import Protocol
 from mev_inspect.schemas.transfers import Transfer
 

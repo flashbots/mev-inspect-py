@@ -5,6 +5,8 @@ from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import ClassifiedTrace, DecodedCallTrace
 from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS, Transfer
 
+CETH_TOKEN_ADDRESS = "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5"
+
 
 def create_nft_trade_from_transfers(
     trace: DecodedCallTrace,
