@@ -53,6 +53,7 @@ COINGECKO_ID_BY_ADDRESS = {
 }
 
 
+
 class Price(BaseModel):
     token_address: str
     usd_price: float

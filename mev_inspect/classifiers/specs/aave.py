@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from mev_inspect.schemas.classifiers import (
     ClassifiedTrace,
@@ -21,34 +21,42 @@ class AaveLiquidationClassifier(LiquidationClassifier):
     ) -> Optional[Liquidation]:
 
         liquidator = liquidation_trace.from_address
+        liquidated = liquidation_trace.inputs["_user"]
 
-        (debt_token_address, debt_purchase_amount) = _get_debt_data(
-            liquidation_trace, child_transfers, liquidator
-        )
+        debt_token_address = liquidation_trace.inputs["_reserve"]
+        received_token_address = liquidation_trace.inputs["_collateral"]
 
-        if debt_purchase_amount == 0:
+        debt_purchase_amount = None
+        received_amount = None
+
+        debt_transfer = _get_debt_transfer(liquidator, child_transfers)
+
+        received_transfer = _get_received_transfer(liquidator, child_transfers)
+
+        if debt_transfer is not None and received_transfer is not None:
+
+            debt_token_address = debt_transfer.token_address
+            debt_purchase_amount = debt_transfer.amount
+
+            received_token_address = received_transfer.token_address
+            received_amount = received_transfer.amount
+
+            return Liquidation(
+                liquidated_user=liquidated,
+                debt_token_address=debt_token_address,
+                liquidator_user=liquidator,
+                debt_purchase_amount=debt_purchase_amount,
+                protocol=Protocol.aave,
+                received_amount=received_amount,
+                received_token_address=received_token_address,
+                transaction_hash=liquidation_trace.transaction_hash,
+                trace_address=liquidation_trace.trace_address,
+                block_number=liquidation_trace.block_number,
+                error=liquidation_trace.error,
+            )
+
+        else:
             return None
-
-        (received_token_address, received_amount) = _get_received_data(
-            liquidation_trace, child_transfers, liquidator
-        )
-
-        if received_amount == 0:
-            return None
-
-        return Liquidation(
-            liquidated_user=liquidation_trace.inputs["_user"],
-            debt_token_address=debt_token_address,
-            liquidator_user=liquidator,
-            debt_purchase_amount=debt_purchase_amount,
-            protocol=Protocol.aave,
-            received_amount=received_amount,
-            received_token_address=received_token_address,
-            transaction_hash=liquidation_trace.transaction_hash,
-            trace_address=liquidation_trace.trace_address,
-            block_number=liquidation_trace.block_number,
-            error=liquidation_trace.error,
-        )
 
 
 class AaveTransferClassifier(TransferClassifier):
@@ -84,30 +92,25 @@ ATOKENS_SPEC = ClassifierSpec(
 AAVE_CLASSIFIER_SPECS: List[ClassifierSpec] = [AAVE_SPEC, ATOKENS_SPEC]
 
 
-def _get_received_data(
-    liquidation_trace: DecodedCallTrace,
-    child_transfers: List[Transfer],
-    liquidator: str,
-) -> Tuple[str, int]:
+def _get_received_transfer(
+    liquidator: str, child_transfers: List[Transfer]
+) -> Optional[Transfer]:
+    """Get transfer from AAVE to liquidator"""
 
-    """Look for and return liquidator payback from liquidation"""
     for transfer in child_transfers:
-
         if transfer.to_address == liquidator:
-            return transfer.token_address, transfer.amount
+            return transfer
 
-    return liquidation_trace.inputs["_collateral"], 0
+    return None
 
 
-def _get_debt_data(
-    liquidation_trace: DecodedCallTrace,
-    child_transfers: List[Transfer],
-    liquidator: str,
-) -> Tuple[str, int]:
+def _get_debt_transfer(
+    liquidator: str, child_transfers: List[Transfer]
+) -> Optional[Transfer]:
     """Get transfer from liquidator to AAVE"""
 
     for transfer in child_transfers:
         if transfer.from_address == liquidator:
-            return transfer.token_address, transfer.amount
+            return transfer
 
-    return liquidation_trace.inputs["_reserve"], 0
+    return None
