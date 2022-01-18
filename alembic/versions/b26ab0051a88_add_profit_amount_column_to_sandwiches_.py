@@ -18,10 +18,11 @@ depends_on = None
 
 def upgrade():
     op.add_column(
-        "sandwiches",
-        sa.Column("profit_amount", sa.Numeric, nullable=True),
+        "sandwiches", sa.Column("profit_token_address", sa.String(256), nullable=True)
     )
+    op.add_column("sandwiches", sa.Column("profit_amount", sa.Numeric, nullable=True))
 
 
 def downgrade():
+    op.drop_column("sandwiches", "profit_token_address")
     op.drop_column("sandwiches", "profit_amount")

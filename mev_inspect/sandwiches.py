@@ -62,6 +62,7 @@ def _get_sandwich_starting_with_swap(
                         frontrun_swap=front_swap,
                         backrun_swap=other_swap,
                         sandwiched_swaps=sandwiched_swaps,
+                        profit_token_address=front_swap.token_in_address,
                         profit_amount=other_swap.token_out_amount
                         - front_swap.token_in_amount,
                     )

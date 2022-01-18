@@ -11,4 +11,5 @@ class Sandwich(BaseModel):
     frontrun_swap: Swap
     backrun_swap: Swap
     sandwiched_swaps: List[Swap]
+    profit_token_address: str
     profit_amount: int
