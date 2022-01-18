@@ -45,6 +45,7 @@ async def run():
 
     inspector = MEVInspector(rpc)
     base_provider = get_base_provider(rpc)
+    blocks_written = 0
 
     while not killer.kill_now:
         await inspect_next_block(
@@ -54,6 +55,11 @@ async def run():
             base_provider,
             healthcheck_url,
         )
+
+        if (blocks_written % UPDATE_PRICES_EVERY_N_BLOCKS) == 0:
+            await _refresh_prices(inspect_db_session)
+
+        blocks_written += 1
 
     logger.info("Stopping...")
 
@@ -67,8 +73,6 @@ async def inspect_next_block(
 ):
     latest_block_number = await get_latest_block_number(base_provider)
     last_written_block = find_latest_block_update(inspect_db_session)
-
-    blocks_written = 0
 
     logger.info(f"Latest block: {latest_block_number}")
     logger.info(f"Last written block: {last_written_block}")
@@ -89,16 +93,10 @@ async def inspect_next_block(
         )
 
         update_summary_for_block(inspect_db_session, block_number)
-
-        if (blocks_written % UPDATE_PRICES_EVERY_N_BLOCKS) == 0:
-            await _refresh_prices(inspect_db_session)
-
         update_latest_block(inspect_db_session, block_number)
 
         if healthcheck_url:
             await ping_healthcheck_url(healthcheck_url)
-
-        blocks_written += 1
     else:
         await asyncio.sleep(5)
 
