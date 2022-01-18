@@ -1,7 +1,0 @@
-image:
-  repository: mev-inspect-py
-  pullPolicy: IfNotPresent
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""

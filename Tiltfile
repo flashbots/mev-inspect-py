@@ -58,10 +58,6 @@ k8s_resource(
     resource_deps=["postgresql-postgresql", "redis-master"],
 )
 
-# uncomment to enable price monitor
-# k8s_yaml(helm('./k8s/mev-inspect-prices', name='mev-inspect-prices'))
-# k8s_resource(workload="mev-inspect-prices", resource_deps=["postgresql-postgresql"])
-
 local_resource(
     'pg-port-forward',
     serve_cmd='kubectl port-forward --namespace default svc/postgresql 5432:5432',
