@@ -28,7 +28,6 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
         received_token_address = liquidation_trace.inputs["cTokenCollateral"]
         received_amount = 0
 
-
         debt_transfer = _get_debt_transfer(
             liquidator, child_transfers
         )
