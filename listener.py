@@ -10,9 +10,11 @@ from mev_inspect.crud.latest_block_update import (
     find_latest_block_update,
     update_latest_block,
 )
+from mev_inspect.crud.prices import write_prices
 from mev_inspect.crud.summary import update_summary_for_block
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
+from mev_inspect.prices import fetch_all_supported_prices
 from mev_inspect.provider import get_base_provider
 from mev_inspect.signal_handler import GracefulKiller
 
@@ -21,6 +23,9 @@ logger = logging.getLogger(__name__)
 
 # lag to make sure the blocks we see are settled
 BLOCK_NUMBER_LAG = 5
+
+# how often to update prices
+UPDATE_PRICES_EVERY_N_BLOCKS = 300
 
 
 @coro
@@ -63,6 +68,8 @@ async def inspect_next_block(
     latest_block_number = await get_latest_block_number(base_provider)
     last_written_block = find_latest_block_update(inspect_db_session)
 
+    blocks_written = 0
+
     logger.info(f"Latest block: {latest_block_number}")
     logger.info(f"Last written block: {last_written_block}")
 
@@ -82,10 +89,16 @@ async def inspect_next_block(
         )
 
         update_summary_for_block(inspect_db_session, block_number)
+
+        if (blocks_written % UPDATE_PRICES_EVERY_N_BLOCKS) == 0:
+            await _refresh_prices(inspect_db_session)
+
         update_latest_block(inspect_db_session, block_number)
 
         if healthcheck_url:
             await ping_healthcheck_url(healthcheck_url)
+
+        blocks_written += 1
     else:
         await asyncio.sleep(5)
 
@@ -94,6 +107,14 @@ async def ping_healthcheck_url(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url):
             pass
+
+
+async def _refresh_prices(inspect_db_session) -> None:
+    logger.info("Fetching prices")
+    prices = await fetch_all_supported_prices()
+
+    logger.info("Writing prices")
+    write_prices(inspect_db_session, prices)
 
 
 if __name__ == "__main__":
