@@ -114,10 +114,7 @@ def test_c_token_liquidation(trace_classifier: TraceClassifier):
     result = get_liquidations(classified_traces)
 
     for liquidation in liquidations:
-        try:
-            assert liquidation in result
-        except:
-            import pdb; pdb.set_trace()
+        assert liquidation in result
 
 
 def test_cream_token_liquidation(trace_classifier: TraceClassifier):
