@@ -113,7 +113,7 @@ def _find_traces(
     block_number: int,
 ) -> Optional[List[Trace]]:
     result = trace_db_session.execute(
-        "SELECT raw_traces FROM block_traces WHERE block_number = :block_number LIMIT 1",
+        "SELECT raw_traces FROM block_traces WHERE block_number = :block_number",
         params={"block_number": block_number},
     ).one_or_none()
 
