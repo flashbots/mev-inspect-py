@@ -99,7 +99,7 @@ def test_c_token_liquidation(trace_classifier: TraceClassifier):
         Liquidation(
             liquidated_user="0xacdd5528c1c92b57045041b5278efa06cdade4d8",
             liquidator_user="0xe0090ec6895c087a393f0e45f1f85098a6c33bef",
-            debt_token_address="0x39aa39c021dfbae8fac545936693ac917d5e7563",
+            debt_token_address="0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
             debt_purchase_amount=1207055531,
             received_amount=21459623305,
             received_token_address="0x70e36f6bf80a52b3b46b3af8e106cc0ed743e8e4",
@@ -114,8 +114,10 @@ def test_c_token_liquidation(trace_classifier: TraceClassifier):
     result = get_liquidations(classified_traces)
 
     for liquidation in liquidations:
-        assert liquidation in result
-
+        try:
+            assert liquidation in result
+        except:
+            import pdb; pdb.set_trace()
 
 
 def test_cream_token_liquidation(trace_classifier: TraceClassifier):
