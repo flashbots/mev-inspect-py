@@ -1,16 +1,100 @@
+from typing import List, Optional, Tuple
+
 from mev_inspect.schemas.classifiers import (
+    Classification,
+    ClassifiedTrace,
+    Classifier,
     ClassifierSpec,
-    LiquidationClassifier,
+    DecodedCallTrace,
     SeizeClassifier,
 )
+from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.traces import Protocol
+from mev_inspect.schemas.transfers import Transfer
+
+
+class CompoundLiquidationClassifier(Classifier):
+    def parse_liquidation(
+        self,
+        liquidation_trace: DecodedCallTrace,
+        child_traces: List[ClassifiedTrace],
+        child_transfers: List[Transfer],
+    ) -> Optional[Liquidation]:
+
+        seize_trace = self._get_seize_call(child_traces)
+
+        if seize_trace is not None and seize_trace.inputs is not None:
+
+            liquidator = seize_trace.inputs["liquidator"]
+
+            (debt_token_address, debt_purchase_amount) = self._get_debt_data(
+                liquidator, child_transfers
+            )
+
+            if debt_purchase_amount == 0:
+                return None
+
+            (received_token_address, received_amount) = self._get_received_data(
+                liquidator, child_transfers
+            )
+
+            if received_amount == 0:
+                return None
+
+            return Liquidation(
+                liquidated_user=liquidation_trace.inputs["borrower"],
+                debt_token_address=debt_token_address,
+                liquidator_user=liquidator,
+                debt_purchase_amount=debt_purchase_amount,
+                protocol=liquidation_trace.protocol,
+                received_amount=received_amount,
+                received_token_address=received_token_address,
+                transaction_hash=liquidation_trace.transaction_hash,
+                trace_address=liquidation_trace.trace_address,
+                block_number=liquidation_trace.block_number,
+                error=liquidation_trace.error,
+            )
+        return None
+
+    def _get_seize_call(
+        self, traces: List[ClassifiedTrace]
+    ) -> Optional[ClassifiedTrace]:
+        """Find the call to `seize` in the child traces (successful liquidation)"""
+        for trace in traces:
+            if trace.classification == Classification.seize:
+                return trace
+        return None
+
+    def _get_received_data(
+        self, liquidator: str, child_transfers: List[Transfer]
+    ) -> Tuple[str, int]:
+        """Look for and return payment for liquidation"""
+
+        for transfer in child_transfers:
+            if transfer.to_address == liquidator:
+                return transfer.token_address, transfer.amount
+
+        return liquidator, 0
+
+    def _get_debt_data(
+        self, liquidator: str, child_transfers: List[Transfer]
+    ) -> Tuple[str, int]:
+        """Get transfer from liquidator to compound"""
+
+        for transfer in child_transfers:
+
+            if transfer.from_address == liquidator:
+                return transfer.token_address, transfer.amount
+
+        return liquidator, 0
+
 
 COMPOUND_V2_CETH_SPEC = ClassifierSpec(
     abi_name="CEther",
     protocol=Protocol.compound_v2,
     valid_contract_addresses=["0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5"],
     classifiers={
-        "liquidateBorrow(address,address)": LiquidationClassifier,
+        "liquidateBorrow(address,address)": CompoundLiquidationClassifier,
         "seize(address,address,uint256)": SeizeClassifier,
     },
 )
@@ -20,7 +104,7 @@ CREAM_CETH_SPEC = ClassifierSpec(
     protocol=Protocol.cream,
     valid_contract_addresses=["0xD06527D5e56A3495252A528C4987003b712860eE"],
     classifiers={
-        "liquidateBorrow(address,address)": LiquidationClassifier,
+        "liquidateBorrow(address,address)": CompoundLiquidationClassifier,
         "seize(address,address,uint256)": SeizeClassifier,
     },
 )
@@ -48,7 +132,7 @@ COMPOUND_V2_CTOKEN_SPEC = ClassifierSpec(
         "0x80a2ae356fc9ef4305676f7a3e2ed04e12c33946",
     ],
     classifiers={
-        "liquidateBorrow(address,uint256,address)": LiquidationClassifier,
+        "liquidateBorrow(address,uint256,address)": CompoundLiquidationClassifier,
         "seize(address,address,uint256)": SeizeClassifier,
     },
 )
@@ -150,12 +234,12 @@ CREAM_CTOKEN_SPEC = ClassifierSpec(
         "0x58da9c9fc3eb30abbcbbab5ddabb1e6e2ef3d2ef",
     ],
     classifiers={
-        "liquidateBorrow(address,uint256,address)": LiquidationClassifier,
+        "liquidateBorrow(address,uint256,address)": CompoundLiquidationClassifier,
         "seize(address,address,uint256)": SeizeClassifier,
     },
 )
 
-COMPOUND_CLASSIFIER_SPECS = [
+COMPOUND_CLASSIFIER_SPECS: List[ClassifierSpec] = [
     COMPOUND_V2_CETH_SPEC,
     COMPOUND_V2_CTOKEN_SPEC,
     CREAM_CETH_SPEC,
