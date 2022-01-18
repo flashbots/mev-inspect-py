@@ -1,50 +1,33 @@
+from datetime import datetime as dt
 from typing import List
 
-from mev_inspect.classifiers.specs.weth import WETH_ADDRESS
-from mev_inspect.coinbase import fetch_coinbase_prices
-from mev_inspect.schemas.prices import (
-    AAVE_TOKEN_ADDRESS,
-    CDAI_TOKEN_ADDRESS,
-    CUSDC_TOKEN_ADDRESS,
-    DAI_TOKEN_ADDRESS,
-    LINK_TOKEN_ADDRESS,
-    REN_TOKEN_ADDRESS,
-    UNI_TOKEN_ADDRESS,
-    USDC_TOKEN_ADDRESS,
-    WBTC_TOKEN_ADDRESS,
-    YEARN_TOKEN_ADDRESS,
-    Price,
-)
-from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS
+from pycoingecko import CoinGeckoAPI
 
-SUPPORTED_TOKENS = [
-    AAVE_TOKEN_ADDRESS,
-    CDAI_TOKEN_ADDRESS,
-    CUSDC_TOKEN_ADDRESS,
-    DAI_TOKEN_ADDRESS,
-    ETH_TOKEN_ADDRESS,
-    LINK_TOKEN_ADDRESS,
-    REN_TOKEN_ADDRESS,
-    UNI_TOKEN_ADDRESS,
-    USDC_TOKEN_ADDRESS,
-    WBTC_TOKEN_ADDRESS,
-    WETH_ADDRESS,
-    YEARN_TOKEN_ADDRESS,
-]
+from mev_inspect.schemas.prices import COINGECKO_ID_BY_ADDRESS, TOKEN_ADDRESSES, Price
 
 
-async def fetch_all_supported_prices() -> List[Price]:
+def fetch_prices() -> List[Price]:
+    cg = CoinGeckoAPI()
     prices = []
 
-    for token_address in SUPPORTED_TOKENS:
-        coinbase_prices = await fetch_coinbase_prices(token_address)
-        for usd_price, timestamp_seconds in coinbase_prices.all.prices:
-            price = Price(
-                token_address=token_address,
-                usd_price=usd_price,
-                timestamp=timestamp_seconds,
-            )
+    for token_address in TOKEN_ADDRESSES:
+        price_data = cg.get_coin_market_chart_by_id(
+            id=COINGECKO_ID_BY_ADDRESS[token_address],
+            vs_currency="usd",
+            days="max",
+            interval="daily",
+        )
+        price_time_series = price_data["prices"]
 
-            prices.append(price)
+        for entry in price_time_series:
+            timestamp = dt.fromtimestamp(entry[0] / 100)
+            token_price = entry[1]
+            prices.append(
+                Price(
+                    timestamp=timestamp,
+                    usd_price=token_price,
+                    token_address=token_address,
+                )
+            )
 
     return prices
