@@ -21,40 +21,50 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
         child_traces: List[ClassifiedTrace],
     ) -> Optional[Liquidation]:
 
+        liquidator = liquidation_trace.from_address
+        liquidated = liquidation_trace.inputs["borrower"]
+        debt_token_address = liquidation_trace.to_address
+        debt_purchase_amount = liquidation_trace.value
+        received_token_address = liquidation_trace.inputs["cTokenCollateral"]
+        received_amount = 0
+
+
+        debt_transfer = _get_debt_transfer(
+            liquidator, child_transfers
+        )
+
+        received_transfer = _get_received_transfer(
+            liquidator, child_transfers
+        )
+
         seize_trace = _get_seize_call(child_traces)
 
-        if seize_trace is not None and seize_trace.inputs is not None:
+        if debt_transfer is not None:
+            debt_token_address = debt_transfer.token_address
+            debt_purchase_amount = debt_transfer.amount
 
-            liquidator = seize_trace.inputs["liquidator"]
+        if received_transfer is not None:
+            received_token_address = received_transfer.token_address
+            received_amount = received_transfer.amount
 
-            (debt_token_address, debt_purchase_amount) = _get_debt_data(
-                liquidator, child_transfers
-            )
+        elif seize_trace is not None and seize_trace.inputs is not None:
+            received_amount = seize_trace.inputs['seizeTokens']
 
-            if debt_purchase_amount == 0:
-                return None
+        return Liquidation(
+            liquidated_user=liquiated,
+            debt_token_address=debt_token_address,
+            liquidator_user=liquidator,
+            debt_purchase_amount=debt_purchase_amount,
+            protocol=liquidation_trace.protocol,
+            received_amount=received_amount,
+            received_token_address=received_token_address,
+            transaction_hash=liquidation_trace.transaction_hash,
+            trace_address=liquidation_trace.trace_address,
+            block_number=liquidation_trace.block_number,
+            error=liquidation_trace.error,
+        )
 
-            (received_token_address, received_amount) = _get_received_data(
-                liquidator, child_transfers
-            )
-
-            if received_amount == 0:
-                return None
-
-            return Liquidation(
-                liquidated_user=liquidation_trace.inputs["borrower"],
-                debt_token_address=debt_token_address,
-                liquidator_user=liquidator,
-                debt_purchase_amount=debt_purchase_amount,
-                protocol=liquidation_trace.protocol,
-                received_amount=received_amount,
-                received_token_address=received_token_address,
-                transaction_hash=liquidation_trace.transaction_hash,
-                trace_address=liquidation_trace.trace_address,
-                block_number=liquidation_trace.block_number,
-                error=liquidation_trace.error,
-            )
-        return None
+    return None
 
 
 COMPOUND_V2_CETH_SPEC = ClassifierSpec(
@@ -222,24 +232,19 @@ def _get_seize_call(traces: List[ClassifiedTrace]) -> Optional[ClassifiedTrace]:
             return trace
     return None
 
-
-def _get_received_data(
+def _get_received_transfer(
     liquidator: str, child_transfers: List[Transfer]
-) -> Tuple[str, int]:
-    """Look for and return payment for liquidation"""
-
+) -> Optional[Transfer]:
+    """Get transfer from compound to liquidator"""
     for transfer in child_transfers:
         if transfer.to_address == liquidator:
-            return transfer.token_address, transfer.amount
+            return transfer
+    return None
 
-    return liquidator, 0
 
-
-def _get_debt_data(liquidator: str, child_transfers: List[Transfer]) -> Tuple[str, int]:
+def _get_debt_transfer(liquidator: str, child_transfers: List[Transfer]) -> Optional[Transfer]:
     """Get transfer from liquidator to compound"""
-
     for transfer in child_transfers:
         if transfer.from_address == liquidator:
-            return transfer.token_address, transfer.amount
-
-    return liquidator, 0
+            return transfer
+    return None
