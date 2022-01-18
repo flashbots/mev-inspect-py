@@ -3,9 +3,9 @@ from typing import List, Optional, Tuple
 from mev_inspect.schemas.classifiers import (
     Classification,
     ClassifiedTrace,
-    Classifier,
     ClassifierSpec,
     DecodedCallTrace,
+    LiquidationClassifier,
     SeizeClassifier,
 )
 from mev_inspect.schemas.liquidations import Liquidation
@@ -13,28 +13,28 @@ from mev_inspect.schemas.traces import Protocol
 from mev_inspect.schemas.transfers import Transfer
 
 
-class CompoundLiquidationClassifier(Classifier):
+class CompoundLiquidationClassifier(LiquidationClassifier):
+    @staticmethod
     def parse_liquidation(
-        self,
         liquidation_trace: DecodedCallTrace,
-        child_traces: List[ClassifiedTrace],
         child_transfers: List[Transfer],
+        child_traces: List[ClassifiedTrace],
     ) -> Optional[Liquidation]:
 
-        seize_trace = self._get_seize_call(child_traces)
+        seize_trace = _get_seize_call(child_traces)
 
         if seize_trace is not None and seize_trace.inputs is not None:
 
             liquidator = seize_trace.inputs["liquidator"]
 
-            (debt_token_address, debt_purchase_amount) = self._get_debt_data(
+            (debt_token_address, debt_purchase_amount) = _get_debt_data(
                 liquidator, child_transfers
             )
 
             if debt_purchase_amount == 0:
                 return None
 
-            (received_token_address, received_amount) = self._get_received_data(
+            (received_token_address, received_amount) = _get_received_data(
                 liquidator, child_transfers
             )
 
@@ -55,38 +55,6 @@ class CompoundLiquidationClassifier(Classifier):
                 error=liquidation_trace.error,
             )
         return None
-
-    def _get_seize_call(
-        self, traces: List[ClassifiedTrace]
-    ) -> Optional[ClassifiedTrace]:
-        """Find the call to `seize` in the child traces (successful liquidation)"""
-        for trace in traces:
-            if trace.classification == Classification.seize:
-                return trace
-        return None
-
-    def _get_received_data(
-        self, liquidator: str, child_transfers: List[Transfer]
-    ) -> Tuple[str, int]:
-        """Look for and return payment for liquidation"""
-
-        for transfer in child_transfers:
-            if transfer.to_address == liquidator:
-                return transfer.token_address, transfer.amount
-
-        return liquidator, 0
-
-    def _get_debt_data(
-        self, liquidator: str, child_transfers: List[Transfer]
-    ) -> Tuple[str, int]:
-        """Get transfer from liquidator to compound"""
-
-        for transfer in child_transfers:
-
-            if transfer.from_address == liquidator:
-                return transfer.token_address, transfer.amount
-
-        return liquidator, 0
 
 
 COMPOUND_V2_CETH_SPEC = ClassifierSpec(
@@ -245,3 +213,33 @@ COMPOUND_CLASSIFIER_SPECS: List[ClassifierSpec] = [
     CREAM_CETH_SPEC,
     CREAM_CTOKEN_SPEC,
 ]
+
+
+def _get_seize_call(traces: List[ClassifiedTrace]) -> Optional[ClassifiedTrace]:
+    """Find the call to `seize` in the child traces (successful liquidation)"""
+    for trace in traces:
+        if trace.classification == Classification.seize:
+            return trace
+    return None
+
+
+def _get_received_data(
+    liquidator: str, child_transfers: List[Transfer]
+) -> Tuple[str, int]:
+    """Look for and return payment for liquidation"""
+
+    for transfer in child_transfers:
+        if transfer.to_address == liquidator:
+            return transfer.token_address, transfer.amount
+
+    return liquidator, 0
+
+
+def _get_debt_data(liquidator: str, child_transfers: List[Transfer]) -> Tuple[str, int]:
+    """Get transfer from liquidator to compound"""
+
+    for transfer in child_transfers:
+        if transfer.from_address == liquidator:
+            return transfer.token_address, transfer.amount
+
+    return liquidator, 0

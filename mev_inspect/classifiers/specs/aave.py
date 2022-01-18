@@ -1,9 +1,10 @@
 from typing import List, Optional, Tuple
 
 from mev_inspect.schemas.classifiers import (
-    Classifier,
+    ClassifiedTrace,
     ClassifierSpec,
     DecodedCallTrace,
+    LiquidationClassifier,
     TransferClassifier,
 )
 from mev_inspect.schemas.liquidations import Liquidation
@@ -11,21 +12,24 @@ from mev_inspect.schemas.traces import Protocol
 from mev_inspect.schemas.transfers import Transfer
 
 
-class AaveLiquidationClassifier(Classifier):
+class AaveLiquidationClassifier(LiquidationClassifier):
+    @staticmethod
     def parse_liquidation(
-        self, liquidation_trace: DecodedCallTrace, child_transfers: List[Transfer]
+        liquidation_trace: DecodedCallTrace,
+        child_transfers: List[Transfer],
+        child_traces: List[ClassifiedTrace],
     ) -> Optional[Liquidation]:
 
         liquidator = liquidation_trace.from_address
 
-        (debt_token_address, debt_purchase_amount) = self._get_debt_data(
+        (debt_token_address, debt_purchase_amount) = _get_debt_data(
             liquidation_trace, child_transfers, liquidator
         )
 
         if debt_purchase_amount == 0:
             return None
 
-        (received_token_address, received_amount) = self._get_received_data(
+        (received_token_address, received_amount) = _get_received_data(
             liquidation_trace, child_transfers, liquidator
         )
 
@@ -45,35 +49,6 @@ class AaveLiquidationClassifier(Classifier):
             block_number=liquidation_trace.block_number,
             error=liquidation_trace.error,
         )
-
-    def _get_received_data(
-        self,
-        liquidation_trace: DecodedCallTrace,
-        child_transfers: List[Transfer],
-        liquidator: str,
-    ) -> Tuple[str, int]:
-
-        """Look for and return liquidator payback from liquidation"""
-        for transfer in child_transfers:
-
-            if transfer.to_address == liquidator:
-                return transfer.token_address, transfer.amount
-
-        return liquidation_trace.inputs["_collateral"], 0
-
-    def _get_debt_data(
-        self,
-        liquidation_trace: DecodedCallTrace,
-        child_transfers: List[Transfer],
-        liquidator: str,
-    ) -> Tuple[str, int]:
-        """Get transfer from liquidator to AAVE"""
-
-        for transfer in child_transfers:
-            if transfer.from_address == liquidator:
-                return transfer.token_address, transfer.amount
-
-        return liquidation_trace.inputs["_reserve"], 0
 
 
 class AaveTransferClassifier(TransferClassifier):
@@ -107,3 +82,32 @@ ATOKENS_SPEC = ClassifierSpec(
 )
 
 AAVE_CLASSIFIER_SPECS: List[ClassifierSpec] = [AAVE_SPEC, ATOKENS_SPEC]
+
+
+def _get_received_data(
+    liquidation_trace: DecodedCallTrace,
+    child_transfers: List[Transfer],
+    liquidator: str,
+) -> Tuple[str, int]:
+
+    """Look for and return liquidator payback from liquidation"""
+    for transfer in child_transfers:
+
+        if transfer.to_address == liquidator:
+            return transfer.token_address, transfer.amount
+
+    return liquidation_trace.inputs["_collateral"], 0
+
+
+def _get_debt_data(
+    liquidation_trace: DecodedCallTrace,
+    child_transfers: List[Transfer],
+    liquidator: str,
+) -> Tuple[str, int]:
+    """Get transfer from liquidator to AAVE"""
+
+    for transfer in child_transfers:
+        if transfer.from_address == liquidator:
+            return transfer.token_address, transfer.amount
+
+    return liquidation_trace.inputs["_reserve"], 0

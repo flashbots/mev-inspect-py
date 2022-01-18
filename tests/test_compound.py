@@ -1,5 +1,5 @@
 from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.compound_liquidations import get_compound_liquidations
+from mev_inspect.liquidations import get_liquidations
 from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.traces import Protocol
 from tests.utils import load_comp_markets, load_cream_markets, load_test_block
@@ -30,8 +30,10 @@ def test_c_ether_liquidations(trace_classifier: TraceClassifier):
     ]
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result
 
     block_number = 13207907
     transaction_hash = (
@@ -55,8 +57,10 @@ def test_c_ether_liquidations(trace_classifier: TraceClassifier):
 
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result
 
     block_number = 13298725
     transaction_hash = (
@@ -79,8 +83,10 @@ def test_c_ether_liquidations(trace_classifier: TraceClassifier):
     ]
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result
 
 
 def test_c_token_liquidation(trace_classifier: TraceClassifier):
@@ -105,8 +111,10 @@ def test_c_token_liquidation(trace_classifier: TraceClassifier):
     ]
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result
 
 
 def test_cream_token_liquidation(trace_classifier: TraceClassifier):
@@ -131,5 +139,7 @@ def test_cream_token_liquidation(trace_classifier: TraceClassifier):
     ]
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result

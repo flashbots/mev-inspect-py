@@ -51,9 +51,9 @@ class LiquidationClassifier(Classifier):
     @staticmethod
     @abstractmethod
     def parse_liquidation(
-        trace: ClassifiedTrace,
+        liquidation_trace: DecodedCallTrace,
         child_transfers: List[Transfer],
-        child_traces: List[ClassifiedTrace] = [],
+        child_traces: List[ClassifiedTrace],
     ) -> Optional[Liquidation]:
         raise NotImplementedError()
 
