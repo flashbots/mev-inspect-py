@@ -28,13 +28,9 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
         received_token_address = liquidation_trace.inputs["cTokenCollateral"]
         received_amount = 0
 
-        debt_transfer = _get_debt_transfer(
-            liquidator, child_transfers
-        )
+        debt_transfer = _get_debt_transfer(liquidator, child_transfers)
 
-        received_transfer = _get_received_transfer(
-            liquidator, child_transfers
-        )
+        received_transfer = _get_received_transfer(liquidator, child_transfers)
 
         seize_trace = _get_seize_call(child_traces)
 
@@ -47,7 +43,10 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
             received_amount = received_transfer.amount
 
         elif seize_trace is not None and seize_trace.inputs is not None:
-            received_amount = seize_trace.inputs['seizeTokens']
+            received_amount = seize_trace.inputs["seizeTokens"]
+
+        if received_amount == 0:
+            return None
 
         return Liquidation(
             liquidated_user=liquidated,
@@ -231,6 +230,7 @@ def _get_seize_call(traces: List[ClassifiedTrace]) -> Optional[ClassifiedTrace]:
             return trace
     return None
 
+
 def _get_received_transfer(
     liquidator: str, child_transfers: List[Transfer]
 ) -> Optional[Transfer]:
@@ -241,7 +241,9 @@ def _get_received_transfer(
     return None
 
 
-def _get_debt_transfer(liquidator: str, child_transfers: List[Transfer]) -> Optional[Transfer]:
+def _get_debt_transfer(
+    liquidator: str, child_transfers: List[Transfer]
+) -> Optional[Transfer]:
     """Get transfer from liquidator to compound"""
     for transfer in child_transfers:
         if transfer.from_address == liquidator:
