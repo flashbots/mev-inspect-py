@@ -10,6 +10,7 @@ from mev_inspect.crud.latest_block_update import (
     find_latest_block_update,
     update_latest_block,
 )
+from mev_inspect.crud.summary import update_summary_for_block
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.provider import get_base_provider
@@ -79,6 +80,8 @@ async def inspect_next_block(
             trace_db_session=trace_db_session,
             block=block_number,
         )
+
+        update_summary_for_block(inspect_db_session, block_number)
         update_latest_block(inspect_db_session, block_number)
 
         if healthcheck_url:
