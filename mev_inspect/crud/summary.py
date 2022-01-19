@@ -71,10 +71,6 @@ INSERT INTO mev_summary (
 """
 
 
-def update_summary_for_block(db_session, block_number: int) -> None:
-    update_summary_for_block_range(db_session, block_number, block_number + 1)
-
-
 def update_summary_for_block_range(
     db_session,
     after_block_number: int,
