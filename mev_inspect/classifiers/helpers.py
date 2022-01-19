@@ -1,11 +1,10 @@
 from typing import List, Optional, Sequence
 
 from mev_inspect.schemas.nft_trades import NftTrade
+from mev_inspect.schemas.prices import ETH_TOKEN_ADDRESS
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import ClassifiedTrace, DecodedCallTrace
-from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS, Transfer
-
-CETH_TOKEN_ADDRESS = "0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5"
+from mev_inspect.schemas.transfers import Transfer
 
 
 def create_nft_trade_from_transfers(

@@ -3,8 +3,8 @@ from typing import List
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.liquidations import get_liquidations
 from mev_inspect.schemas.liquidations import Liquidation
+from mev_inspect.schemas.prices import ETH_TOKEN_ADDRESS
 from mev_inspect.schemas.traces import Protocol
-from mev_inspect.transfers import ETH_TOKEN_ADDRESS
 from tests.utils import load_test_block
 
 

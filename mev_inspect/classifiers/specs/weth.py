@@ -3,6 +3,7 @@ from mev_inspect.schemas.classifiers import (
     DecodedCallTrace,
     TransferClassifier,
 )
+from mev_inspect.schemas.prices import WETH_TOKEN_ADDRESS
 from mev_inspect.schemas.traces import Protocol
 from mev_inspect.schemas.transfers import Transfer
 
@@ -21,12 +22,10 @@ class WethTransferClassifier(TransferClassifier):
         )
 
 
-WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-
 WETH_SPEC = ClassifierSpec(
     abi_name="WETH9",
     protocol=Protocol.weth,
-    valid_contract_addresses=[WETH_ADDRESS],
+    valid_contract_addresses=[WETH_TOKEN_ADDRESS],
     classifiers={
         "transferFrom(address,address,uint256)": WethTransferClassifier,
         "transfer(address,uint256)": WethTransferClassifier,
