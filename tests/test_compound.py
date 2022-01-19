@@ -1,5 +1,5 @@
 from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.compound_liquidations import get_compound_liquidations
+from mev_inspect.liquidations import get_liquidations
 from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.traces import Protocol
 from tests.utils import load_comp_markets, load_cream_markets, load_test_block
@@ -30,8 +30,10 @@ def test_c_ether_liquidations(trace_classifier: TraceClassifier):
     ]
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result
 
     block_number = 13207907
     transaction_hash = (
@@ -55,8 +57,10 @@ def test_c_ether_liquidations(trace_classifier: TraceClassifier):
 
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result
 
     block_number = 13298725
     transaction_hash = (
@@ -79,8 +83,10 @@ def test_c_ether_liquidations(trace_classifier: TraceClassifier):
     ]
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result
 
 
 def test_c_token_liquidation(trace_classifier: TraceClassifier):
@@ -93,7 +99,7 @@ def test_c_token_liquidation(trace_classifier: TraceClassifier):
         Liquidation(
             liquidated_user="0xacdd5528c1c92b57045041b5278efa06cdade4d8",
             liquidator_user="0xe0090ec6895c087a393f0e45f1f85098a6c33bef",
-            debt_token_address="0x39aa39c021dfbae8fac545936693ac917d5e7563",
+            debt_token_address="0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
             debt_purchase_amount=1207055531,
             received_amount=21459623305,
             received_token_address="0x70e36f6bf80a52b3b46b3af8e106cc0ed743e8e4",
@@ -105,8 +111,10 @@ def test_c_token_liquidation(trace_classifier: TraceClassifier):
     ]
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result
 
 
 def test_cream_token_liquidation(trace_classifier: TraceClassifier):
@@ -119,7 +127,7 @@ def test_cream_token_liquidation(trace_classifier: TraceClassifier):
         Liquidation(
             liquidated_user="0x46bf9479dc569bc796b7050344845f6564d45fba",
             liquidator_user="0xa2863cad9c318669660eb4eca8b3154b90fb4357",
-            debt_token_address="0x697256caa3ccafd62bb6d3aa1c7c5671786a5fd9",
+            debt_token_address="0x514910771af9ca656af840dff83e8264ecf986ca",
             debt_purchase_amount=14857434973806369550,
             received_amount=1547215810826,
             received_token_address="0x44fbebd2f576670a6c33f6fc0b00aa8c5753b322",
@@ -131,5 +139,7 @@ def test_cream_token_liquidation(trace_classifier: TraceClassifier):
     ]
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_compound_liquidations(classified_traces)
-    assert result == liquidations
+    result = get_liquidations(classified_traces)
+
+    for liquidation in liquidations:
+        assert liquidation in result

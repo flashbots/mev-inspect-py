@@ -1,10 +1,10 @@
 from typing import List
 
-from mev_inspect.aave_liquidations import get_aave_liquidations
 from mev_inspect.classifiers.trace import TraceClassifier
+from mev_inspect.liquidations import get_liquidations
 from mev_inspect.schemas.liquidations import Liquidation
+from mev_inspect.schemas.prices import ETH_TOKEN_ADDRESS
 from mev_inspect.schemas.traces import Protocol
-from mev_inspect.transfers import ETH_TOKEN_ADDRESS
 from tests.utils import load_test_block
 
 
@@ -31,9 +31,10 @@ def test_single_weth_liquidation(trace_classifier: TraceClassifier):
 
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_aave_liquidations(classified_traces)
+    result = get_liquidations(classified_traces)
 
-    _assert_equal_list_of_liquidations(result, liquidations)
+    for liquidation in liquidations:
+        assert liquidation in result
 
 
 def test_single_liquidation(trace_classifier: TraceClassifier):
@@ -59,9 +60,10 @@ def test_single_liquidation(trace_classifier: TraceClassifier):
 
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_aave_liquidations(classified_traces)
+    result = get_liquidations(classified_traces)
 
-    _assert_equal_list_of_liquidations(result, liquidations)
+    for liquidation in liquidations:
+        assert liquidation in result
 
 
 def test_single_liquidation_with_atoken_payback(trace_classifier: TraceClassifier):
@@ -87,9 +89,10 @@ def test_single_liquidation_with_atoken_payback(trace_classifier: TraceClassifie
 
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_aave_liquidations(classified_traces)
+    result = get_liquidations(classified_traces)
 
-    _assert_equal_list_of_liquidations(result, liquidations)
+    for liquidation in liquidations:
+        assert liquidation in result
 
 
 def test_multiple_liquidations_in_block(trace_classifier: TraceClassifier):
@@ -139,10 +142,11 @@ def test_multiple_liquidations_in_block(trace_classifier: TraceClassifier):
 
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_aave_liquidations(classified_traces)
+    result = get_liquidations(classified_traces)
     liquidations = [liquidation1, liquidation2, liquidation3]
 
-    _assert_equal_list_of_liquidations(result, liquidations)
+    for liquidation in liquidations:
+        assert liquidation in result
 
 
 def test_liquidations_with_eth_transfer(trace_classifier: TraceClassifier):
@@ -179,10 +183,11 @@ def test_liquidations_with_eth_transfer(trace_classifier: TraceClassifier):
 
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
-    result = get_aave_liquidations(classified_traces)
+    result = get_liquidations(classified_traces)
     liquidations = [liquidation1, liquidation2]
 
-    _assert_equal_list_of_liquidations(result, liquidations)
+    for liquidation in liquidations:
+        assert liquidation in result
 
 
 def _assert_equal_list_of_liquidations(

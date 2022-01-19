@@ -2,9 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, validator
 
-from mev_inspect.classifiers.specs.weth import WETH_ADDRESS
-from mev_inspect.schemas.transfers import ETH_TOKEN_ADDRESS
-
+ETH_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+WETH_TOKEN_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
 WBTC_TOKEN_ADDRESS = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
 LINK_TOKEN_ADDRESS = "0x514910771af9ca656af840dff83e8264ecf986ca"
 YEARN_TOKEN_ADDRESS = "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e"
@@ -20,7 +19,7 @@ CWBTC_TOKEN_ADDRESS = "0xc11b1268c1a384e55c48c2391d8d480264a3a7f4"
 
 TOKEN_ADDRESSES = [
     ETH_TOKEN_ADDRESS,
-    WETH_ADDRESS,
+    WETH_TOKEN_ADDRESS,
     WBTC_TOKEN_ADDRESS,
     LINK_TOKEN_ADDRESS,
     YEARN_TOKEN_ADDRESS,
@@ -36,7 +35,7 @@ TOKEN_ADDRESSES = [
 ]
 
 COINGECKO_ID_BY_ADDRESS = {
-    WETH_ADDRESS: "weth",
+    WETH_TOKEN_ADDRESS: "weth",
     ETH_TOKEN_ADDRESS: "ethereum",
     WBTC_TOKEN_ADDRESS: "wrapped-bitcoin",
     LINK_TOKEN_ADDRESS: "chainlink",
