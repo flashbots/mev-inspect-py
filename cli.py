@@ -119,8 +119,8 @@ def fetch_all_prices():
 
 
 @cli.command()
-@click.argument("after", type=datetime)
-@click.argument("before", type=datetime)
+@click.argument("after", type=click.DateTime(formats=["%Y-%m-%d", "%m-%d-%Y"]))
+@click.argument("before", type=click.DateTime(formats=["%Y-%m-%d", "%m-%d-%Y"]))
 def fetch_range(after: datetime, before: datetime):
     inspect_db_session = get_inspect_session()
 
