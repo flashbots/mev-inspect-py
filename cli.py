@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from datetime import datetime
 
 import click
 
@@ -8,7 +9,7 @@ from mev_inspect.concurrency import coro
 from mev_inspect.crud.prices import write_prices
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
-from mev_inspect.prices import fetch_prices
+from mev_inspect.prices import fetch_prices, fetch_prices_range
 
 RPC_URL_ENV = "RPC_URL"
 
@@ -112,6 +113,19 @@ def fetch_all_prices():
 
     logger.info("Fetching prices")
     prices = fetch_prices()
+
+    logger.info("Writing prices")
+    write_prices(inspect_db_session, prices)
+
+
+@cli.command()
+@click.argument("after", type=click.DateTime(formats=["%Y-%m-%d", "%m-%d-%Y"]))
+@click.argument("before", type=click.DateTime(formats=["%Y-%m-%d", "%m-%d-%Y"]))
+def fetch_range(after: datetime, before: datetime):
+    inspect_db_session = get_inspect_session()
+
+    logger.info("Fetching prices")
+    prices = fetch_prices_range(after, before)
 
     logger.info("Writing prices")
     write_prices(inspect_db_session, prices)
