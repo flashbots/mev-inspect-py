@@ -28,62 +28,14 @@ async def create_from_block_number(
     block_number: int,
     trace_db_session: Optional[orm.Session],
 ) -> Block:
-    block: Optional[Block] = None
-
-    if trace_db_session is not None:
-        block = _find_block(trace_db_session, block_number)
-
-    if block is None:
-        block = await _fetch_block(w3, block_number)
-        return block
-    else:
-        return block
-
-
-async def _fetch_block(w3, block_number: int) -> Block:
-    block_json, receipts_json, traces_json, base_fee_per_gas = await asyncio.gather(
-        w3.eth.get_block(block_number),
-        w3.eth.get_block_receipts(block_number),
-        w3.eth.trace_block(block_number),
-        fetch_base_fee_per_gas(w3, block_number),
+    block_timestamp, receipts, traces, base_fee_per_gas = await asyncio.gather(
+        _find_or_fetch_block_timestamp(w3, block_number, trace_db_session),
+        _find_or_fetch_block_receipts(w3, block_number, trace_db_session),
+        _find_or_fetch_block_traces(w3, block_number, trace_db_session),
+        _find_or_fetch_base_fee_per_gas(w3, block_number, trace_db_session),
     )
-
-    receipts: List[Receipt] = [Receipt(**receipt) for receipt in receipts_json]
-    traces = [Trace(**trace_json) for trace_json in traces_json]
-
-    return Block(
-        block_number=block_number,
-        block_timestamp=block_json["timestamp"],
-        miner=block_json["miner"],
-        base_fee_per_gas=base_fee_per_gas,
-        traces=traces,
-        receipts=receipts,
-    )
-
-
-def _find_block(
-    trace_db_session: orm.Session,
-    block_number: int,
-) -> Optional[Block]:
-    block_timestamp = _find_block_timestamp(trace_db_session, block_number)
-    if block_timestamp is None:
-        return None
-
-    base_fee_per_gas = _find_base_fee(trace_db_session, block_number)
-    if base_fee_per_gas is None:
-        return None
-
-    traces = _find_traces(trace_db_session, block_number)
-    if traces is None:
-        return None
-
-    receipts = _find_receipts(trace_db_session, block_number)
-    if receipts is None:
-        return None
 
     miner_address = _get_miner_address_from_traces(traces)
-    if miner_address is None:
-        return None
 
     return Block(
         block_number=block_number,
@@ -93,6 +45,75 @@ def _find_block(
         traces=traces,
         receipts=receipts,
     )
+
+
+async def _find_or_fetch_block_timestamp(
+    w3,
+    block_number: int,
+    trace_db_session: Optional[orm.Session],
+) -> int:
+    if trace_db_session is not None:
+        existing_block_timestamp = _find_block_timestamp(trace_db_session, block_number)
+        if existing_block_timestamp is not None:
+            return existing_block_timestamp
+
+    return await _fetch_block_timestamp(w3, block_number)
+
+
+async def _find_or_fetch_block_receipts(
+    w3,
+    block_number: int,
+    trace_db_session: Optional[orm.Session],
+) -> List[Receipt]:
+    if trace_db_session is not None:
+        existing_block_receipts = _find_block_receipts(trace_db_session, block_number)
+        if existing_block_receipts is not None:
+            return existing_block_receipts
+
+    return await _fetch_block_receipts(w3, block_number)
+
+
+async def _find_or_fetch_block_traces(
+    w3,
+    block_number: int,
+    trace_db_session: Optional[orm.Session],
+) -> List[Trace]:
+    if trace_db_session is not None:
+        existing_block_traces = _find_block_traces(trace_db_session, block_number)
+        if existing_block_traces is not None:
+            return existing_block_traces
+
+    return await _fetch_block_traces(w3, block_number)
+
+
+async def _find_or_fetch_base_fee_per_gas(
+    w3,
+    block_number: int,
+    trace_db_session: Optional[orm.Session],
+) -> int:
+    if trace_db_session is not None:
+        existing_base_fee_per_gas = _find_base_fee_per_gas(
+            trace_db_session, block_number
+        )
+        if existing_base_fee_per_gas is not None:
+            return existing_base_fee_per_gas
+
+    return await fetch_base_fee_per_gas(w3, block_number)
+
+
+async def _fetch_block_timestamp(w3, block_number: int) -> int:
+    block_json = await w3.eth.get_block(block_number)
+    return block_json["timestamp"]
+
+
+async def _fetch_block_receipts(w3, block_number: int) -> List[Receipt]:
+    receipts_json = await w3.eth.get_block_receipts(block_number)
+    return [Receipt(**receipt) for receipt in receipts_json]
+
+
+async def _fetch_block_traces(w3, block_number: int) -> List[Trace]:
+    traces_json = await w3.eth.trace_block(block_number)
+    return [Trace(**trace_json) for trace_json in traces_json]
 
 
 def _find_block_timestamp(
@@ -111,7 +132,7 @@ def _find_block_timestamp(
         return block_timestamp
 
 
-def _find_traces(
+def _find_block_traces(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[List[Trace]]:
@@ -127,7 +148,7 @@ def _find_traces(
         return [Trace(**trace_json) for trace_json in traces_json]
 
 
-def _find_receipts(
+def _find_block_receipts(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[List[Receipt]]:
@@ -143,7 +164,7 @@ def _find_receipts(
         return [Receipt(**receipt) for receipt in receipts_json]
 
 
-def _find_base_fee(
+def _find_base_fee_per_gas(
     trace_db_session: orm.Session,
     block_number: int,
 ) -> Optional[int]:
