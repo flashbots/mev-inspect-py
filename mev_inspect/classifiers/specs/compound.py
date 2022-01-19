@@ -37,7 +37,7 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
 
         debt_purchase_amount = (
             liquidation_trace.value
-            if debt_token_address == CETH_TOKEN_ADDRESS
+            if debt_token_address == CETH_TOKEN_ADDRESS and liquidation_trace.value != 0
             else liquidation_trace.inputs["repayAmount"]
         )
 
