@@ -182,7 +182,7 @@ def _filter_transfers(
     return filtered_transfers
 
 
-def _get_received_transfer(
+def get_received_transfer(
     liquidator: str, child_transfers: List[Transfer]
 ) -> Optional[Transfer]:
     """Get transfer from AAVE to liquidator"""
@@ -194,7 +194,7 @@ def _get_received_transfer(
     return None
 
 
-def _get_debt_transfer(
+def get_debt_transfer(
     liquidator: str, child_transfers: List[Transfer]
 ) -> Optional[Transfer]:
     """Get transfer from liquidator to AAVE"""

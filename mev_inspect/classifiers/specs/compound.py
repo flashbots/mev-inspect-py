@@ -2,8 +2,8 @@ from typing import List, Optional
 
 from mev_inspect.classifiers.helpers import (
     CETH_TOKEN_ADDRESS,
-    _get_debt_transfer,
-    _get_received_transfer,
+    get_debt_transfer,
+    get_received_transfer,
 )
 from mev_inspect.schemas.classifiers import (
     Classification,
@@ -41,9 +41,9 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
             else liquidation_trace.inputs["repayAmount"]
         )
 
-        debt_transfer = _get_debt_transfer(liquidator, child_transfers)
+        debt_transfer = get_debt_transfer(liquidator, child_transfers)
 
-        received_transfer = _get_received_transfer(liquidator, child_transfers)
+        received_transfer = get_received_transfer(liquidator, child_transfers)
 
         seize_trace = _get_seize_call(child_traces)
 

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from mev_inspect.classifiers.helpers import _get_debt_transfer, _get_received_transfer
+from mev_inspect.classifiers.helpers import get_debt_transfer, get_received_transfer
 from mev_inspect.schemas.classifiers import (
     ClassifiedTrace,
     ClassifierSpec,
@@ -30,9 +30,9 @@ class AaveLiquidationClassifier(LiquidationClassifier):
         debt_purchase_amount = None
         received_amount = None
 
-        debt_transfer = _get_debt_transfer(liquidator, child_transfers)
+        debt_transfer = get_debt_transfer(liquidator, child_transfers)
 
-        received_transfer = _get_received_transfer(liquidator, child_transfers)
+        received_transfer = get_received_transfer(liquidator, child_transfers)
 
         if debt_transfer is not None and received_transfer is not None:
 
