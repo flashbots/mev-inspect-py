@@ -82,7 +82,14 @@ case "$1" in
                 kubectl exec -ti deploy/mev-inspect -- \
                     poetry run fetch-all-prices
             ;;
-          *)
+          fetch-range)
+                start=$2
+                end=$3
+                echo "Running price fetch-range"
+                kubectl exec -ti deploy/mev-inspect -- \
+                    poetry run fetch-range $start $end
+            ;;
+            *)
             echo "prices usage: "$1" {fetch-all}"
             exit 1
         esac
