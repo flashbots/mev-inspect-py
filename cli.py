@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from datetime import datetime
 
 import click
 
@@ -118,13 +119,13 @@ def fetch_all_prices():
 
 
 @cli.command()
-@click.argument("start", type=int)
-@click.argument("end", type=int)
-def fetch_range(start: int, end: int):
+@click.argument("after", type=datetime)
+@click.argument("before", type=datetime)
+def fetch_range(after: datetime, before: datetime):
     inspect_db_session = get_inspect_session()
 
     logger.info("Fetching prices")
-    prices = fetch_prices_range(start, end)
+    prices = fetch_prices_range(after, before)
 
     logger.info("Writing prices")
     write_prices(inspect_db_session, prices)

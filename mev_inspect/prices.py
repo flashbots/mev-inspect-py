@@ -1,4 +1,4 @@
-from datetime import datetime as dt
+from datetime import datetime
 from typing import List
 
 from pycoingecko import CoinGeckoAPI
@@ -11,48 +11,44 @@ def fetch_prices() -> List[Price]:
     prices = []
 
     for token_address in TOKEN_ADDRESSES:
-        price_data = cg.get_coin_market_chart_by_id(
+        coingecko_price_data = cg.get_coin_market_chart_by_id(
             id=COINGECKO_ID_BY_ADDRESS[token_address],
             vs_currency="usd",
             days="max",
             interval="daily",
         )
-        price_time_series = price_data["prices"]
-
-        for entry in price_time_series:
-            timestamp = dt.fromtimestamp(entry[0] / 1000)
-            token_price = entry[1]
-            prices.append(
-                Price(
-                    timestamp=timestamp,
-                    usd_price=token_price,
-                    token_address=token_address,
-                )
-            )
+        prices += _build_token_prices(coingecko_price_data, token_address)
 
     return prices
 
 
-def fetch_prices_range(start: int, end: int) -> List[Price]:
-
+def fetch_prices_range(after: datetime, before: datetime) -> List[Price]:
     cg = CoinGeckoAPI()
     prices = []
+    after_unix = int(after.timestamp())
+    before_unix = int(before.timestamp())
 
     for token_address in TOKEN_ADDRESSES:
-        price_data = cg.get_coin_market_chart_range_by_id(
-            COINGECKO_ID_BY_ADDRESS[token_address], "usd", start, end
+        coingecko_price_data = cg.get_coin_market_chart_range_by_id(
+            COINGECKO_ID_BY_ADDRESS[token_address], "usd", after_unix, before_unix
         )
-        price_time_series = price_data["prices"]
 
-        for entry in price_time_series:
-            timestamp = dt.fromtimestamp(entry[0] / 1000)
-            token_price = entry[1]
-            prices.append(
-                Price(
-                    timestamp=timestamp,
-                    usd_price=token_price,
-                    token_address=token_address,
-                )
+        prices += _build_token_prices(coingecko_price_data, token_address)
+
+    return prices
+
+
+def _build_token_prices(coingecko_price_data, token_address) -> List[Price]:
+    time_series = coingecko_price_data["prices"]
+    prices = []
+    for entry in time_series:
+        timestamp = datetime.fromtimestamp(entry[0] / 1000)
+        token_price = entry[1]
+        prices.append(
+            Price(
+                timestamp=timestamp,
+                usd_price=token_price,
+                token_address=token_address,
             )
-
+        )
     return prices
