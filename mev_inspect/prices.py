@@ -7,11 +7,11 @@ from mev_inspect.schemas.prices import COINGECKO_ID_BY_ADDRESS, TOKEN_ADDRESSES,
 
 
 def fetch_prices() -> List[Price]:
-    cg = CoinGeckoAPI()
+    coingecko_api = CoinGeckoAPI()
     prices = []
 
     for token_address in TOKEN_ADDRESSES:
-        coingecko_price_data = cg.get_coin_market_chart_by_id(
+        coingecko_price_data = coingecko_api.get_coin_market_chart_by_id(
             id=COINGECKO_ID_BY_ADDRESS[token_address],
             vs_currency="usd",
             days="max",
@@ -23,13 +23,13 @@ def fetch_prices() -> List[Price]:
 
 
 def fetch_prices_range(after: datetime, before: datetime) -> List[Price]:
-    cg = CoinGeckoAPI()
+    coingecko_api = CoinGeckoAPI()
     prices = []
     after_unix = int(after.timestamp())
     before_unix = int(before.timestamp())
 
     for token_address in TOKEN_ADDRESSES:
-        coingecko_price_data = cg.get_coin_market_chart_range_by_id(
+        coingecko_price_data = coingecko_api.get_coin_market_chart_range_by_id(
             COINGECKO_ID_BY_ADDRESS[token_address], "usd", after_unix, before_unix
         )
 
