@@ -27,6 +27,7 @@ from mev_inspect.crud.punks import (
     write_punk_snipes,
 )
 from mev_inspect.crud.sandwiches import delete_sandwiches_for_blocks, write_sandwiches
+from mev_inspect.crud.summary import update_summary_for_block_range
 from mev_inspect.crud.swaps import delete_swaps_for_blocks, write_swaps
 from mev_inspect.crud.traces import (
     delete_classified_traces_for_blocks,
@@ -225,4 +226,11 @@ async def inspect_many_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
     write_miner_payments(inspect_db_session, all_miner_payments)
+
+    update_summary_for_block_range(
+        inspect_db_session,
+        after_block_number,
+        before_block_number,
+    )
+
     logger.info("Done writing")

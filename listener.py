@@ -79,6 +79,7 @@ async def inspect_next_block(
             trace_db_session=trace_db_session,
             block=block_number,
         )
+
         update_latest_block(inspect_db_session, block_number)
 
         if healthcheck_url:
