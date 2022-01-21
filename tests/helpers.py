@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from mev_inspect.schemas.traces import (
     Classification,
@@ -48,7 +48,7 @@ def make_swap_trace(
     contract_address: str,
     abi_name: str,
     function_signature: str,
-    protocol: Optional[Protocol],
+    protocol: Protocol,
     recipient_address: str,
     recipient_input_key: str,
 ):
