@@ -41,6 +41,7 @@ def write_arbitrages(
                 end_amount=arbitrage.end_amount,
                 profit_amount=arbitrage.profit_amount,
                 error=arbitrage.error,
+                protocols={swap.protocol.value for swap in arbitrage.swaps},
             )
         )
 

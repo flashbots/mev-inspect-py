@@ -18,7 +18,7 @@
             "token_in_amount": 12108789017249529876,
             "token_out_address": "0x9813037ee2218799597d83d4a5b6f3b6778218d9",
             "token_out_amount": 1114969767487478978357,
-            "protocol": null,
+            "protocol": "uniswap_v2",
             "error": null
         },
         "backrun_swap": {
@@ -37,7 +37,7 @@
             "token_in_amount": 1114969767487478978357,
             "token_out_address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
             "token_out_amount": 12158780499164852150,
-            "protocol": null,
+            "protocol": "uniswap_v2",
             "error": null
         },
         "sandwiched_swaps": [
@@ -56,7 +56,7 @@
                 "token_in_amount": 652974555369106606,
                 "token_out_address": "0x9813037ee2218799597d83d4a5b6f3b6778218d9",
                 "token_out_amount": 60000000000000000000,
-                "protocol": null,
+                "protocol": "uniswap_v2",
                 "error": null
             },
             {
@@ -74,7 +74,7 @@
                 "token_in_amount": 300000000000000000,
                 "token_out_address": "0x9813037ee2218799597d83d4a5b6f3b6778218d9",
                 "token_out_amount": 27561865602394087181,
-                "protocol": null,
+                "protocol": "uniswap_v2",
                 "error": null
             },
             {
@@ -92,7 +92,7 @@
                 "token_in_amount": 125000000000000000,
                 "token_out_address": "0x9813037ee2218799597d83d4a5b6f3b6778218d9",
                 "token_out_amount": 11483313070817976324,
-                "protocol": null,
+                "protocol": "uniswap_v2",
                 "error": null
             },
             {
@@ -110,7 +110,7 @@
                 "token_in_amount": 30000000000000000000,
                 "token_out_address": "0x9813037ee2218799597d83d4a5b6f3b6778218d9",
                 "token_out_amount": 2742522049933966038599,
-                "protocol": null,
+                "protocol": "uniswap_v2",
                 "error": null
             }
         ],

@@ -103,6 +103,7 @@ UNISWAP_V3_CONTRACT_SPECS = [
 UNISWAP_V3_GENERAL_SPECS = [
     ClassifierSpec(
         abi_name=UNISWAP_V3_POOL_ABI_NAME,
+        protocol=Protocol.uniswap_v3,
         classifiers={
             "swap(address,bool,int256,uint160,bytes)": UniswapV3SwapClassifier,
         },
@@ -134,6 +135,7 @@ UNISWAPPY_V2_CONTRACT_SPECS = [
 
 UNISWAPPY_V2_PAIR_SPEC = ClassifierSpec(
     abi_name=UNISWAP_V2_PAIR_ABI_NAME,
+    protocol=Protocol.uniswap_v2,
     classifiers={
         "swap(uint256,uint256,address,bytes)": UniswapV2SwapClassifier,
     },

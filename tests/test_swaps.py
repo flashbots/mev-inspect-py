@@ -72,7 +72,7 @@ def test_swaps(
             from_address=alice_address,
             contract_address=first_pool_address,
             abi_name=UNISWAP_V2_PAIR_ABI_NAME,
-            protocol=None,
+            protocol=Protocol.uniswap_v2,
             function_signature="swap(uint256,uint256,address,bytes)",
             recipient_address=bob_address,
             recipient_input_key="to",
@@ -93,7 +93,7 @@ def test_swaps(
             from_address=bob_address,
             contract_address=second_pool_address,
             abi_name=UNISWAP_V3_POOL_ABI_NAME,
-            protocol=None,
+            protocol=Protocol.uniswap_v3,
             function_signature="swap(address,bool,int256,uint160,bytes)",
             recipient_address=carl_address,
             recipient_input_key="recipient",
@@ -198,7 +198,7 @@ def test_swaps(
     assert uni_v2_swap.transaction_hash == first_transaction_hash
     assert uni_v2_swap.block_number == block_number
     assert uni_v2_swap.trace_address == [1]
-    assert uni_v2_swap.protocol is None
+    assert uni_v2_swap.protocol == Protocol.uniswap_v2
     assert uni_v2_swap.contract_address == first_pool_address
     assert uni_v2_swap.from_address == alice_address
     assert uni_v2_swap.to_address == bob_address
@@ -211,7 +211,7 @@ def test_swaps(
     assert uni_v3_swap.transaction_hash == second_transaction_hash
     assert uni_v3_swap.block_number == block_number
     assert uni_v3_swap.trace_address == []
-    assert uni_v3_swap.protocol is None
+    assert uni_v3_swap.protocol == Protocol.uniswap_v3
     assert uni_v3_swap.contract_address == second_pool_address
     assert uni_v3_swap.from_address == bob_address
     assert uni_v3_swap.to_address == carl_address

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Numeric, String
+from sqlalchemy import ARRAY, Column, Numeric, String
 
 from .base import Base
 
@@ -15,3 +15,4 @@ class ArbitrageModel(Base):
     end_amount = Column(Numeric, nullable=False)
     profit_amount = Column(Numeric, nullable=False)
     error = Column(String, nullable=True)
+    protocols = Column(ARRAY(String))
