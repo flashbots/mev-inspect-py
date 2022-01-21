@@ -39,7 +39,8 @@ INSERT INTO mev_summary (
         mp.gas_price_with_coinbase_transfer,
         mp.miner_address,
         mp.base_fee_per_gas,
-        ct.error as error
+        ct.error as error,
+        a.protocols
     FROM arbitrages a
     JOIN blocks b ON b.block_number = a.block_number
     JOIN tokens profit_token ON profit_token.token_address = a.profit_token_address
@@ -123,7 +124,8 @@ INSERT INTO mev_summary (
         mp.gas_price_with_coinbase_transfer,
         mp.miner_address,
         mp.base_fee_per_gas,
-        ct.error as error
+        ct.error as error,
+        ARRAY[l.protocol]
     FROM liquidations l
     JOIN blocks b ON b.block_number = l.block_number
     JOIN tokens received_token ON received_token.token_address = l.received_token_address
