@@ -6,6 +6,7 @@ from mev_inspect.classifiers.specs.uniswap import (
     UNISWAP_V3_POOL_ABI_NAME,
 )
 from mev_inspect.schemas.swaps import Swap
+from mev_inspect.schemas.traces import Protocol
 
 
 def test_two_pool_arbitrage(get_transaction_hashes, get_addresses):
@@ -35,6 +36,7 @@ def test_two_pool_arbitrage(get_transaction_hashes, get_addresses):
             block_number=block_number,
             trace_address=[0],
             contract_address=first_pool_address,
+            protocol=Protocol.uniswap_v2,
             from_address=account_address,
             to_address=second_pool_address,
             token_in_address=first_token_address,
@@ -48,6 +50,7 @@ def test_two_pool_arbitrage(get_transaction_hashes, get_addresses):
             transaction_position=transaction_position,
             block_number=block_number,
             trace_address=[1],
+            protocol=Protocol.uniswap_v3,
             contract_address=second_pool_address,
             from_address=first_pool_address,
             to_address=account_address,
@@ -62,6 +65,7 @@ def test_two_pool_arbitrage(get_transaction_hashes, get_addresses):
         abi_name=UNISWAP_V3_POOL_ABI_NAME,
         transaction_hash=transaction_hash,
         transaction_position=transaction_position,
+        protocol=Protocol.uniswap_v3,
         block_number=block_number,
         trace_address=[2, 0],
         contract_address=unrelated_pool_address,
@@ -117,6 +121,7 @@ def test_three_pool_arbitrage(get_transaction_hashes, get_addresses):
             abi_name=UNISWAP_V2_PAIR_ABI_NAME,
             transaction_hash=transaction_hash,
             transaction_position=transaction_position,
+            protocol=Protocol.uniswap_v2,
             block_number=block_number,
             trace_address=[0],
             contract_address=first_pool_address,
@@ -131,6 +136,7 @@ def test_three_pool_arbitrage(get_transaction_hashes, get_addresses):
             abi_name=UNISWAP_V3_POOL_ABI_NAME,
             transaction_hash=transaction_hash,
             transaction_position=transaction_position,
+            protocol=Protocol.uniswap_v3,
             block_number=block_number,
             trace_address=[1],
             contract_address=second_pool_address,
@@ -145,6 +151,7 @@ def test_three_pool_arbitrage(get_transaction_hashes, get_addresses):
             abi_name=UNISWAP_V3_POOL_ABI_NAME,
             transaction_hash=transaction_hash,
             transaction_position=transaction_position,
+            protocol=Protocol.uniswap_v3,
             block_number=block_number,
             trace_address=[2],
             contract_address=third_pool_address,
@@ -245,6 +252,7 @@ def create_generic_swap(
         abi_name=UNISWAP_V3_POOL_ABI_NAME,
         transaction_hash="0xfake",
         transaction_position=0,
+        protocol=Protocol.uniswap_v2,
         block_number=0,
         trace_address=trace_address,
         contract_address="0xfake",
