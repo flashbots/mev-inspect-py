@@ -60,6 +60,12 @@ On first startup, you'll need to apply database migrations with:
 ./mev exec alembic upgrade head
 ```
 
+And load prices data
+
+```
+./mev prices fetch-all
+```
+
 ## Usage
 
 ### Inspect a single block
