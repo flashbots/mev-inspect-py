@@ -148,6 +148,12 @@ For messages permanently failed in the dead letter queue (XQ), query:
 HGETALL dramatiq:default.XQ.msgs
 ```
 
+To clear the queue, delete keys for the main queue and delay queue
+```
+DEL dramatiq:default.msgs
+DEL dramatiq:default.DQ.msgs
+```
+
 For more information on queues, see the [spec shared by dramatiq](https://github.com/Bogdanp/dramatiq/blob/24cbc0dc551797783f41b08ea461e1b5d23a4058/dramatiq/brokers/redis/dispatch.lua#L24-L43)
 
 
