@@ -33,10 +33,9 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
         received_amount = None
 
         debt_purchase_amount, debt_token_address = (
-            liquidation_trace.value,
-            ETH_TOKEN_ADDRESS
+            (liquidation_trace.value, ETH_TOKEN_ADDRESS)
             if debt_token_address == CETH_TOKEN_ADDRESS and liquidation_trace.value != 0
-            else liquidation_trace.inputs["repayAmount"],
+            else (liquidation_trace.inputs["repayAmount"], CETH_TOKEN_ADDRESS)
         )
 
         debt_transfer = get_debt_transfer(liquidator, child_transfers)
