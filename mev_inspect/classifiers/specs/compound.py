@@ -10,7 +10,7 @@ from mev_inspect.schemas.classifiers import (
     SeizeClassifier,
 )
 from mev_inspect.schemas.liquidations import Liquidation
-from mev_inspect.schemas.prices import CETH_TOKEN_ADDRESS
+from mev_inspect.schemas.prices import CETH_TOKEN_ADDRESS, ETH_TOKEN_ADDRESS
 from mev_inspect.schemas.traces import Protocol
 from mev_inspect.schemas.transfers import Transfer
 
@@ -32,10 +32,10 @@ class CompoundLiquidationClassifier(LiquidationClassifier):
         debt_purchase_amount = None
         received_amount = None
 
-        debt_purchase_amount = (
-            liquidation_trace.value
+        debt_purchase_amount, debt_token_address = (
+            (liquidation_trace.value, ETH_TOKEN_ADDRESS)
             if debt_token_address == CETH_TOKEN_ADDRESS and liquidation_trace.value != 0
-            else liquidation_trace.inputs["repayAmount"]
+            else (liquidation_trace.inputs["repayAmount"], CETH_TOKEN_ADDRESS)
         )
 
         debt_transfer = get_debt_transfer(liquidator, child_transfers)
