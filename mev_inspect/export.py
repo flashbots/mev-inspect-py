@@ -5,14 +5,18 @@ from mev_inspect.crud.latest_s3_block import (
 
 
 def s3_export(
-    db_session, block_number: int, uri: str,
+    db_session,
+    block_number: int,
+    uri: str,
 ) -> None:
     """Export block to S3"""
 
     latest_s3_block = find_latest_s3_block(db_session)
 
     if latest_s3_block is not None:
+
         if block_number > latest_s3_block:
+
             db_session.execute(
                 """
                 SELECT * FROM aws_s3.query_export_to_s3(
@@ -37,8 +41,11 @@ def s3_export_many(
     latest_s3_block = find_latest_s3_block(db_session)
 
     for block_number in range(after_block, before_block):
+
         if latest_s3_block is not None:
+
             if block_number > latest_s3_block:
+
                 uri = base_uri + f"/{block_number}"
                 db_session.execute(
                     """
