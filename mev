@@ -95,25 +95,32 @@ case "$1" in
         esac
   ;;
   export)
-    shift
-    case "$1" in
-      s3-export)
-        block_number=$2
-        bucket=$3
-        filepath=$4
-        region=$5
-        echo "Exporting block"
-        kubectl exec -ti deploy/mev-inspect -- poetry run s3-export $block_number $bucket $filepath $region
-      ;;
-      s3-export-many)
-        after_block=$2
-        before_block=$3
-        bucket=$4
-        filepath_base=$5
-        region=$6
-        echo "Exporting blocks"
-        kubectl exec -ti deploy/mev-inspect -- poetry run s3-export-many $after_block $before_block $bucket $filepath_base $region
-      ;;
+        shift
+        case "$1" in
+          s3-export)
+              block_number=$2
+              bucket=$3
+              filepath=$4
+              region=$5
+              echo "Exporting block"
+              kubectl exec -ti deploy/mev-inspect -- \
+                  poetry run s3-export $block_number $bucket $filepath $region
+
+          ;;
+          s3-export-many)
+              after_block=$2
+              before_block=$3
+              bucket=$4
+              filepath_base=$5
+              region=$6
+              echo "Exporting blocks"
+              kubectl exec -ti deploy/mev-inspect -- \
+                  poetry run s3-export-many $after_block $before_block $bucket $filepath_base $region
+           ;;
+           *)
+           echo "export usage: "$1" {s3-export}"
+           exit 1
+         esac
   ;;
   exec)
         shift
