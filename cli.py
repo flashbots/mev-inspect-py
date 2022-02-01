@@ -139,7 +139,7 @@ def s3_export_command(block_number: int, uri: str):
     inspect_db_session = get_inspect_session()
 
     logger.info(f"Exporting block {block_number}")
-    s3_export(inspect_db_session, uri)
+    s3_export(inspect_db_session, block_number, uri)
 
     return None
 
@@ -148,15 +148,11 @@ def s3_export_command(block_number: int, uri: str):
 @click.argument("after_block", type=int)
 @click.argument("before_block", type=int)
 @click.argument("base_uri", type=str)
-def s3_export_many_command(
-    after_block: int, before_block: int, base_uri: str
-):
+def s3_export_many_command(after_block: int, before_block: int, base_uri: str):
     inspect_db_session = get_inspect_session()
 
     logger.info(f"Exporting blocks {after_block} to {before_block}")
-    s3_export_many(
-        inspect_db_session, after_block, before_block, base_uri
-    )
+    s3_export_many(inspect_db_session, after_block, before_block, base_uri)
 
     return None
 
