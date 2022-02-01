@@ -134,14 +134,12 @@ def fetch_range(after: datetime, before: datetime):
 
 @cli.command()
 @click.argument("block_number", type=int)
-@click.argument("bucket", type=str)
-@click.argument("filepath", type=str)
-@click.argument("region", type=str)
-def s3_export_command(block_number: int, bucket: str, filepath: str, region: str):
+@click.argument("uri", type=str)
+def s3_export_command(block_number: int, uri: str):
     inspect_db_session = get_inspect_session()
 
     logger.info(f"Exporting block {block_number}")
-    s3_export(inspect_db_session, block_number, bucket, filepath, region)
+    s3_export(inspect_db_session, uri)
 
     return None
 
@@ -149,17 +147,15 @@ def s3_export_command(block_number: int, bucket: str, filepath: str, region: str
 @cli.command()
 @click.argument("after_block", type=int)
 @click.argument("before_block", type=int)
-@click.argument("bucket", type=str)
-@click.argument("filepath_base", type=str)
-@click.argument("region", type=str)
+@click.argument("base_uri", type=str)
 def s3_export_many_command(
-    after_block: int, before_block: int, bucket: str, filepath_base: str, region: str
+    after_block: int, before_block: int, base_uri: str
 ):
     inspect_db_session = get_inspect_session()
 
     logger.info(f"Exporting blocks {after_block} to {before_block}")
     s3_export_many(
-        inspect_db_session, after_block, before_block, bucket, filepath_base, region
+        inspect_db_session, after_block, before_block, base_uri
     )
 
     return None
