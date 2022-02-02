@@ -4,12 +4,15 @@ import sys
 from datetime import datetime
 
 import click
+import dramatiq
 
 from mev_inspect.concurrency import coro
 from mev_inspect.crud.prices import write_prices
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.prices import fetch_prices, fetch_prices_range
+from mev_inspect.queue.broker import connect_broker
+from mev_inspect.queue.tasks import inspect_many_blocks_task
 
 RPC_URL_ENV = "RPC_URL"
 
@@ -97,14 +100,13 @@ async def inspect_many_blocks_command(
 @click.argument("before_block", type=int)
 @click.argument("batch_size", type=int, default=10)
 def enqueue_many_blocks_command(after_block: int, before_block: int, batch_size: int):
-    from worker import (  # pylint: disable=import-outside-toplevel
-        inspect_many_blocks_task,
-    )
+    broker = connect_broker()
+    inspect_many_blocks_actor = dramatiq.actor(inspect_many_blocks_task, broker=broker)
 
     for batch_after_block in range(after_block, before_block, batch_size):
         batch_before_block = min(batch_after_block + batch_size, before_block)
         logger.info(f"Sending {batch_after_block} to {batch_before_block}")
-        inspect_many_blocks_task.send(batch_after_block, batch_before_block)
+        inspect_many_blocks_actor.send(batch_after_block, batch_before_block)
 
 
 @cli.command()
