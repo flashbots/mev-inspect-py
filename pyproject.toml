@@ -14,6 +14,7 @@ psycopg2 = "^2.9.1"
 aiohttp = "^3.8.0"
 dramatiq = {extras = ["redis"], version = "^1.12.1"}
 pycoingecko = "^2.2.0"
+boto = "^2.49.0"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.13.0"
