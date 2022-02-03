@@ -2,6 +2,11 @@ load("ext://helm_remote", "helm_remote")
 load("ext://secret", "secret_from_dict")
 load("ext://configmap", "configmap_from_dict")
 
+helm_remote("localstack",
+            repo_name="localstack-charts",
+            repo_url="https://localstack.github.io/helm-charts",
+)
+
 helm_remote("postgresql",
             repo_name="bitnami",
             repo_url="https://charts.bitnami.com/bitnami",
