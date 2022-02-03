@@ -3,7 +3,6 @@ import os
 import sys
 
 import dramatiq
-from dramatiq.cli import main as dramatiq_worker
 
 from mev_inspect.queue.broker import connect_broker
 from mev_inspect.queue.middleware import (
@@ -22,6 +21,3 @@ broker.add_middleware(InspectorMiddleware(os.environ["RPC_URL"]))
 dramatiq.set_broker(broker)
 
 dramatiq.actor(inspect_many_blocks_task)
-
-if __name__ == "__main__":
-    dramatiq_worker(processes=1, threads=1)
