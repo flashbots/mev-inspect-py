@@ -34,7 +34,7 @@ def s3_export_many(
     db_session,
     after_block: int,
     before_block: int,
-    base_uri: str,
+    uri: str,
 ) -> None:
     """Export block range to S3"""
 
@@ -46,7 +46,7 @@ def s3_export_many(
 
             if block_number > latest_s3_block:
 
-                uri = base_uri + f"/{block_number}"
+                uri += f"/{block_number}"
                 db_session.execute(
                     """
                     SELECT * FROM aws_s3.query_export_to_s3(

@@ -13,6 +13,7 @@ from mev_inspect.inspector import MEVInspector
 from mev_inspect.prices import fetch_prices, fetch_prices_range
 
 RPC_URL_ENV = "RPC_URL"
+S3_URI_ENV = "S3_URI"
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -134,7 +135,7 @@ def fetch_range(after: datetime, before: datetime):
 
 @cli.command()
 @click.argument("block_number", type=int)
-@click.argument("uri", type=str)
+@click.option("--uri", default=lambda: os.environ.get(S3_URI_ENV, ""))
 def s3_export_command(block_number: int, uri: str):
     inspect_db_session = get_inspect_session()
 
@@ -147,18 +148,22 @@ def s3_export_command(block_number: int, uri: str):
 @cli.command()
 @click.argument("after_block", type=int)
 @click.argument("before_block", type=int)
-@click.argument("base_uri", type=str)
-def s3_export_many_command(after_block: int, before_block: int, base_uri: str):
+@click.option("--uri", default=lambda: os.environ.get(S3_URI_ENV, ""))
+def s3_export_many_command(after_block: int, before_block: int, uri: str):
     inspect_db_session = get_inspect_session()
 
     logger.info(f"Exporting blocks {after_block} to {before_block}")
-    s3_export_many(inspect_db_session, after_block, before_block, base_uri)
+    s3_export_many(inspect_db_session, after_block, before_block, uri)
 
     return None
 
 
 def get_rpc_url() -> str:
     return os.environ["RPC_URL"]
+
+
+def get_s3_urii() -> str:
+    return os.environ["S3_URI"]
 
 
 if __name__ == "__main__":

@@ -91,6 +91,11 @@ spec:
                 name: mev-inspect-listener-healthcheck
                 key: url
                 optional: true
+          - name: S3_URI
+            valueFrom:
+              configMapKeyRef:
+                name: mev-inspect-s3
+                key: uri
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
