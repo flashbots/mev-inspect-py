@@ -7,6 +7,12 @@ helm_remote("localstack",
             repo_url="https://localstack.github.io/helm-charts",
 )
 
+local_resource(
+    'localstack-port-forward',
+    serve_cmd='kubectl port-forward --namespace default svc/localstack 4566:4566',
+    resource_deps=["localstack"]
+)
+
 helm_remote("postgresql",
             repo_name="bitnami",
             repo_url="https://charts.bitnami.com/bitnami",
