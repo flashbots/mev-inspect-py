@@ -10,6 +10,7 @@ from mev_inspect.crud.prices import write_prices
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.prices import fetch_prices, fetch_prices_range
+from mev_inspect.s3_export import list_export_bucket
 
 RPC_URL_ENV = "RPC_URL"
 
@@ -124,6 +125,8 @@ def fetch_all_prices():
 def s3_export(after_block_number: int, before_block_number: int):
     logger.info(after_block_number)
     logger.info(before_block_number)
+
+    print(list_export_bucket())
 
 
 @cli.command()
