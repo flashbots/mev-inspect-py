@@ -73,6 +73,8 @@ local_resource(
     resource_deps=["postgresql-postgresql"]
 )
 
+k8s_resource('create-bucket', cmd='awslocal s3api create-bucket --bucket mybucket --region us-east-1')
+
 k8s_yaml(configmap_from_dict("mev-inspect-s3", inputs = {
     "uri" : "https://s3.us-east-1.amazonaws.com/mybucket/"
 }))
