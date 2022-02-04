@@ -5,7 +5,7 @@ load("ext://configmap", "configmap_from_dict")
 helm_remote("postgresql",
             repo_name="bitnami",
             repo_url="https://charts.bitnami.com/bitnami",
-            set=["postgresqlPassword=password", "postgresqlDatabase=mev_inspect"],
+            set=["auth.postgresPassword=password", "auth.database=mev_inspect"],
 )
 
 helm_remote("redis",
