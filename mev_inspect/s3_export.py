@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 import boto3
 
@@ -7,7 +8,7 @@ from mev_inspect.text_io import BytesIteratorIO
 
 MEV_SUMMARY_EXPORT_QUERY = """
     SELECT to_json(mev_summary)
-    FROM mev_summary 
+    FROM mev_summary
     WHERE
         block_number >= :after_block_number AND
         block_number < :before_block_number
@@ -20,7 +21,7 @@ def export_block_range(
     inspect_db_session, after_block_number: int, before_block_number
 ) -> None:
     client = get_s3_client()
-    bucket_name = get_export_bucket_name()
+    bucket_name = os.environ["EXPORT_BUCKET_NAME"]
 
     mev_summary_json_results = inspect_db_session.execute(
         statement=MEV_SUMMARY_EXPORT_QUERY,
@@ -43,11 +44,6 @@ def export_block_range(
     )
 
     logger.info(f"Exported to {key}")
-
-
-# TODO - replaced by ConfigMap
-def get_export_bucket_name() -> str:
-    return "local-export"
 
 
 # TODO - handle for production
