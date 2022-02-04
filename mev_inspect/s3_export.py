@@ -1,4 +1,5 @@
 import json
+import logging
 
 import boto3
 
@@ -11,6 +12,8 @@ MEV_SUMMARY_EXPORT_QUERY = """
         block_number >= :after_block_number AND
         block_number < :before_block_number
     """
+
+logger = logging.getLogger(__name__)
 
 
 def export_block_range(
@@ -39,13 +42,7 @@ def export_block_range(
         Key=key,
     )
 
-
-def list_export_bucket():
-    client = get_s3_client()
-    return client.list_objects_v2(
-        Bucket=get_export_bucket_name(),
-        Prefix="/",
-    )
+    logger.info(f"Exported to {key}")
 
 
 # TODO - replaced by ConfigMap
@@ -53,7 +50,7 @@ def get_export_bucket_name() -> str:
     return "local-export"
 
 
-# TODO
+# TODO - handle for production
 def get_s3_client():
     return boto3.client(
         "s3",
