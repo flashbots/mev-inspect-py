@@ -121,6 +121,14 @@ def fetch_all_prices():
 
 
 @cli.command()
+@click.argument("after_block_number", type=int)
+@click.argument("before_block_number", type=int)
+def s3_export(after_block_number: int, before_block_number: int):
+    logger.info(after_block_number)
+    logger.info(before_block_number)
+
+
+@cli.command()
 @click.argument("after", type=click.DateTime(formats=["%Y-%m-%d", "%m-%d-%Y"]))
 @click.argument("before", type=click.DateTime(formats=["%Y-%m-%d", "%m-%d-%Y"]))
 def fetch_range(after: datetime, before: datetime):
