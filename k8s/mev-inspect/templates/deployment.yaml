@@ -91,6 +91,11 @@ spec:
                 name: mev-inspect-listener-healthcheck
                 key: url
                 optional: true
+          - name: EXPORT_BUCKET_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: mev-inspect-export
+                key: export-bucket-name
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
