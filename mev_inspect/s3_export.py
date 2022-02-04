@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 def export_block_range(
     inspect_db_session, after_block_number: int, before_block_number
 ) -> None:
-    export_bucket_name = os.environ["EXPORT_BUCKET_NAME"]
+    export_bucket_name = get_export_bucket_name()
     client = get_s3_client()
 
     mev_summary_json_results = inspect_db_session.execute(
@@ -55,3 +55,7 @@ def get_s3_client():
 
 def get_endpoint_url() -> Optional[str]:
     return os.environ.get(AWS_ENDPOINT_URL_ENV)
+
+
+def get_export_bucket_name() -> str:
+    return os.environ["EXPORT_BUCKET_NAME"]
