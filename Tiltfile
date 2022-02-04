@@ -45,7 +45,7 @@ docker_build("mev-inspect-py", ".",
 k8s_yaml(helm('./k8s/mev-inspect', name='mev-inspect'))
 k8s_resource(
     workload="mev-inspect",
-    resource_deps=["postgresql-postgresql", "redis-master"],
+    resource_deps=["postgresql", "redis-master"],
 )
 
 k8s_yaml(helm(
@@ -55,15 +55,15 @@ k8s_yaml(helm(
 ))
 k8s_resource(
     workload="mev-inspect-workers",
-    resource_deps=["postgresql-postgresql", "redis-master"],
+    resource_deps=["postgresql", "redis-master"],
 )
 
 # uncomment to enable price monitor
 # k8s_yaml(helm('./k8s/mev-inspect-prices', name='mev-inspect-prices'))
-# k8s_resource(workload="mev-inspect-prices", resource_deps=["postgresql-postgresql"])
+# k8s_resource(workload="mev-inspect-prices", resource_deps=["postgresql"])
 
 local_resource(
     'pg-port-forward',
     serve_cmd='kubectl port-forward --namespace default svc/postgresql 5432:5432',
-    resource_deps=["postgresql-postgresql"]
+    resource_deps=["postgresql"]
 )
