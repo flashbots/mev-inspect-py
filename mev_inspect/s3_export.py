@@ -1,11 +1,13 @@
 import json
 import logging
 import os
+from typing import Optional
 
 import boto3
 
 from mev_inspect.text_io import BytesIteratorIO
 
+AWS_ENDPOINT_URL_ENV = "AWS_ENDPOINT_URL"
 MEV_SUMMARY_EXPORT_QUERY = """
     SELECT to_json(mev_summary)
     FROM mev_summary
@@ -20,8 +22,8 @@ logger = logging.getLogger(__name__)
 def export_block_range(
     inspect_db_session, after_block_number: int, before_block_number
 ) -> None:
+    export_bucket_name = os.environ["EXPORT_BUCKET_NAME"]
     client = get_s3_client()
-    bucket_name = os.environ["EXPORT_BUCKET_NAME"]
 
     mev_summary_json_results = inspect_db_session.execute(
         statement=MEV_SUMMARY_EXPORT_QUERY,
@@ -39,19 +41,17 @@ def export_block_range(
 
     client.upload_fileobj(
         mev_summary_json_fileobj,
-        Bucket=bucket_name,
+        Bucket=export_bucket_name,
         Key=key,
     )
 
     logger.info(f"Exported to {key}")
 
 
-# TODO - handle for production
 def get_s3_client():
-    return boto3.client(
-        "s3",
-        region_name="us-east-1",
-        endpoint_url="http://localstack:4566",
-        aws_access_key_id="test",
-        aws_secret_access_key="test",
-    )
+    endpoint_url = get_endpoint_url()
+    return boto3.client("s3", endpoint_url=endpoint_url)
+
+
+def get_endpoint_url() -> Optional[str]:
+    return os.environ.get(AWS_ENDPOINT_URL_ENV)

@@ -53,7 +53,20 @@ docker_build("mev-inspect-py", ".",
             trigger="./pyproject.toml"),
     ],
 )
-k8s_yaml(helm('./k8s/mev-inspect', name='mev-inspect'))
+k8s_yaml(helm(
+    './k8s/mev-inspect',
+    name='mev-inspect',
+    set=[
+        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
+        "extraEnv[0].value=foobar",
+        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
+        "extraEnv[1].value=foobar",
+        "extraEnv[2].name=AWS_REGION",
+        "extraEnv[2].value=us-east-1",
+        "extraEnv[3].name=AWS_ENDPOINT_URL",
+        "extraEnv[3].value=http://localstack:4566",
+    ],
+))
 k8s_resource(
     workload="mev-inspect",
     resource_deps=["postgresql", "redis-master"],
@@ -62,7 +75,17 @@ k8s_resource(
 k8s_yaml(helm(
     './k8s/mev-inspect-workers',
     name='mev-inspect-workers',
-    set=["replicaCount=1"],
+    set=[
+        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
+        "extraEnv[0].value=foobar",
+        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
+        "extraEnv[1].value=foobar",
+        "extraEnv[2].name=AWS_REGION",
+        "extraEnv[2].value=us-east-1",
+        "extraEnv[3].name=AWS_ENDPOINT_URL",
+        "extraEnv[3].value=http://localstack:4566",
+        "replicaCount=1",
+    ],
 ))
 k8s_resource(
     workload="mev-inspect-workers",

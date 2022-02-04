@@ -91,6 +91,10 @@ spec:
                 name: mev-inspect-listener-healthcheck
                 key: url
                 optional: true
+          {{- range .Values.extraEnv }}
+          - name: {{ .name }}
+            value: {{ .value }}
+          {{- end }} 
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
