@@ -37,7 +37,7 @@ def export_block_range(
         (f"{json.dumps(row)}\n".encode("utf-8") for (row,) in mev_summary_json_results)
     )
 
-    key = f"mev_summary/{after_block_number}-{before_block_number}.json"
+    key = f"mev_summary/flashbots_{after_block_number}_{before_block_number}.json"
 
     client.upload_fileobj(
         mev_summary_json_fileobj,
