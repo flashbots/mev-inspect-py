@@ -92,33 +92,33 @@ local_resource(
 #    serve_cmd='kubectl port-forward --namespace default svc/localstack 4566:4566',
 #    resource_deps=["localstack"]
 #)
-#
-#k8s_yaml(helm(
-#    './k8s/mev-inspect-workers',
-#    name='mev-inspect-workers',
-#    set=[
-#        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
-#        "extraEnv[0].value=foobar",
-#        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
-#        "extraEnv[1].value=foobar",
-#        "extraEnv[2].name=AWS_REGION",
-#        "extraEnv[2].value=us-east-1",
-#        "extraEnv[3].name=AWS_ENDPOINT_URL",
-#        "extraEnv[3].value=http://localstack:4566",
-#        "replicaCount=1",
-#    ],
-#))
-#k8s_yaml(helm(
-#    './k8s/mev-inspect',
-#    name='mev-inspect',
-#    set=[
-#        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
-#        "extraEnv[0].value=foobar",
-#        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
-#        "extraEnv[1].value=foobar",
-#        "extraEnv[2].name=AWS_REGION",
-#        "extraEnv[2].value=us-east-1",
-#        "extraEnv[3].name=AWS_ENDPOINT_URL",
-#        "extraEnv[3].value=http://localstack:4566",
-#    ],
-#))
+
+k8s_yaml(helm(
+    './k8s/mev-inspect-workers',
+    name='mev-inspect-workers',
+    set=[
+        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
+        "extraEnv[0].value=foobar",
+        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
+        "extraEnv[1].value=foobar",
+        "extraEnv[2].name=AWS_REGION",
+        "extraEnv[2].value=us-east-1",
+        "extraEnv[3].name=AWS_ENDPOINT_URL",
+        "extraEnv[3].value=http://localstack:4566",
+        "replicaCount=1",
+    ],
+))
+k8s_yaml(helm(
+    './k8s/mev-inspect',
+    name='mev-inspect',
+    set=[
+        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
+        "extraEnv[0].value=foobar",
+        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
+        "extraEnv[1].value=foobar",
+        "extraEnv[2].name=AWS_REGION",
+        "extraEnv[2].value=us-east-1",
+        "extraEnv[3].name=AWS_ENDPOINT_URL",
+        "extraEnv[3].value=http://localstack:4566",
+    ],
+)
