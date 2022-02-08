@@ -91,6 +91,16 @@ spec:
                 name: mev-inspect-listener-healthcheck
                 key: url
                 optional: true
+          - name: EXPORT_BUCKET_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: mev-inspect-export
+                key: export-bucket-name
+          - name: EXPORT_BUCKET_REGION
+            valueFrom:
+              configMapKeyRef:
+                name: mev-inspect-export
+                key: export-bucket-region
           {{- range .Values.extraEnv }}
           - name: {{ .name }}
             value: {{ .value }}
