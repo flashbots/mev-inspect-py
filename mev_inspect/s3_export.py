@@ -50,7 +50,11 @@ def export_block_range(
 
 def get_s3_client():
     endpoint_url = get_endpoint_url()
-    return boto3.client("s3", endpoint_url=endpoint_url)
+    return boto3.client(
+        "s3",
+        endpoint_url=endpoint_url,
+        region_name=get_export_bucket_region(),
+    )
 
 
 def get_endpoint_url() -> Optional[str]:
@@ -59,3 +63,7 @@ def get_endpoint_url() -> Optional[str]:
 
 def get_export_bucket_name() -> str:
     return os.environ["EXPORT_BUCKET_NAME"]
+
+
+def get_export_bucket_region() -> str:
+    return os.environ["EXPORT_BUCKET_REGION"]

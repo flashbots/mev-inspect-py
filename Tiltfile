@@ -97,11 +97,13 @@ local_resource(
 # if using local S3 exports
 # k8s_yaml(configmap_from_dict("mev-inspect-export", inputs = {
 #     "export-bucket-name" : "local-export",
+#     "export-bucket-region": "us-east-1",
 # }))
 # 
-# helm_remote("localstack",
-#             repo_name="localstack-charts",
-#             repo_url="https://localstack.github.io/helm-charts",
+# helm_remote(
+#     "localstack",
+#     repo_name="localstack-charts",
+#     repo_url="https://localstack.github.io/helm-charts",
 # )
 # 
 # local_resource(

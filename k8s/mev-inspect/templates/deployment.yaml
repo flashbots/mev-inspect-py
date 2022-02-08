@@ -96,6 +96,11 @@ spec:
               configMapKeyRef:
                 name: mev-inspect-export
                 key: export-bucket-name
+          - name: EXPORT_BUCKET_REGION
+            valueFrom:
+              configMapKeyRef:
+                name: mev-inspect-export
+                key: export-bucket-region
           {{- range .Values.extraEnv }}
           - name: {{ .name }}
             value: {{ .value }}
