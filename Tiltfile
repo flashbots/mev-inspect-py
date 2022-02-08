@@ -2,17 +2,6 @@ load("ext://helm_remote", "helm_remote")
 load("ext://secret", "secret_from_dict")
 load("ext://configmap", "configmap_from_dict")
 
-helm_remote("localstack",
-            repo_name="localstack-charts",
-            repo_url="https://localstack.github.io/helm-charts",
-)
-
-local_resource(
-    'localstack-port-forward',
-    serve_cmd='kubectl port-forward --namespace default svc/localstack 4566:4566',
-    resource_deps=["localstack"]
-)
-
 helm_remote("postgresql",
             repo_name="bitnami",
             repo_url="https://charts.bitnami.com/bitnami",
@@ -72,21 +61,6 @@ k8s_resource(
     resource_deps=["postgresql", "redis-master"],
 )
 
-k8s_yaml(helm(
-    './k8s/mev-inspect-workers',
-    name='mev-inspect-workers',
-    set=[
-        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
-        "extraEnv[0].value=foobar",
-        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
-        "extraEnv[1].value=foobar",
-        "extraEnv[2].name=AWS_REGION",
-        "extraEnv[2].value=us-east-1",
-        "extraEnv[3].name=AWS_ENDPOINT_URL",
-        "extraEnv[3].value=http://localstack:4566",
-        "replicaCount=1",
-    ],
-))
 k8s_resource(
     workload="mev-inspect-workers",
     resource_deps=["postgresql", "redis-master"],
@@ -102,6 +76,49 @@ local_resource(
     resource_deps=["postgresql"]
 )
 
-k8s_yaml(configmap_from_dict("mev-inspect-export", inputs = {
-    "export-bucket-name" : "local-export",
-}))
+# Uncomment to use local S3 exports
+#
+#k8s_yaml(configmap_from_dict("mev-inspect-export", inputs = {
+#    "export-bucket-name" : "local-export",
+#}))
+#
+#helm_remote("localstack",
+#            repo_name="localstack-charts",
+#            repo_url="https://localstack.github.io/helm-charts",
+#)
+#
+#local_resource(
+#    'localstack-port-forward',
+#    serve_cmd='kubectl port-forward --namespace default svc/localstack 4566:4566',
+#    resource_deps=["localstack"]
+#)
+#
+#k8s_yaml(helm(
+#    './k8s/mev-inspect-workers',
+#    name='mev-inspect-workers',
+#    set=[
+#        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
+#        "extraEnv[0].value=foobar",
+#        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
+#        "extraEnv[1].value=foobar",
+#        "extraEnv[2].name=AWS_REGION",
+#        "extraEnv[2].value=us-east-1",
+#        "extraEnv[3].name=AWS_ENDPOINT_URL",
+#        "extraEnv[3].value=http://localstack:4566",
+#        "replicaCount=1",
+#    ],
+#))
+#k8s_yaml(helm(
+#    './k8s/mev-inspect',
+#    name='mev-inspect',
+#    set=[
+#        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
+#        "extraEnv[0].value=foobar",
+#        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
+#        "extraEnv[1].value=foobar",
+#        "extraEnv[2].name=AWS_REGION",
+#        "extraEnv[2].value=us-east-1",
+#        "extraEnv[3].name=AWS_ENDPOINT_URL",
+#        "extraEnv[3].value=http://localstack:4566",
+#    ],
+#))
