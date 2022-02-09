@@ -8,7 +8,12 @@ import boto3
 from mev_inspect.text_io import BytesIteratorIO
 
 AWS_ENDPOINT_URL_ENV = "AWS_ENDPOINT_URL"
-MEV_SUMMARY_EXPORT_QUERY = """
+MEV_SUMMARY_EXPORT_BLOCK_QUERY = """
+    SELECT to_json(mev_summary)
+    FROM mev_summary
+    WHERE block_number=:block_number
+    """
+MEV_SUMMARY_EXPORT_RANGE_QUERY = """
     SELECT to_json(mev_summary)
     FROM mev_summary
     WHERE
@@ -26,7 +31,7 @@ def export_block_range(
     client = get_s3_client()
 
     mev_summary_json_results = inspect_db_session.execute(
-        statement=MEV_SUMMARY_EXPORT_QUERY,
+        statement=MEV_SUMMARY_EXPORT_RANGE_QUERY,
         params={
             "after_block_number": after_block_number,
             "before_block_number": before_block_number,
@@ -38,6 +43,29 @@ def export_block_range(
     )
 
     key = f"mev_summary/flashbots_{after_block_number}_{before_block_number}.json"
+
+    client.upload_fileobj(
+        mev_summary_json_fileobj,
+        Bucket=export_bucket_name,
+        Key=key,
+    )
+
+    logger.info(f"Exported to {key}")
+
+
+def export_block(inspect_db_session, block_number: int) -> None:
+    export_bucket_name = get_export_bucket_name()
+    client = get_s3_client()
+
+    mev_summary_json_results = inspect_db_session.execute(
+        statement=MEV_SUMMARY_EXPORT_BLOCK_QUERY,
+        params={"block_number": block_number},
+    )
+    mev_summary_json_fileobj = BytesIteratorIO(
+        (f"{json.dumps(row)}\n".encode("utf-8") for (row,) in mev_summary_json_results)
+    )
+
+    key = f"mev_summary/flashbots_{block_number}.json"
 
     client.upload_fileobj(
         mev_summary_json_fileobj,

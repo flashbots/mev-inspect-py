@@ -12,6 +12,7 @@ from dramatiq.middleware import Middleware
 
 from mev_inspect.db import get_inspect_sessionmaker, get_trace_sessionmaker
 from mev_inspect.inspector import MEVInspector
+from mev_inspect.s3_export import export_block
 
 InspectSession = get_inspect_sessionmaker()
 TraceSession = get_trace_sessionmaker()
@@ -81,6 +82,14 @@ def inspect_many_blocks_task(
                     before_block=before_block,
                 )
             )
+
+
+@dramatiq.actor
+def export_block_task(
+    block_number: int,
+):
+    with session_scope(InspectSession) as inspect_db_session:
+        export_block(inspect_db_session, block_number)
 
 
 if __name__ == "__main__":
