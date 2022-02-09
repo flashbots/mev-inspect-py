@@ -93,14 +93,28 @@ spec:
                 optional: true
           - name: EXPORT_BUCKET_NAME
             valueFrom:
-              configMapKeyRef:
+              secretKeyRef:
                 name: mev-inspect-export
                 key: export-bucket-name
+                optional: true
           - name: EXPORT_BUCKET_REGION
             valueFrom:
-              configMapKeyRef:
+              secretKeyRef:
                 name: mev-inspect-export
                 key: export-bucket-region
+                optional: true
+          - name: EXPORT_AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: mev-inspect-export
+                key: export-aws-access-key-id
+                optional: true
+          - name: EXPORT_AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mev-inspect-export
+                key: export-aws-secret-access-key
+                optional: true
           {{- range .Values.extraEnv }}
           - name: {{ .name }}
             value: {{ .value }}

@@ -95,9 +95,11 @@ local_resource(
 )
 
 # if using local S3 exports
-# k8s_yaml(configmap_from_dict("mev-inspect-export", inputs = {
+# k8s_yaml(secret_from_dict("mev-inspect-export", inputs = {
 #     "export-bucket-name" : "local-export",
 #     "export-bucket-region": "us-east-1",
+#     "export-aws-access-key-id": "foobar",
+#     "export-aws-secret-access-key": "foobar",
 # }))
 # 
 # helm_remote(
