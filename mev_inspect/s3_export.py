@@ -54,6 +54,8 @@ def get_s3_client():
         "s3",
         endpoint_url=endpoint_url,
         region_name=get_export_bucket_region(),
+        aws_access_key_id=get_export_aws_access_key_id(),
+        aws_secret_access_key=get_export_aws_secret_access_key(),
     )
 
 
@@ -67,3 +69,11 @@ def get_export_bucket_name() -> str:
 
 def get_export_bucket_region() -> str:
     return os.environ["EXPORT_BUCKET_REGION"]
+
+
+def get_export_aws_access_key_id() -> str:
+    return os.environ["EXPORT_AWS_ACCESS_KEY_ID"]
+
+
+def get_export_aws_secret_access_key() -> str:
+    return os.environ["EXPORT_AWS_SECRET_ACCESS_KEY"]

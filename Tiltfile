@@ -76,12 +76,12 @@ k8s_yaml(helm(
 
 k8s_resource(
     workload="mev-inspect",
-    resource_deps=["postgresql-postgresql", "redis-master"],
+    resource_deps=["postgresql", "redis-master"],
 )
 
 k8s_resource(
     workload="mev-inspect-workers",
-    resource_deps=["postgresql-postgresql", "redis-master"],
+    resource_deps=["postgresql", "redis-master"],
 )
 
 # uncomment to enable price monitor
@@ -91,13 +91,15 @@ k8s_resource(
 local_resource(
     'pg-port-forward',
     serve_cmd='kubectl port-forward --namespace default svc/postgresql 5432:5432',
-    resource_deps=["postgresql-postgresql"]
+    resource_deps=["postgresql"]
 )
 
 # if using local S3 exports
-# k8s_yaml(configmap_from_dict("mev-inspect-export", inputs = {
+# k8s_yaml(secret_from_dict("mev-inspect-export", inputs = {
 #     "export-bucket-name" : "local-export",
 #     "export-bucket-region": "us-east-1",
+#     "export-aws-access-key-id": "foobar",
+#     "export-aws-secret-access-key": "foobar",
 # }))
 # 
 # helm_remote(
