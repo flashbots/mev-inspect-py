@@ -96,17 +96,29 @@ async def inspect_many_blocks_command(
 
 
 @cli.command()
-@click.argument("after_block", type=int)
-@click.argument("before_block", type=int)
+@click.argument("start_block", type=int)
+@click.argument("end_block", type=int)
 @click.argument("batch_size", type=int, default=10)
-def enqueue_many_blocks_command(after_block: int, before_block: int, batch_size: int):
+def enqueue_many_blocks_command(start_block: int, end_block: int, batch_size: int):
     broker = connect_broker()
     inspect_many_blocks_actor = dramatiq.actor(inspect_many_blocks_task, broker=broker)
 
-    for batch_after_block in range(after_block, before_block, batch_size):
-        batch_before_block = min(batch_after_block + batch_size, before_block)
-        logger.info(f"Sending {batch_after_block} to {batch_before_block}")
-        inspect_many_blocks_actor.send(batch_after_block, batch_before_block)
+    if start_block < end_block:
+        after_block = start_block
+        before_block = end_block
+
+        for batch_after_block in range(after_block, before_block, batch_size):
+            batch_before_block = min(batch_after_block + batch_size, before_block)
+            logger.info(f"Sending {batch_after_block} to {batch_before_block}")
+            inspect_many_blocks_actor.send(batch_after_block, batch_before_block)
+    else:
+        after_block = end_block
+        before_block = start_block
+
+        for batch_before_block in range(before_block, after_block, -1 * batch_size):
+            batch_after_block = max(batch_before_block - batch_size, after_block)
+            logger.info(f"Sending {batch_after_block} to {batch_before_block}")
+            inspect_many_blocks_actor.send(batch_after_block, batch_before_block)
 
 
 @cli.command()
