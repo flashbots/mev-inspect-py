@@ -16,15 +16,13 @@ def is_stablecoin_address(address):
         "0x6b175474e89094c44da98b954eedeac495271d0f",  # DAI
         "0x0000000000085d4780b73119b644ae5ecd22b376",  # TUSD
         "0x4fabb145d64652a948d72533023f6e7a623c7c53",  # BUSD
-        "0x8e870d67f660d95d5be530380d0ec0bd388289e1",  # USDP
+        "0x8e870d67f660d95d5be530380d0ec0bd388289e1",  # PAX
         "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",  # FEI
         "0x853d955aCEf822Db058eb8505911ED77F175b99e",  # FRAX
         "0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9",  # alUSD
         "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",  # sUSD
         "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",  # lUSD
         "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",  # USDN
-        "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",  # MIM
-        "0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86",  # oUSD
     ]
     return address in stablecoin_addresses
 
@@ -36,16 +34,13 @@ def is_known_router_address(address):
         "0x11111254369792b2Ca5d084aB5eEA397cA8fa48B",  # 1inch v1 router
         "0x111111125434b319222cdbf8c261674adb56f3ae",  # 1inch v2 router
         "0x11111112542d85b3ef69ae05771c2dccff4faa26",  # 1inch v3 router
-        "0x1111111254fb6c44bAC0beD2854e76F90643097d",  # 1inch v4 router
         "0xa356867fdcea8e71aeaf87805808803806231fdc",  # DODO
         "0xdef1c0ded9bec7f1a1670819833240f027b25eff",  # 0x proxy
         "0x90f765f63e7dc5ae97d6c576bf693fb6af41c129",  # Set Trade
         "0x7113dd99c79aff93d54cfa4b2885576535a132de",  # Totle exchange
-        "0x9509665d015bfe3c77aa5ad6ca20c8afa1d98989",  # Paraswap v1
+        "0x9509665d015bfe3c77aa5ad6ca20c8afa1d98989",  # Paraswap
         "0x86969d29F5fd327E1009bA66072BE22DB6017cC6",  # Paraswap v2
         "0xf90e98f3d8dce44632e5020abf2e122e0f99dfab",  # Paraswap v3
-        "0x1bD435F3C054b6e901B7b108a0ab7617C808677b",  # Paraswap v4
-        "0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57",  # Paraswap v5
         "0x57805e5a227937bac2b0fdacaa30413ddac6b8e1",  # Furucombo
         "0x17e8ca1b4798b97602895f63206afcd1fc90ca5f",  # Furucombo proxy
         "0x881d40237659c251811cec9c364ef91dc08d300c",  # Metamask swap
@@ -54,8 +49,8 @@ def is_known_router_address(address):
         "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",  # UniswapV2Router02
         "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",  # SushiswapV2Router02
         "0xE592427A0AEce92De3Edee1F18E0157C05861564",  # Uniswap v3 router
-        "0x6317C5e82A06E1d8bf200d21F4510Ac2c038AC81",  # Balancer v1 exchange proxy
-        "0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21",  # Balancer v2 exchange proxy
+        "0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21",  # Balance exchange proxy
+        "0x1bD435F3C054b6e901B7b108a0ab7617C808677b",  # Paraswap v4
         "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",  # SNX proxy synth issuer
     ]
     return address in known_router_addresses
