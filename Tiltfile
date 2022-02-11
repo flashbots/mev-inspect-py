@@ -42,17 +42,43 @@ docker_build("mev-inspect-py", ".",
             trigger="./pyproject.toml"),
     ],
 )
-k8s_yaml(helm('./k8s/mev-inspect', name='mev-inspect'))
+
+k8s_yaml(helm(
+    './k8s/mev-inspect',
+    name='mev-inspect',
+    set=[
+        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
+        "extraEnv[0].value=foobar",
+        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
+        "extraEnv[1].value=foobar",
+        "extraEnv[2].name=AWS_REGION",
+        "extraEnv[2].value=us-east-1",
+        "extraEnv[3].name=AWS_ENDPOINT_URL",
+        "extraEnv[3].value=http://localstack:4566",
+    ],
+))
+
+k8s_yaml(helm(
+    './k8s/mev-inspect-workers',
+    name='mev-inspect-workers',
+    set=[
+        "extraEnv[0].name=AWS_ACCESS_KEY_ID",
+        "extraEnv[0].value=foobar",
+        "extraEnv[1].name=AWS_SECRET_ACCESS_KEY",
+        "extraEnv[1].value=foobar",
+        "extraEnv[2].name=AWS_REGION",
+        "extraEnv[2].value=us-east-1",
+        "extraEnv[3].name=AWS_ENDPOINT_URL",
+        "extraEnv[3].value=http://localstack:4566",
+        "replicaCount=1",
+    ],
+))
+
 k8s_resource(
     workload="mev-inspect",
     resource_deps=["postgresql", "redis-master"],
 )
 
-k8s_yaml(helm(
-    './k8s/mev-inspect-workers',
-    name='mev-inspect-workers',
-    set=["replicaCount=1"],
-))
 k8s_resource(
     workload="mev-inspect-workers",
     resource_deps=["postgresql", "redis-master"],
@@ -67,3 +93,23 @@ local_resource(
     serve_cmd='kubectl port-forward --namespace default svc/postgresql 5432:5432',
     resource_deps=["postgresql"]
 )
+
+# if using local S3 exports
+# k8s_yaml(secret_from_dict("mev-inspect-export", inputs = {
+#     "export-bucket-name" : "local-export",
+#     "export-bucket-region": "us-east-1",
+#     "export-aws-access-key-id": "foobar",
+#     "export-aws-secret-access-key": "foobar",
+# }))
+# 
+# helm_remote(
+#     "localstack",
+#     repo_name="localstack-charts",
+#     repo_url="https://localstack.github.io/helm-charts",
+# )
+# 
+# local_resource(
+#     'localstack-port-forward',
+#     serve_cmd='kubectl port-forward --namespace default svc/localstack 4566:4566',
+#     resource_deps=["localstack"]
+# )

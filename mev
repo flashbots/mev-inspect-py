@@ -46,11 +46,11 @@ case "$1" in
         kubectl exec -ti deploy/mev-inspect -- ./listener $2
 	;;
   backfill)
-        start_block_number=$2
-        end_block_number=$3
+        after_block_number=$2
+        before_block_number=$3
 
-        echo "Backfilling from $start_block_number to $end_block_number"
-        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-blocks $start_block_number $end_block_number
+        echo "Backfilling from $after_block_number to $before_block_number"
+        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-blocks $after_block_number $before_block_number
 	;;
   inspect)
         block_number=$2
@@ -58,11 +58,11 @@ case "$1" in
         kubectl exec -ti deploy/mev-inspect -- poetry run inspect-block $block_number
 	;;
   inspect-many)
-        start_block_number=$2
-        end_block_number=$3
-        echo "Inspecting from block $start_block_number to $end_block_number"
+        after_block_number=$2
+        before_block_number=$3
+        echo "Inspecting from block $after_block_number to $before_block_number"
         kubectl exec -ti deploy/mev-inspect -- \
-            poetry run inspect-many-blocks $start_block_number $end_block_number
+            poetry run inspect-many-blocks $after_block_number $before_block_number
 	;;
   test)
         shift
@@ -93,6 +93,13 @@ case "$1" in
             echo "prices usage: "$1" {fetch-all}"
             exit 1
         esac
+  ;;
+  s3-export)
+        after_block_number=$2
+        before_block_number=$3
+
+        echo "Exporting from $after_block_number to $before_block_number"
+        kubectl exec -ti deploy/mev-inspect -- poetry run s3-export $after_block_number $before_block_number
   ;;
   exec)
         shift

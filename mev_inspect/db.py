@@ -4,7 +4,7 @@ from typing import Any, Iterable, List, Optional
 from sqlalchemy import create_engine, orm
 from sqlalchemy.orm import sessionmaker
 
-from mev_inspect.string_io import StringIteratorIO
+from mev_inspect.text_io import StringIteratorIO
 
 
 def get_trace_database_uri() -> Optional[str]:
