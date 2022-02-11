@@ -8,6 +8,11 @@ import boto3
 from mev_inspect.text_io import BytesIteratorIO
 
 AWS_ENDPOINT_URL_ENV = "AWS_ENDPOINT_URL"
+EXPORT_BUCKET_NAME_ENV = "EXPORT_BUCKET_NAME"
+EXPORT_BUCKET_REGION_ENV = "EXPORT_BUCKET_REGION"
+EXPORT_AWS_ACCESS_KEY_ID_ENV = "EXPORT_AWS_ACCESS_KEY_ID"
+EXPORT_AWS_SECRET_ACCESS_KEY_ENV = "EXPORT_AWS_SECRET_ACCESS_KEY"
+
 MEV_SUMMARY_EXPORT_QUERY = """
     SELECT to_json(mev_summary)
     FROM mev_summary
@@ -64,16 +69,16 @@ def get_endpoint_url() -> Optional[str]:
 
 
 def get_export_bucket_name() -> str:
-    return os.environ["EXPORT_BUCKET_NAME"]
+    return os.environ[EXPORT_BUCKET_NAME_ENV]
 
 
-def get_export_bucket_region() -> str:
-    return os.environ["EXPORT_BUCKET_REGION"]
+def get_export_bucket_region() -> Optional[str]:
+    return os.environ.get(EXPORT_BUCKET_REGION_ENV)
 
 
-def get_export_aws_access_key_id() -> str:
-    return os.environ["EXPORT_AWS_ACCESS_KEY_ID"]
+def get_export_aws_access_key_id() -> Optional[str]:
+    return os.environ.get(EXPORT_AWS_ACCESS_KEY_ID_ENV)
 
 
-def get_export_aws_secret_access_key() -> str:
-    return os.environ["EXPORT_AWS_SECRET_ACCESS_KEY"]
+def get_export_aws_secret_access_key() -> Optional[str]:
+    return os.environ.get(EXPORT_AWS_SECRET_ACCESS_KEY_ENV)
