@@ -12,7 +12,7 @@ from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.prices import fetch_prices, fetch_prices_range
 from mev_inspect.queue.broker import connect_broker
-from mev_inspect.queue.tasks import inspect_many_blocks_task
+from mev_inspect.queue.tasks import export_block_task, inspect_many_blocks_task
 
 RPC_URL_ENV = "RPC_URL"
 
@@ -130,6 +130,15 @@ def fetch_all_prices():
 
     logger.info("Writing prices")
     write_prices(inspect_db_session, prices)
+
+
+@cli.command()
+@click.argument("block_number", type=int)
+def s3_export(block_number: int):
+    broker = connect_broker()
+    export_actor = dramatiq.actor(export_block_task, broker=broker)
+    logger.info(f"Sending block {block_number} for export")
+    export_actor.send(block_number)
 
 
 @cli.command()

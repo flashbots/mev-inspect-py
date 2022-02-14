@@ -40,6 +40,9 @@ async def run():
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
 
+    broker = connect_broker()
+    export_actor = dramatiq.actor(export_block_task, broker=broker)
+
     inspector = MEVInspector(rpc)
     base_provider = get_base_provider(rpc)
 
@@ -50,6 +53,7 @@ async def run():
             trace_db_session,
             base_provider,
             healthcheck_url,
+            export_actor,
         )
 
     logger.info("Stopping...")
@@ -61,7 +65,9 @@ async def inspect_next_block(
     trace_db_session,
     base_provider,
     healthcheck_url,
+    export_actor,
 ):
+
     latest_block_number = await get_latest_block_number(base_provider)
     last_written_block = find_latest_block_update(inspect_db_session)
 
@@ -85,8 +91,6 @@ async def inspect_next_block(
 
         update_latest_block(inspect_db_session, block_number)
 
-        broker = connect_broker()
-        export_actor = dramatiq.actor(export_block_task, broker=broker)
         logger.info(f"Sending block {block_number} for export")
         export_actor.send(block_number)
 
