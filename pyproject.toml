@@ -42,6 +42,7 @@ fetch-block = 'cli:fetch_block_command'
 fetch-all-prices = 'cli:fetch_all_prices'
 fetch-range = 'cli:fetch_range'
 s3-export = 'cli:s3_export'
+enqueue-s3-export = 'cli:enqueue_s3_export'
 
 [tool.black]
 exclude = '''
