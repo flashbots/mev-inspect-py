@@ -98,7 +98,7 @@ case "$1" in
         block_number=$2
 
         echo "Sending $block_number export to queue"
-        kubectl exec -ti deploy/mev-inspect -- poetry run s3-export $block_number
+        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-s3-export $block_number
   ;;
   s3-export)
         block_number=$2
