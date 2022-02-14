@@ -3,6 +3,7 @@ import logging
 import os
 
 import aiohttp
+import dramatiq
 
 from mev_inspect.block import get_latest_block_number
 from mev_inspect.concurrency import coro
@@ -13,6 +14,8 @@ from mev_inspect.crud.latest_block_update import (
 from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.provider import get_base_provider
+from mev_inspect.queue.broker import connect_broker
+from mev_inspect.queue.tasks import export_block_task
 from mev_inspect.signal_handler import GracefulKiller
 
 logging.basicConfig(filename="listener.log", filemode="a", level=logging.INFO)
@@ -37,6 +40,9 @@ async def run():
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
 
+    broker = connect_broker()
+    export_actor = dramatiq.actor(export_block_task, broker=broker)
+
     inspector = MEVInspector(rpc)
     base_provider = get_base_provider(rpc)
 
@@ -47,6 +53,7 @@ async def run():
             trace_db_session,
             base_provider,
             healthcheck_url,
+            export_actor,
         )
 
     logger.info("Stopping...")
@@ -58,7 +65,9 @@ async def inspect_next_block(
     trace_db_session,
     base_provider,
     healthcheck_url,
+    export_actor,
 ):
+
     latest_block_number = await get_latest_block_number(base_provider)
     last_written_block = find_latest_block_update(inspect_db_session)
 
@@ -81,6 +90,9 @@ async def inspect_next_block(
         )
 
         update_latest_block(inspect_db_session, block_number)
+
+        logger.info(f"Sending block {block_number} for export")
+        export_actor.send(block_number)
 
         if healthcheck_url:
             await ping_healthcheck_url(healthcheck_url)

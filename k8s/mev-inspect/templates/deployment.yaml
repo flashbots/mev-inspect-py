@@ -118,7 +118,7 @@ spec:
           {{- range .Values.extraEnv }}
           - name: {{ .name }}
             value: {{ .value }}
-          {{- end }} 
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

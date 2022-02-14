@@ -10,7 +10,7 @@ from mev_inspect.queue.middleware import (
     DbMiddleware,
     InspectorMiddleware,
 )
-from mev_inspect.queue.tasks import inspect_many_blocks_task
+from mev_inspect.queue.tasks import export_block_task, inspect_many_blocks_task
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -21,3 +21,4 @@ broker.add_middleware(InspectorMiddleware(os.environ["RPC_URL"]))
 dramatiq.set_broker(broker)
 
 dramatiq.actor(inspect_many_blocks_task)
+dramatiq.actor(export_block_task)
