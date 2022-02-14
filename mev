@@ -94,12 +94,17 @@ case "$1" in
             exit 1
         esac
   ;;
-  s3-export)
-        after_block_number=$2
-        before_block_number=$3
+  enqueue-s3-export)
+        block_number=$2
 
-        echo "Exporting from $after_block_number to $before_block_number"
-        kubectl exec -ti deploy/mev-inspect -- poetry run s3-export $after_block_number $before_block_number
+        echo "Sending $block_number export to queue"
+        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-s3-export $block_number
+  ;;
+  s3-export)
+        block_number=$2
+
+        echo "Exporting $block_number"
+        kubectl exec -ti deploy/mev-inspect -- poetry run s3-export $block_number
   ;;
   exec)
         shift
