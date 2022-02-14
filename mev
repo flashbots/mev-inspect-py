@@ -95,11 +95,10 @@ case "$1" in
         esac
   ;;
   s3-export)
-        after_block_number=$2
-        before_block_number=$3
+        block_number=$3
 
         echo "Exporting from $after_block_number to $before_block_number"
-        kubectl exec -ti deploy/mev-inspect -- poetry run s3-export $after_block_number $before_block_number
+        kubectl exec -ti deploy/mev-inspect -- poetry run s3-export $block_number
   ;;
   exec)
         shift
