@@ -108,7 +108,7 @@ local_resource(
 #    repo_url="https://localstack.github.io/helm-charts",
 #)
 
-l#ocal_resource(
+#local_resource(
 #    'localstack-port-forward',
 #    serve_cmd='kubectl port-forward --namespace default svc/localstack 4566:4566',
 #    resource_deps=["localstack"]
