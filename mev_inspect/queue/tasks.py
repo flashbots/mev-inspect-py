@@ -9,6 +9,13 @@ from .middleware import DbMiddleware, InspectorMiddleware
 logger = logging.getLogger(__name__)
 
 
+HIGH_PRIORITY_QUEUE = "high"
+LOW_PRIORITY_QUEUE = "low"
+
+HIGH_PRIORITY = 0
+LOW_PRIORITY = 1
+
+
 def inspect_many_blocks_task(
     after_block: int,
     before_block: int,

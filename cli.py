@@ -12,7 +12,14 @@ from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.prices import fetch_prices, fetch_prices_range
 from mev_inspect.queue.broker import connect_broker
-from mev_inspect.queue.tasks import export_block_task, inspect_many_blocks_task
+from mev_inspect.queue.tasks import (
+    HIGH_PRIORITY,
+    HIGH_PRIORITY_QUEUE,
+    LOW_PRIORITY,
+    LOW_PRIORITY_QUEUE,
+    export_block_task,
+    inspect_many_blocks_task,
+)
 from mev_inspect.s3_export import export_block
 
 RPC_URL_ENV = "RPC_URL"
@@ -102,7 +109,12 @@ async def inspect_many_blocks_command(
 @click.argument("batch_size", type=int, default=10)
 def enqueue_many_blocks_command(start_block: int, end_block: int, batch_size: int):
     broker = connect_broker()
-    inspect_many_blocks_actor = dramatiq.actor(inspect_many_blocks_task, broker=broker)
+    inspect_many_blocks_actor = dramatiq.actor(
+        inspect_many_blocks_task,
+        broker=broker,
+        queue_name=LOW_PRIORITY_QUEUE,
+        priority=LOW_PRIORITY,
+    )
 
     if start_block < end_block:
         after_block = start_block
@@ -137,7 +149,12 @@ def fetch_all_prices():
 @click.argument("block_number", type=int)
 def enqueue_s3_export(block_number: int):
     broker = connect_broker()
-    export_actor = dramatiq.actor(export_block_task, broker=broker)
+    export_actor = dramatiq.actor(
+        export_block_task,
+        broker=broker,
+        queue_name=HIGH_PRIORITY_QUEUE,
+        priority=HIGH_PRIORITY,
+    )
     logger.info(f"Sending block {block_number} export to queue")
     export_actor.send(block_number)
 
