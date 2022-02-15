@@ -9,10 +9,11 @@ from .middleware import DbMiddleware, InspectorMiddleware
 logger = logging.getLogger(__name__)
 
 
+# when we have export backfill,
 # create a separate actor for backfill export
-# set to same priority as backfill inspect
-LIVE_EXPORT_BLOCK_PRIORITY = 1
-BACKFILL_INSPECT_MANY_BLOCKS_PRIORITY = 0
+# and set to same priority as backfill inspect
+LIVE_EXPORT_BLOCK_PRIORITY = 0
+BACKFILL_INSPECT_MANY_BLOCKS_PRIORITY = 1
 
 
 def inspect_many_blocks_task(
