@@ -90,7 +90,7 @@ k8s_resource(
 
 local_resource(
     'pg-port-forward',
-    serve_cmd='kubectl port-forward --namespace default svc/postgresql 5432:5432',
+    serve_cmd='kubectl port-forward --namespace default svc/postgresql 5433:5432',
     resource_deps=["postgresql"]
 )
 
