@@ -15,7 +15,11 @@ from mev_inspect.db import get_inspect_session, get_trace_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.provider import get_base_provider
 from mev_inspect.queue.broker import connect_broker
-from mev_inspect.queue.tasks import export_block_task
+from mev_inspect.queue.tasks import (
+    HIGH_PRIORITY,
+    HIGH_PRIORITY_QUEUE,
+    export_block_task,
+)
 from mev_inspect.signal_handler import GracefulKiller
 
 logging.basicConfig(filename="listener.log", filemode="a", level=logging.INFO)
@@ -41,7 +45,12 @@ async def run():
     trace_db_session = get_trace_session()
 
     broker = connect_broker()
-    export_actor = dramatiq.actor(export_block_task, broker=broker)
+    export_actor = dramatiq.actor(
+        export_block_task,
+        broker=broker,
+        queue_name=HIGH_PRIORITY_QUEUE,
+        priority=HIGH_PRIORITY,
+    )
 
     inspector = MEVInspector(rpc)
     base_provider = get_base_provider(rpc)
