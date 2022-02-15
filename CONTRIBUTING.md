@@ -23,7 +23,7 @@ poetry run pre-commit install
 Run tests with:
 
 ```
-kubectl exec deploy/mev-inspect-deployment -- poetry run pytest --cov=mev_inspect tests
+./mev test
 ```
 
 ## Send a pull request
