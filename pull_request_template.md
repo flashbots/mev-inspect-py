@@ -13,3 +13,4 @@ What testing was performed to verify this works? Unit tests are a big plus!
 ## Checklist before merging
 - [ ] I have read the [contributing guide](https://github.com/flashbots/mev-inspect-py/blob/main/CONTRIBUTING.md)
 - [ ] I have installed and run pre-commit hooks
+- [ ] All tests pass with `./mev test`
