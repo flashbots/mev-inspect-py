@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 def export_block(inspect_db_session, block_number: int) -> None:
     export_bucket_name = get_export_bucket_name()
     client = get_s3_client()
+    object_key = f"mev_summary/flashbots_{block_number}.json"
 
     mev_summary_json_results = inspect_db_session.execute(
         statement=MEV_SUMMARY_EXPORT_QUERY,
@@ -37,23 +38,35 @@ def export_block(inspect_db_session, block_number: int) -> None:
 
     first_value, mev_summary_json_results = _peek(mev_summary_json_results)
     if first_value is None:
-        logger.info("No data for this block")
-    else:
-        logger.info("We have data for this block")
+        existing_object_size = _get_object_size(client, export_bucket_name, object_key)
+        if existing_object_size is None or existing_object_size == 0:
+            logger.info(f"Skipping block {block_number} - no data")
+            return
 
     mev_summary_json_fileobj = BytesIteratorIO(
         (f"{json.dumps(row)}\n".encode("utf-8") for (row,) in mev_summary_json_results)
     )
 
-    key = f"mev_summary/flashbots_{block_number}.json"
-
     client.upload_fileobj(
         mev_summary_json_fileobj,
         Bucket=export_bucket_name,
-        Key=key,
+        Key=object_key,
     )
 
-    logger.info(f"Exported to {key}")
+    logger.info(f"Exported to {object_key}")
+
+
+def _get_object_size(client, bucket: str, key: str) -> Optional[int]:
+    response = client.list_objects_v2(
+        Bucket=bucket,
+        Prefix=key,
+    )
+
+    for obj in response.get("Contents", []):
+        if obj["Key"] == key:
+            return obj["Size"]
+
+    return None
 
 
 def get_s3_client():
