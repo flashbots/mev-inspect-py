@@ -44,6 +44,7 @@ fetch-all-prices = 'cli:fetch_all_prices'
 fetch-range = 'cli:fetch_range'
 s3-export = 'cli:s3_export'
 enqueue-s3-export = 'cli:enqueue_s3_export'
+backfill-export = 'cli:enqueue_many_s3_exports'
 
 [tool.black]
 exclude = '''

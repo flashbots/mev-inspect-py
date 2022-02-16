@@ -98,6 +98,13 @@ case "$1" in
             exit 1
         esac
   ;;
+  backfill-export)
+        after_block=$2
+        before_block=$3
+
+        echo "Sending $block_number export to queue"
+        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-s3-exports $after_block $before_block
+  ;;
   enqueue-s3-export)
         block_number=$2
 
