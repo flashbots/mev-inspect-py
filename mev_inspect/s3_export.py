@@ -1,7 +1,8 @@
+import itertools
 import json
 import logging
 import os
-from typing import Optional
+from typing import Iterator, Optional, Tuple, TypeVar
 
 import boto3
 
@@ -33,6 +34,12 @@ def export_block(inspect_db_session, block_number: int) -> None:
             "block_number": block_number,
         },
     )
+
+    first_value, mev_summary_json_results = _peek(mev_summary_json_results)
+    if first_value is None:
+        logger.info("No data for this block")
+    else:
+        logger.info("We have data for this block")
 
     mev_summary_json_fileobj = BytesIteratorIO(
         (f"{json.dumps(row)}\n".encode("utf-8") for (row,) in mev_summary_json_results)
@@ -78,3 +85,15 @@ def get_export_aws_access_key_id() -> Optional[str]:
 
 def get_export_aws_secret_access_key() -> Optional[str]:
     return os.environ.get(EXPORT_AWS_SECRET_ACCESS_KEY_ENV)
+
+
+_T = TypeVar("_T")
+
+
+def _peek(iterable: Iterator[_T]) -> Tuple[Optional[_T], Iterator[_T]]:
+    try:
+        first = next(iterable)
+    except StopIteration:
+        return None, iter([])
+
+    return first, itertools.chain([first], iterable)
