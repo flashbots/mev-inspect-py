@@ -1,7 +1,7 @@
+import fileinput
 import logging
 import os
 import sys
-import fileinput
 from datetime import datetime
 
 import click
@@ -103,16 +103,22 @@ async def inspect_many_blocks_command(
         before_block=before_block,
     )
 
+
 @cli.command()
 def enqueue_block_list_command():
-    from worker import (  # pylint: disable=import-outside-toplevel
+    broker = connect_broker()
+    inspect_many_blocks_actor = dramatiq.actor(
         inspect_many_blocks_task,
+        broker=broker,
+        queue_name=LOW_PRIORITY_QUEUE,
+        priority=LOW_PRIORITY,
     )
 
     for block_string in fileinput.input():
         block = int(block_string)
         logger.info(f"Sending {block} to {block+1}")
-        inspect_many_blocks_task.send(block, block+1)
+        inspect_many_blocks_actor.send(block, block + 1)
+
 
 @cli.command()
 @click.argument("start_block", type=int)
