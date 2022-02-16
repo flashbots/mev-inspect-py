@@ -102,7 +102,7 @@ case "$1" in
         after_block=$2
         before_block=$3
 
-        echo "Sending $block_number export to queue"
+        echo "Sending $after_block to $before_block export to queue"
         kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-s3-exports $after_block $before_block
   ;;
   enqueue-s3-export)
