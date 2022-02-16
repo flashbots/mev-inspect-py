@@ -175,6 +175,15 @@ def enqueue_s3_export(block_number: int):
     logger.info(f"Sending block {block_number} export to queue")
     export_actor.send(block_number)
 
+@cli.command()
+@click.argument("block_number", type=int)
+def enqueue_many_s3_exports(after_block: int, before_block: int):
+    broker = connect_broker()
+    export_actor = dramatiq.actor(export_block_task, broker=broker)
+    for block_number in range(after_block, before_block):
+        logger.info(f"Sending block {block_number} export to queue")
+        export_actor.send(block_number)
+
 
 @cli.command()
 @click.argument("block_number", type=int)
