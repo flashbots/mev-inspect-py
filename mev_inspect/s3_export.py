@@ -29,10 +29,10 @@ def export_block(inspect_db_session, block_number: int) -> None:
 
     for table in supported_tables:
 
-        _export_table(inspect_db_session, block_number, table)
+        _export_block_by_table(inspect_db_session, block_number, table)
 
 
-def _export_table(inspect_db_session, block_number: int, table: str) -> None:
+def _export_block_by_table(inspect_db_session, block_number: int, table: str) -> None:
     client = get_s3_client()
     export_bucket_name = get_export_bucket_name()
     export_statement = _get_export_statement(table)
