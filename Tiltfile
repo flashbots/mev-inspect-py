@@ -95,25 +95,25 @@ local_resource(
 )
 
 # if using local S3 exports
-k8s_yaml(secret_from_dict("mev-inspect-export", inputs = {
-    "export-bucket-name" : "local-export",
-    "export-bucket-region": "us-east-1",
-    "export-aws-access-key-id": "foobar",
-    "export-aws-secret-access-key": "foobar",
-}))
+#k8s_yaml(secret_from_dict("mev-inspect-export", inputs = {
+#    "export-bucket-name" : "local-export",
+#    "export-bucket-region": "us-east-1",
+#    "export-aws-access-key-id": "foobar",
+#    "export-aws-secret-access-key": "foobar",
+#}))
 
-helm_remote(
-    "localstack",
-    repo_name="localstack-charts",
-    repo_url="https://localstack.github.io/helm-charts",
-)
-
-local_resource(
-    'localstack-port-forward',
-    serve_cmd='kubectl port-forward --namespace default svc/localstack 4566:4566',
-    resource_deps=["localstack"]
-)
-
-k8s_yaml(configmap_from_dict("mev-inspect-export", inputs = {
-    "services": "s3",
-}))
+#helm_remote(
+#    "localstack",
+#    repo_name="localstack-charts",
+#    repo_url="https://localstack.github.io/helm-charts",
+#)
+#
+#local_resource(
+#    'localstack-port-forward',
+#    serve_cmd='kubectl port-forward --namespace default svc/localstack 4566:4566',
+#    resource_deps=["localstack"]
+#)
+#
+#k8s_yaml(configmap_from_dict("mev-inspect-export", inputs = {
+#    "services": "s3",
+#}))
