@@ -184,8 +184,8 @@ def enqueue_many_s3_exports(after_block: int, before_block: int):
     export_actor = dramatiq.actor(
         export_block_task,
         broker=broker,
-        queue_name=HIGH_PRIORITY_QUEUE,
-        priority=HIGH_PRIORITY,
+        queue_name=LOW_PRIORITY_QUEUE,
+        priority=LOW_PRIORITY,
     )
     logger.info(f"Sending blocks {after_block} to {before_block} to queue")
     for block_number in range(after_block, before_block):
