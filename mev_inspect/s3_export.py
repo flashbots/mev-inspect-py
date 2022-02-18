@@ -26,9 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def export_block(inspect_db_session, block_number: int) -> None:
-
     for table in supported_tables:
-
         _export_block_by_table(inspect_db_session, block_number, table)
 
 
@@ -68,11 +66,11 @@ def _export_block_by_table(inspect_db_session, block_number: int, table: str) ->
 
 def _get_export_statement(table: str) -> str:
     return f"""
-                SELECT to_json({table})
-                FROM {table}
-                WHERE
-                    block_number = :block_number
-            """
+        SELECT to_json({table})
+        FROM {table}
+        WHERE
+        block_number = :block_number
+        """
 
 
 def _get_object_size(client, bucket: str, key: str) -> Optional[int]:
