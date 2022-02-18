@@ -14,23 +14,33 @@ EXPORT_BUCKET_REGION_ENV = "EXPORT_BUCKET_REGION"
 EXPORT_AWS_ACCESS_KEY_ID_ENV = "EXPORT_AWS_ACCESS_KEY_ID"
 EXPORT_AWS_SECRET_ACCESS_KEY_ENV = "EXPORT_AWS_SECRET_ACCESS_KEY"
 
-MEV_SUMMARY_EXPORT_QUERY = """
-    SELECT to_json(mev_summary)
-    FROM mev_summary
-WHERE
-    block_number = :block_number
-    """
+supported_tables = [
+    "mev_summary",
+    "arbitrages",
+    "liquidations",
+    "sandwiches",
+    "sandwiched_swaps",
+]
 
 logger = logging.getLogger(__name__)
 
 
 def export_block(inspect_db_session, block_number: int) -> None:
-    export_bucket_name = get_export_bucket_name()
+
+    for table in supported_tables:
+
+        _export_block_by_table(inspect_db_session, block_number, table)
+
+
+def _export_block_by_table(inspect_db_session, block_number: int, table: str) -> None:
     client = get_s3_client()
-    object_key = f"mev_summary/flashbots_{block_number}.json"
+    export_bucket_name = get_export_bucket_name()
+    export_statement = _get_export_statement(table)
+
+    object_key = f"{table}/flashbots_{block_number}.json"
 
     mev_summary_json_results = inspect_db_session.execute(
-        statement=MEV_SUMMARY_EXPORT_QUERY,
+        statement=export_statement,
         params={
             "block_number": block_number,
         },
@@ -40,7 +50,7 @@ def export_block(inspect_db_session, block_number: int) -> None:
     if first_value is None:
         existing_object_size = _get_object_size(client, export_bucket_name, object_key)
         if existing_object_size is None or existing_object_size == 0:
-            logger.info(f"Skipping block {block_number} - no data")
+            logger.info(f"Skipping {table} for block {block_number} - no data")
             return
 
     mev_summary_json_fileobj = BytesIteratorIO(
@@ -54,6 +64,15 @@ def export_block(inspect_db_session, block_number: int) -> None:
     )
 
     logger.info(f"Exported to {object_key}")
+
+
+def _get_export_statement(table: str) -> str:
+    return f"""
+                SELECT to_json({table})
+                FROM {table}
+                WHERE
+                    block_number = :block_number
+            """
 
 
 def _get_object_size(client, bucket: str, key: str) -> Optional[int]:
