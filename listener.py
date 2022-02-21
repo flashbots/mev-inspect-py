@@ -46,7 +46,7 @@ async def run():
 
     broker = connect_broker()
     export_actor = dramatiq.actor(
-        export_block_task,
+        realtime_export_task,
         broker=broker,
         queue_name=HIGH_PRIORITY_QUEUE,
         priority=HIGH_PRIORITY,
