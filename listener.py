@@ -2,8 +2,8 @@ import asyncio
 import logging
 import os
 
-import aiohttp
 import dramatiq
+from aiohttp_retry import ExponentialRetry, RetryClient
 
 from mev_inspect.block import get_latest_block_number
 from mev_inspect.concurrency import coro
@@ -110,8 +110,12 @@ async def inspect_next_block(
 
 
 async def ping_healthcheck_url(url):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url):
+    retry_options = ExponentialRetry(attempts=3)
+
+    async with RetryClient(
+        raise_for_status=False, retry_options=retry_options
+    ) as client:
+        async with client.get(url) as _response:
             pass
 
 
