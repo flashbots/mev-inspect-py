@@ -14,7 +14,6 @@ from mev_inspect.inspector import MEVInspector
 from mev_inspect.prices import fetch_prices, fetch_prices_range
 from mev_inspect.queue.broker import connect_broker
 from mev_inspect.queue.tasks import (
-    HIGH_PRIORITY,
     LOW_PRIORITY,
     LOW_PRIORITY_QUEUE,
     backfill_export_task,
@@ -169,7 +168,7 @@ def enqueue_s3_export(block_number: int):
         backfill_export_task,
         broker=broker,
         queue_name=LOW_PRIORITY_QUEUE,
-        priority=HIGH_PRIORITY,
+        priority=LOW_PRIORITY,
     )
     logger.info(f"Sending block {block_number} export to queue")
     export_actor.send(block_number)
@@ -184,7 +183,7 @@ def enqueue_many_s3_exports(after_block: int, before_block: int):
         backfill_export_task,
         broker=broker,
         queue_name=LOW_PRIORITY_QUEUE,
-        priority=HIGH_PRIORITY,
+        priority=LOW_PRIORITY,
     )
     logger.info(f"Sending blocks {after_block} to {before_block} to queue")
     for block_number in range(after_block, before_block):
