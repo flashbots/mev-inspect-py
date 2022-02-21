@@ -32,7 +32,7 @@ dramatiq.actor(
     inspect_many_blocks_task, queue_name=LOW_PRIORITY_QUEUE, priority=LOW_PRIORITY
 )
 dramatiq.actor(
-    backfill_export_task, queue_name=LOW_PRIORITY_QUEUE, priority=HIGH_PRIORITY_QUEUE
+    backfill_export_task, queue_name=LOW_PRIORITY_QUEUE, priority=LOW_PRIORITY_QUEUE
 )
 dramatiq.actor(
     realtime_export_task, queue_name=HIGH_PRIORITY_QUEUE, priority=HIGH_PRIORITY
