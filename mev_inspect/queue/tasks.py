@@ -32,7 +32,12 @@ def inspect_many_blocks_task(
             )
 
 
-def export_block_task(block_number: int):
+def realtime_export_task(block_number: int):
+    with _session_scope(DbMiddleware.get_inspect_sessionmaker()) as inspect_db_session:
+        export_block(inspect_db_session, block_number)
+
+
+def backfill_export_task(block_number: int):
     with _session_scope(DbMiddleware.get_inspect_sessionmaker()) as inspect_db_session:
         export_block(inspect_db_session, block_number)
 

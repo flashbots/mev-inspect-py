@@ -14,11 +14,9 @@ from mev_inspect.inspector import MEVInspector
 from mev_inspect.prices import fetch_prices, fetch_prices_range
 from mev_inspect.queue.broker import connect_broker
 from mev_inspect.queue.tasks import (
-    HIGH_PRIORITY,
-    HIGH_PRIORITY_QUEUE,
     LOW_PRIORITY,
     LOW_PRIORITY_QUEUE,
-    export_block_task,
+    backfill_export_task,
     inspect_many_blocks_task,
 )
 from mev_inspect.s3_export import export_block
@@ -167,13 +165,29 @@ def fetch_all_prices():
 def enqueue_s3_export(block_number: int):
     broker = connect_broker()
     export_actor = dramatiq.actor(
-        export_block_task,
+        backfill_export_task,
         broker=broker,
-        queue_name=HIGH_PRIORITY_QUEUE,
-        priority=HIGH_PRIORITY,
+        queue_name=LOW_PRIORITY_QUEUE,
+        priority=LOW_PRIORITY,
     )
     logger.info(f"Sending block {block_number} export to queue")
     export_actor.send(block_number)
+
+
+@cli.command()
+@click.argument("after_block", type=int)
+@click.argument("before_block", type=int)
+def enqueue_many_s3_exports(after_block: int, before_block: int):
+    broker = connect_broker()
+    export_actor = dramatiq.actor(
+        backfill_export_task,
+        broker=broker,
+        queue_name=LOW_PRIORITY_QUEUE,
+        priority=LOW_PRIORITY,
+    )
+    logger.info(f"Sending blocks {after_block} to {before_block} to queue")
+    for block_number in range(after_block, before_block):
+        export_actor.send(block_number)
 
 
 @cli.command()

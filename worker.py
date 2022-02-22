@@ -11,10 +11,13 @@ from mev_inspect.queue.middleware import (
     InspectorMiddleware,
 )
 from mev_inspect.queue.tasks import (
+    HIGH_PRIORITY,
     HIGH_PRIORITY_QUEUE,
+    LOW_PRIORITY,
     LOW_PRIORITY_QUEUE,
-    export_block_task,
+    backfill_export_task,
     inspect_many_blocks_task,
+    realtime_export_task,
 )
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -25,5 +28,12 @@ broker.add_middleware(AsyncMiddleware())
 broker.add_middleware(InspectorMiddleware(os.environ["RPC_URL"]))
 dramatiq.set_broker(broker)
 
-dramatiq.actor(inspect_many_blocks_task, queue_name=HIGH_PRIORITY_QUEUE)
-dramatiq.actor(export_block_task, queue_name=LOW_PRIORITY_QUEUE)
+dramatiq.actor(
+    inspect_many_blocks_task, queue_name=LOW_PRIORITY_QUEUE, priority=LOW_PRIORITY
+)
+dramatiq.actor(
+    backfill_export_task, queue_name=LOW_PRIORITY_QUEUE, priority=LOW_PRIORITY_QUEUE
+)
+dramatiq.actor(
+    realtime_export_task, queue_name=HIGH_PRIORITY_QUEUE, priority=HIGH_PRIORITY
+)
