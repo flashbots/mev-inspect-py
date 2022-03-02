@@ -2,6 +2,7 @@ import itertools
 import json
 import logging
 import os
+from datetime import datetime
 from typing import Iterator, Optional, Tuple, TypeVar
 
 import boto3
@@ -34,8 +35,9 @@ def _export_block_by_table(inspect_db_session, block_number: int, table: str) ->
     client = get_s3_client()
     export_bucket_name = get_export_bucket_name()
     export_statement = _get_export_statement(table)
+    date = round(datetime.utcnow().timestamp())
 
-    object_key = f"{table}/flashbots_{block_number}.json"
+    object_key = f"{table}/flashbots_{block_number}_{date}.json"
 
     mev_summary_json_results = inspect_db_session.execute(
         statement=export_statement,
