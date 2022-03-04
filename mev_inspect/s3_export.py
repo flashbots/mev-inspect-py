@@ -21,6 +21,7 @@ supported_tables = [
     "liquidations",
     "sandwiches",
     "sandwiched_swaps",
+    "blocks",
 ]
 
 logger = logging.getLogger(__name__)
