@@ -1,9 +1,8 @@
-import itertools
 import json
 import logging
 import os
 from datetime import datetime
-from typing import Iterator, Optional, Tuple, TypeVar
+from typing import Optional, TypeVar
 
 import boto3
 
@@ -46,13 +45,6 @@ def _export_block_by_table(inspect_db_session, block_number: int, table: str) ->
             "block_number": block_number,
         },
     )
-
-    first_value, mev_summary_json_results = _peek(mev_summary_json_results)
-    if first_value is None:
-        existing_object_size = _get_object_size(client, export_bucket_name, object_key)
-        if existing_object_size is None or existing_object_size == 0:
-            logger.info(f"Skipping {table} for block {block_number} - no data")
-            return
 
     mev_summary_json_fileobj = BytesIteratorIO(
         (f"{json.dumps(row)}\n".encode("utf-8") for (row,) in mev_summary_json_results)
@@ -121,12 +113,3 @@ def get_export_aws_secret_access_key() -> Optional[str]:
 
 
 _T = TypeVar("_T")
-
-
-def _peek(iterable: Iterator[_T]) -> Tuple[Optional[_T], Iterator[_T]]:
-    try:
-        first = next(iterable)
-    except StopIteration:
-        return None, iter([])
-
-    return first, itertools.chain([first], iterable)
