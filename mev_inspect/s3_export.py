@@ -76,8 +76,12 @@ def _export_block_by_table(inspect_db_session, block_number: int, table: str) ->
 
 def _get_export_statement(table: str) -> str:
     return f"""
-        SELECT to_json({table})
-        FROM {table}
+        SELECT to_json(json)
+        FROM (
+            SELECT *, CURRENT_TIMESTAMP(0) as timestamp
+            FROM {table}
+
+        ) json
         WHERE
         block_number = :block_number
         """
