@@ -2,7 +2,6 @@ import itertools
 import json
 import logging
 import os
-from datetime import datetime
 from typing import Iterator, Optional, Tuple, TypeVar
 
 import boto3
@@ -36,7 +35,6 @@ def _export_block_by_table(inspect_db_session, block_number: int, table: str) ->
     client = get_s3_client()
     export_bucket_name = get_export_bucket_name()
     export_statement = _get_export_statement(table)
-    date = round(datetime.utcnow().timestamp())
 
     object_key = f"{table}/flashbots_{block_number}.json"
 
@@ -52,10 +50,19 @@ def _export_block_by_table(inspect_db_session, block_number: int, table: str) ->
         existing_object_size = _get_object_size(client, export_bucket_name, object_key)
         if existing_object_size is None or existing_object_size == 0:
             logger.info(f"Skipping {table} for block {block_number} - no data")
+            client.delete_object(
+                Bucket=export_bucket_name,
+                Key=object_key,
+            )
             return
 
     mev_summary_json_fileobj = BytesIteratorIO(
         (f"{json.dumps(row)}\n".encode("utf-8") for (row,) in mev_summary_json_results)
+    )
+
+    client.delete_object(
+        Bucket=export_bucket_name,
+        Key=object_key,
     )
 
     client.upload_fileobj(
