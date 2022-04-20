@@ -53,6 +53,9 @@ from mev_inspect.schemas.traces import ClassifiedTrace
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
+from mev_inspect.jit_liquidity import get_jit_liquidity
+from mev_inspect.schemas.jit_liquidity import JITLiquidity
+from mev_inspect.crud.jit_liquidity import delete_jit_liquidity_for_blocks, write_jit_liquidity
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +103,7 @@ async def inspect_many_blocks(
     all_miner_payments: List[MinerPayment] = []
 
     all_nft_trades: List[NftTrade] = []
+    all_jit_liquidity: List[JITLiquidity] = []
 
     for block_number in range(after_block_number, before_block_number):
         block = await create_from_block_number(
@@ -149,6 +153,9 @@ async def inspect_many_blocks(
         nft_trades = get_nft_trades(classified_traces)
         logger.info(f"Block: {block_number} -- Found {len(nft_trades)} nft trades")
 
+        jit_liquidity = get_jit_liquidity(classified_traces, swaps)
+        logger.info(f"Block: {block_number} -- Found {len(jit_liquidity)} jit liquidity instances")
+
         miner_payments = get_miner_payments(
             block.miner, block.base_fee_per_gas, classified_traces, block.receipts
         )
@@ -166,6 +173,8 @@ async def inspect_many_blocks(
         all_punk_snipes.extend(punk_snipes)
 
         all_nft_trades.extend(nft_trades)
+
+        all_jit_liquidity.extend(jit_liquidity)
 
         all_miner_payments.extend(miner_payments)
 
@@ -221,6 +230,11 @@ async def inspect_many_blocks(
         inspect_db_session, after_block_number, before_block_number
     )
     write_nft_trades(inspect_db_session, all_nft_trades)
+
+    delete_jit_liquidity_for_blocks(
+        inspect_db_session, after_block_number, before_block_number
+    )
+    write_jit_liquidity(inspect_db_session, all_jit_liquidity)
 
     delete_miner_payments_for_blocks(
         inspect_db_session, after_block_number, before_block_number
