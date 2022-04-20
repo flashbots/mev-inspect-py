@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union, Tuple
 
 from mev_inspect.schemas.jit_liquidity import JITLiquidity
 from mev_inspect.schemas.swaps import Swap
@@ -42,7 +42,7 @@ def _parse_jit_liquidity_instance(
         burn_trace: ClassifiedTrace,
         classified_traces: List[ClassifiedTrace],
         swaps: List[Swap],
-) -> JITLiquidity:
+) -> Union[JITLiquidity, None]:
     valid_swaps = list(filter(
         lambda t: mint_trace.transaction_position < t.transaction_position < burn_trace.transaction_position,
         swaps
@@ -95,27 +95,24 @@ def _parse_jit_liquidity_instance(
     )
 
 
-def _get_token_order(token_a: str, token_b: str) -> (int, int):
+def _get_token_order(token_a: str, token_b: str) -> Tuple[str, str]:
     token_order = True if int(token_a, 16) < int(token_b, 16) else False
     return (token_a, token_b) if token_order else (token_b, token_a)
 
 
-def _get_bot_address(
+def _get_bot_address(  # Janky and a half...
         mint_trace: ClassifiedTrace,
         classified_traces: List[ClassifiedTrace]
 ) -> str:
-    if mint_trace.from_address not in LIQUIDITY_MINT_ROUTERS:
-        return mint_trace.from_address
-
-    bot_trace = list(filter(
-        lambda t: t.to_address == mint_trace.from_address and t.transaction_hash == mint_trace.transaction_hash,
-        classified_traces
-    ))
-    if len(bot_trace) > 1:
-        if is_child_trace_address(bot_trace[1].trace_address, bot_trace[0].trace_address):
-            return _get_bot_address(bot_trace[0], classified_traces)
-        else:
-            return "0x" + ("0" * 40)  # get rid of this case by properly searching the trace_address
-    _get_bot_address(bot_trace[0], classified_traces)
-
-
+    if mint_trace.from_address in LIQUIDITY_MINT_ROUTERS:
+        bot_trace = list(filter(
+            lambda t: t.to_address == mint_trace.from_address and t.transaction_hash == mint_trace.transaction_hash,
+            classified_traces
+        ))
+        if len(bot_trace) > 1:
+            if is_child_trace_address(bot_trace[1].trace_address, bot_trace[0].trace_address):
+                return _get_bot_address(bot_trace[0], classified_traces)
+            else:
+                return "0x" + ("0" * 40)  # get rid of this case by properly searching the trace_address
+        return _get_bot_address(bot_trace[0], classified_traces)
+    return mint_trace.from_address
