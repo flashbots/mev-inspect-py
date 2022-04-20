@@ -29,9 +29,12 @@ def get_jit_liquidity(
                 forward_search_trace = classified_traces[i]
                 if forward_search_trace.classification == Classification.liquidity_burn:
                     if forward_search_trace.to_address == trace.to_address:
-                        jit_liquidity_instances.append(
-                            _parse_jit_liquidity_instance(trace, forward_search_trace, classified_traces, swaps)
+                        jit_liquidity = _parse_jit_liquidity_instance(
+                            trace, forward_search_trace, classified_traces, swaps
                         )
+                        if jit_liquidity is None:
+                            continue
+                        jit_liquidity_instances.append(jit_liquidity)
                 i += 1
 
     return jit_liquidity_instances
