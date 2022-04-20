@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Sequence
 from mev_inspect.classifiers.specs import get_classifier
 from mev_inspect.schemas.classifiers import TransferClassifier
 from mev_inspect.schemas.prices import ETH_TOKEN_ADDRESS
-from mev_inspect.schemas.traces import ClassifiedTrace, DecodedCallTrace, Classification
+from mev_inspect.schemas.traces import Classification, ClassifiedTrace, DecodedCallTrace
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.traces import get_child_traces, is_child_trace_address
 
@@ -129,7 +129,7 @@ def remove_child_transfers_of_transfers(
 
 
 def get_net_transfers(
-        classified_traces: List[ClassifiedTrace],
+    classified_traces: List[ClassifiedTrace],
 ) -> List[Transfer]:
     """
     Super Jank...
@@ -150,37 +150,58 @@ def get_net_transfers(
             continue
 
         if trace.classification == Classification.transfer:
-            if trace.from_address in [t.token_address for t in return_transfers]:  # Proxy Case
+            if trace.from_address in [
+                t.token_address for t in return_transfers
+            ]:  # Proxy Case
                 continue
 
             if trace.function_signature == "transfer(address,uint256)":
-                net_search_info = [trace.inputs["recipient"], trace.to_address, trace.from_address]
+                net_search_info = [
+                    trace.inputs["recipient"],
+                    trace.to_address,
+                    trace.from_address,
+                ]
 
             else:  # trace.function_signature == "transferFrom(address,address,uint256)"
-                net_search_info = [trace.inputs["recipient"], trace.to_address, trace.inputs["sender"]]
+                net_search_info = [
+                    trace.inputs["recipient"],
+                    trace.to_address,
+                    trace.inputs["sender"],
+                ]
 
             if sorted(net_search_info) in found_transfers:
                 for index, transfer in enumerate(return_transfers):
-                    if transfer.token_address != net_search_info[1] or transfer.transaction_hash != trace.transaction_hash:
+                    if (
+                        transfer.token_address != net_search_info[1]
+                        or transfer.transaction_hash != trace.transaction_hash
+                    ):
                         continue
 
-                    if transfer.from_address == net_search_info[2] and transfer.to_address == net_search_info[0]:
+                    if (
+                        transfer.from_address == net_search_info[2]
+                        and transfer.to_address == net_search_info[0]
+                    ):
                         return_transfers[index].amount += trace.inputs["amount"]
                         return_transfers[index].trace_address = [-1]
-                    if transfer.from_address == net_search_info[0] and transfer.to_address == net_search_info[2]:
+                    if (
+                        transfer.from_address == net_search_info[0]
+                        and transfer.to_address == net_search_info[2]
+                    ):
                         return_transfers[index].amount -= trace.inputs["amount"]
                         return_transfers[index].trace_address = [-1]
 
             else:
-                return_transfers.append(Transfer(
-                    block_number=trace.block_number,
-                    transaction_hash=trace.transaction_hash,
-                    trace_address=trace.trace_address,
-                    from_address=net_search_info[2],  # Janky... improve
-                    to_address=net_search_info[0],
-                    amount=trace.inputs["amount"],
-                    token_address=net_search_info[1]
-                ))
+                return_transfers.append(
+                    Transfer(
+                        block_number=trace.block_number,
+                        transaction_hash=trace.transaction_hash,
+                        trace_address=trace.trace_address,
+                        from_address=net_search_info[2],  # Janky... improve
+                        to_address=net_search_info[0],
+                        amount=trace.inputs["amount"],
+                        token_address=net_search_info[1],
+                    )
+                )
                 found_transfers.append(sorted(net_search_info))
 
     i = 0

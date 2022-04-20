@@ -1,10 +1,9 @@
+from mev_inspect.classifiers.trace import TraceClassifier
+from mev_inspect.jit_liquidity import get_jit_liquidity
 from mev_inspect.schemas.jit_liquidity import JITLiquidity
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.schemas.traces import Protocol
 from mev_inspect.swaps import get_swaps
-from mev_inspect.jit_liquidity import get_jit_liquidity
-
-from mev_inspect.classifiers.trace import TraceClassifier
 
 from .utils import load_test_block
 
@@ -32,7 +31,7 @@ def test_single_sandwich_jit_liquidity(trace_classifier: TraceClassifier):
         token_in_amount=1896817745609,
         token_out_address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2".lower(),
         token_out_amount=408818202022592862626,
-        protocol=Protocol.uniswap_v3
+        protocol=Protocol.uniswap_v3,
     )
     expected_jit_liquidity = [
         JITLiquidity(
@@ -58,20 +57,45 @@ def test_single_sandwich_jit_liquidity(trace_classifier: TraceClassifier):
     # Might be super janky but this could be done with assert jit_liquidity_instances == expected_jit_liquidity
     assert len(jit_liquidity_instances) == 1
     assert len(jit_liquidity_instances[0].swaps) == 1
-    assert jit_liquidity_instances[0].burn_transaction_hash == expected_jit_liquidity[0].burn_transaction_hash
-    assert jit_liquidity_instances[0].mint_transaction_hash == expected_jit_liquidity[0].mint_transaction_hash
-    assert jit_liquidity_instances[0].burn_token0_amount == expected_jit_liquidity[0].burn_token0_amount
-    assert jit_liquidity_instances[0].burn_token1_amount == expected_jit_liquidity[0].burn_token1_amount
-    assert jit_liquidity_instances[0].mint_token0_amount == expected_jit_liquidity[0].mint_token0_amount
-    assert jit_liquidity_instances[0].mint_token1_amount == expected_jit_liquidity[0].mint_token1_amount
-    assert jit_liquidity_instances[0].bot_address == expected_jit_liquidity[0].bot_address
-    assert jit_liquidity_instances[0].token0_swap_volume == expected_jit_liquidity[0].token0_swap_volume
-    assert jit_liquidity_instances[0].token1_swap_volume == expected_jit_liquidity[0].token1_swap_volume
+    assert (
+        jit_liquidity_instances[0].burn_transaction_hash
+        == expected_jit_liquidity[0].burn_transaction_hash
+    )
+    assert (
+        jit_liquidity_instances[0].mint_transaction_hash
+        == expected_jit_liquidity[0].mint_transaction_hash
+    )
+    assert (
+        jit_liquidity_instances[0].burn_token0_amount
+        == expected_jit_liquidity[0].burn_token0_amount
+    )
+    assert (
+        jit_liquidity_instances[0].burn_token1_amount
+        == expected_jit_liquidity[0].burn_token1_amount
+    )
+    assert (
+        jit_liquidity_instances[0].mint_token0_amount
+        == expected_jit_liquidity[0].mint_token0_amount
+    )
+    assert (
+        jit_liquidity_instances[0].mint_token1_amount
+        == expected_jit_liquidity[0].mint_token1_amount
+    )
+    assert (
+        jit_liquidity_instances[0].bot_address == expected_jit_liquidity[0].bot_address
+    )
+    assert (
+        jit_liquidity_instances[0].token0_swap_volume
+        == expected_jit_liquidity[0].token0_swap_volume
+    )
+    assert (
+        jit_liquidity_instances[0].token1_swap_volume
+        == expected_jit_liquidity[0].token1_swap_volume
+    )
 
     # Swap Checks
-    assert jit_liquidity_instances[0].swaps[0].transaction_hash == jit_swap.transaction_hash
+    assert (
+        jit_liquidity_instances[0].swaps[0].transaction_hash
+        == jit_swap.transaction_hash
+    )
     assert jit_liquidity_instances[0].swaps[0].trace_address == jit_swap.trace_address
-
-
-
-
