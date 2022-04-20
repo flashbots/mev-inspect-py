@@ -9,6 +9,10 @@ from mev_inspect.block import create_from_block_number
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.crud.arbitrages import delete_arbitrages_for_blocks, write_arbitrages
 from mev_inspect.crud.blocks import delete_blocks, write_blocks
+from mev_inspect.crud.jit_liquidity import (
+    delete_jit_liquidity_for_blocks,
+    write_jit_liquidity,
+)
 from mev_inspect.crud.liquidations import (
     delete_liquidations_for_blocks,
     write_liquidations,
@@ -34,6 +38,7 @@ from mev_inspect.crud.traces import (
     write_classified_traces,
 )
 from mev_inspect.crud.transfers import delete_transfers_for_blocks, write_transfers
+from mev_inspect.jit_liquidity import get_jit_liquidity
 from mev_inspect.liquidations import get_liquidations
 from mev_inspect.miner_payments import get_miner_payments
 from mev_inspect.nft_trades import get_nft_trades
@@ -41,6 +46,7 @@ from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_
 from mev_inspect.sandwiches import get_sandwiches
 from mev_inspect.schemas.arbitrages import Arbitrage
 from mev_inspect.schemas.blocks import Block
+from mev_inspect.schemas.jit_liquidity import JITLiquidity
 from mev_inspect.schemas.liquidations import Liquidation
 from mev_inspect.schemas.miner_payments import MinerPayment
 from mev_inspect.schemas.nft_trades import NftTrade
@@ -53,9 +59,6 @@ from mev_inspect.schemas.traces import ClassifiedTrace
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
-from mev_inspect.jit_liquidity import get_jit_liquidity
-from mev_inspect.schemas.jit_liquidity import JITLiquidity
-from mev_inspect.crud.jit_liquidity import delete_jit_liquidity_for_blocks, write_jit_liquidity
 
 logger = logging.getLogger(__name__)
 
@@ -154,7 +157,9 @@ async def inspect_many_blocks(
         logger.info(f"Block: {block_number} -- Found {len(nft_trades)} nft trades")
 
         jit_liquidity = get_jit_liquidity(classified_traces, swaps)
-        logger.info(f"Block: {block_number} -- Found {len(jit_liquidity)} jit liquidity instances")
+        logger.info(
+            f"Block: {block_number} -- Found {len(jit_liquidity)} jit liquidity instances"
+        )
 
         miner_payments = get_miner_payments(
             block.miner, block.base_fee_per_gas, classified_traces, block.receipts

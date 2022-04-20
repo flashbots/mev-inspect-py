@@ -5,13 +5,12 @@ Revises: 5c5375de15fd
 Create Date: 2022-04-19 18:34:26.332094
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = 'ceb5976b37dd'
-down_revision = '5c5375de15fd'
+revision = "ceb5976b37dd"
+down_revision = "5c5375de15fd"
 branch_labels = None
 depends_on = None
 
@@ -30,7 +29,7 @@ def upgrade():
             ["swap_transaction_hash", "swap_trace_address"],
             ["swaps.transaction_hash", "swaps.trace_address"],
             ondelete="CASCADE",
-        )
+        ),
     )
 
 

@@ -20,6 +20,3 @@ class JITLiquidityModel(Base):
     burn_token1_amount = Column(Numeric)
     token0_swap_volume = Column(Numeric)
     token1_swap_volume = Column(Numeric)
-
-
-

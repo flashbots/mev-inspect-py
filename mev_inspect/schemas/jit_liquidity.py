@@ -1,14 +1,13 @@
-from typing import List
+from typing import List, Union
 
 from pydantic import BaseModel
-
 
 from .swaps import Swap
 
 
 class JITLiquidity(BaseModel):
     block_number: int
-    bot_address: str
+    bot_address: Union[str, None]
     pool_address: str
     mint_transaction_hash: str
     mint_trace: List[int]
@@ -23,6 +22,3 @@ class JITLiquidity(BaseModel):
     burn_token1_amount: int
     token0_swap_volume: int
     token1_swap_volume: int
-
-
-
