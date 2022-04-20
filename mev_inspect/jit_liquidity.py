@@ -1,4 +1,4 @@
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Optional
 
 from mev_inspect.schemas.jit_liquidity import JITLiquidity
 from mev_inspect.schemas.swaps import Swap
@@ -78,6 +78,8 @@ def _parse_jit_liquidity_instance(
             token0_swap_volume += swap.token_in_amount if swap.token_in_address == token0_address else 0
             token1_swap_volume += 0 if swap.token_in_address == token0_address else swap.token_in_amount
 
+    token_order = mint_transfers[0].token_address == token0_address
+
     return JITLiquidity(
         block_number=mint_trace.block_number,
         bot_address=bot_address,
@@ -89,10 +91,10 @@ def _parse_jit_liquidity_instance(
         swaps=jit_swaps,
         token0_address=token0_address,
         token1_address=token1_address,
-        mint_token0_amount=mint_transfers[0].amount if mint_transfers[0].token_address == token0_address else mint_transfers[1].amount,
-        mint_token1_amount=mint_transfers[1].amount if mint_transfers[0].token_address == token0_address else mint_transfers[0].amount,
-        burn_token0_amount=burn_transfers[0].amount if burn_transfers[0].token_address == token0_address else burn_transfers[1].amount,
-        burn_token1_amount=burn_transfers[1].amount if burn_transfers[0].token_address == token0_address else burn_transfers[0].amount,
+        mint_token0_amount=mint_transfers[0].amount if token_order else mint_transfers[1].amount,
+        mint_token1_amount=mint_transfers[1].amount if token_order else mint_transfers[0].amount,
+        burn_token0_amount=burn_transfers[0].amount if token_order else burn_transfers[1].amount,
+        burn_token1_amount=burn_transfers[1].amount if token_order else burn_transfers[0].amount,
         token0_swap_volume=token0_swap_volume,
         token1_swap_volume=token1_swap_volume,
     )
@@ -106,16 +108,17 @@ def _get_token_order(token_a: str, token_b: str) -> Tuple[str, str]:
 def _get_bot_address(  # Janky and a half...
         mint_trace: ClassifiedTrace,
         classified_traces: List[ClassifiedTrace]
-) -> str:
+) -> Union[str, None]:
     if mint_trace.from_address in LIQUIDITY_MINT_ROUTERS:
         bot_trace = list(filter(
             lambda t: t.to_address == mint_trace.from_address and t.transaction_hash == mint_trace.transaction_hash,
             classified_traces
         ))
-        if len(bot_trace) > 1:
-            if is_child_trace_address(bot_trace[1].trace_address, bot_trace[0].trace_address):
-                return _get_bot_address(bot_trace[0], classified_traces)
-            else:
-                return "0x" + ("0" * 40)  # get rid of this case by properly searching the trace_address
-        return _get_bot_address(bot_trace[0], classified_traces)
+        if len(bot_trace) == 1:
+            return _get_bot_address(bot_trace[0], classified_traces)
+        elif is_child_trace_address(bot_trace[1].trace_address, bot_trace[0].trace_address):
+            return _get_bot_address(bot_trace[0], classified_traces)
+        else:
+            return None
+
     return mint_trace.from_address
