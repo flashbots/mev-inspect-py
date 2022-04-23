@@ -141,23 +141,23 @@ To see progress and failed batches, connect to Redis with
 
 For total messages, query:
 ```
-HLEN dramatiq:default.msgs
+HLEN dramatiq:low.msgs
 ```
 
 For messages failed and waiting to retry in the delay queue (DQ), query:
 ```
-HGETALL dramatiq:default.DQ.msgs
+HGETALL dramatiq:low.DQ.msgs
 ```
 
 For messages permanently failed in the dead letter queue (XQ), query:
 ```
-HGETALL dramatiq:default.XQ.msgs
+HGETALL dramatiq:low.XQ.msgs
 ```
 
 To clear the queue, delete keys for the main queue and delay queue
 ```
-DEL dramatiq:default.msgs
-DEL dramatiq:default.DQ.msgs
+DEL dramatiq:low.msgs
+DEL dramatiq:low.DQ.msgs
 ```
 
 For more information on queues, see the [spec shared by dramatiq](https://github.com/Bogdanp/dramatiq/blob/24cbc0dc551797783f41b08ea461e1b5d23a4058/dramatiq/brokers/redis/dispatch.lua#L24-L43)
