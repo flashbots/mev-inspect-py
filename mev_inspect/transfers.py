@@ -134,7 +134,7 @@ def get_net_transfers(
     """
     Super Jank...
     Returns the net transfers per transaction from a list of Classified Traces.
-    Ex.  if a bot transfers 200 WETH to a contract, and the contract transfers the excess WETH back to the bot,
+    Ex.  if a bot transfers 200 WETH to a contract, and the contract transfers the excess 50 WETH back to the bot,
     the following transfer would be returned  (from_address=bot, to_address=contract, amount=150)
     if the contract transferred 300 WETH back to the bot, the following would be returned
     (from_address=contract, to_address=bot, amount=100). if the contract transferred back 200 WETH,
@@ -204,19 +204,19 @@ def get_net_transfers(
                 )
                 found_transfers.append(sorted(net_search_info))
 
-    i = 0
+    process_index = -1
     while True:
+        process_index += 1
         try:
-            transfer = return_transfers[i]
+            transfer = return_transfers[process_index]
         except IndexError:
             break
         if transfer.amount < 0:
-            return_transfers[i].from_address = transfer.to_address
-            return_transfers[i].to_address = transfer.from_address
-            return_transfers[i].amount = transfer.amount * -1
+            return_transfers[process_index].from_address = transfer.to_address
+            return_transfers[process_index].to_address = transfer.from_address
+            return_transfers[process_index].amount = transfer.amount * -1
         if transfer.amount == 0:
-            return_transfers.pop(i)
-            i -= 1
-        i += 1
+            return_transfers.pop(process_index)
+            process_index -= 1
 
     return return_transfers
