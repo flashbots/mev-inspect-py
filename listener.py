@@ -3,6 +3,7 @@ import logging
 import os
 
 import dramatiq
+from aiohttp.client_exceptions import ClientOSError
 from aiohttp_retry import ExponentialRetry, RetryClient
 
 from mev_inspect.block import get_latest_block_number
@@ -26,14 +27,20 @@ logging.basicConfig(filename="listener.log", filemode="a", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # lag to make sure the blocks we see are settled
+CURRENT_RPC: int = 0
 BLOCK_NUMBER_LAG = 5
+rpc = os.getenv("RPC_URL")
+rpc_list = os.getenv("RPC_LIST")
+
+if rpc_list is None and rpc is None:
+    raise RuntimeError("Missing RPC_URL or RPC_LIST environment variables.")
+
+if rpc_list is not None:
+    rpc = rpc_list[CURRENT_RPC]
 
 
 @coro
 async def run():
-    rpc = os.getenv("RPC_URL")
-    if rpc is None:
-        raise RuntimeError("Missing environment variable RPC_URL")
 
     healthcheck_url = os.getenv("LISTENER_HEALTHCHECK_URL")
 
@@ -122,5 +129,7 @@ async def ping_healthcheck_url(url):
 if __name__ == "__main__":
     try:
         run()
-    except Exception as e:
-        logger.error(e)
+    except ClientOSError or ConnectionRefusedError:
+        if rpc_list is not None:
+            rpc = rpc_list[CURRENT_RPC + 1]
+            run()
