@@ -132,16 +132,16 @@ def get_net_transfers(
     classified_traces: List[ClassifiedTrace],
 ) -> List[Transfer]:
     """
-    Super Jank...
     Returns the net transfers per transaction from a list of Classified Traces.
-    Ex.  if a bot transfers 200 WETH to a contract, and the contract transfers the excess 50 WETH back to the bot,
-    the following transfer would be returned  (from_address=bot, to_address=contract, amount=150)
-    if the contract transferred 300 WETH back to the bot, the following would be returned
-    (from_address=contract, to_address=bot, amount=100). if the contract transferred back 200 WETH,
-    no transfer would be returned.
-    Additionally, ignores transfers forwarded from proxy contracts & uses initial proxy address
+    If A transfers 200WETH to B ,and later in the transaction, B transfers 50WETH to A,
+    the following transfer would be returned  (from_address=A, to_address=B, amount=150)
+
+    If B transferred 300WETH to A, the following would be returned
+    (from_address=contract, to_address=bot, amount=100)
+
+    If B transferred 200WETH to A, no transfer would be returned
     @param classified_traces:
-    @return: List of Transfer objects representing the net movement from A to B
+    @return: List of Transfer objects representing the net movement of tokens
     """
     found_transfers: List[list] = []
     return_transfers: List[Transfer] = []
@@ -156,36 +156,39 @@ def get_net_transfers(
                 continue
 
             if trace.function_signature == "transfer(address,uint256)":
-                net_search_info = [
-                    trace.inputs["recipient"],
-                    trace.to_address,
-                    trace.from_address,
-                ]
+                net_search_info = {
+                    "to_address": trace.inputs["recipient"],
+                    "token_address": trace.to_address,
+                    "from_address": trace.from_address,
+                }
 
-            else:  # trace.function_signature == "transferFrom(address,address,uint256)"
-                net_search_info = [
-                    trace.inputs["recipient"],
-                    trace.to_address,
-                    trace.inputs["sender"],
-                ]
+            elif trace.function_signature == "transferFrom(address,address,uint256)":
+                net_search_info = {
+                    "to_address": trace.inputs["recipient"],
+                    "token_address": trace.to_address,
+                    "from_address": trace.inputs["sender"],
+                }
 
-            if sorted(net_search_info) in found_transfers:
+            else:
+                continue
+
+            if sorted(list(net_search_info.values())) in found_transfers:
                 for index, transfer in enumerate(return_transfers):
                     if (
-                        transfer.token_address != net_search_info[1]
+                        transfer.token_address != net_search_info["token_address"]
                         or transfer.transaction_hash != trace.transaction_hash
                     ):
                         continue
 
                     if (
-                        transfer.from_address == net_search_info[2]
-                        and transfer.to_address == net_search_info[0]
+                        transfer.from_address == net_search_info["from_address"]
+                        and transfer.to_address == net_search_info["to_address"]
                     ):
                         return_transfers[index].amount += trace.inputs["amount"]
                         return_transfers[index].trace_address = [-1]
                     if (
-                        transfer.from_address == net_search_info[0]
-                        and transfer.to_address == net_search_info[2]
+                        transfer.from_address == net_search_info["to_address"]
+                        and transfer.to_address == net_search_info["from_address"]
                     ):
                         return_transfers[index].amount -= trace.inputs["amount"]
                         return_transfers[index].trace_address = [-1]
@@ -196,13 +199,13 @@ def get_net_transfers(
                         block_number=trace.block_number,
                         transaction_hash=trace.transaction_hash,
                         trace_address=trace.trace_address,
-                        from_address=net_search_info[2],  # Janky... improve
-                        to_address=net_search_info[0],
+                        from_address=net_search_info["from_address"],
+                        to_address=net_search_info["to_address"],
                         amount=trace.inputs["amount"],
-                        token_address=net_search_info[1],
+                        token_address=net_search_info["token_address"],
                     )
                 )
-                found_transfers.append(sorted(net_search_info))
+                found_transfers.append(sorted(list(net_search_info.values())))
 
     process_index = -1
     while True:
