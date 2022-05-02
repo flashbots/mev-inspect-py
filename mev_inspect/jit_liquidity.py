@@ -135,7 +135,6 @@ def _get_transfer_info(
         None,
     )
 
-    # This would be cleaner with bisect(), but creates 3.10 dependency
     for index, trace in enumerate(classified_traces):
         if (
             mint_slice_start is None
@@ -209,25 +208,29 @@ def _get_transfer_info(
 
 
 def _get_bot_address(
-    mint_trace: ClassifiedTrace, classified_traces: List[ClassifiedTrace]
+    mint_trace: ClassifiedTrace,
+    classified_traces: List[ClassifiedTrace],
 ) -> str:
-    if mint_trace.from_address in LIQUIDITY_MINT_ROUTERS:
-        bot_trace = list(
-            filter(
-                lambda t: t.to_address == mint_trace.from_address
-                and t.transaction_hash == mint_trace.transaction_hash,
-                classified_traces,
+    if "from_address" in mint_trace.dict().keys():
+
+        if mint_trace.from_address in LIQUIDITY_MINT_ROUTERS:
+            bot_trace = list(
+                filter(
+                    lambda t: t.to_address == mint_trace.from_address
+                    and t.transaction_hash == mint_trace.transaction_hash,
+                    classified_traces,
+                )
             )
-        )
-        if len(bot_trace) == 1 or is_child_trace_address(
-            bot_trace[1].trace_address, bot_trace[0].trace_address
-        ):
-            return _get_bot_address(bot_trace[0], classified_traces)
+            if len(bot_trace) == 1 or is_child_trace_address(
+                bot_trace[1].trace_address, bot_trace[0].trace_address
+            ):
+                return _get_bot_address(bot_trace[0], classified_traces)
+            else:
+                return "0x0000000000000000000000000000000000000000"
+
+        elif type(mint_trace.from_address) == str:
+            return mint_trace.from_address
         else:
             return "0x0000000000000000000000000000000000000000"
-
-    # This case is here because from_address is optional in ClassifiedTrace
-    if type(mint_trace.from_address) == str:
-        return mint_trace.from_address
     else:
         return "0x0000000000000000000000000000000000000000"
