@@ -15,7 +15,6 @@ case "$1" in
         --chdir /app \
         --chuid flashbot \
         --start \
-        --quiet \
         --pidfile $PIDFILE \
         --make-pidfile \
         --startas /bin/bash -- -c "poetry run python listener.py"
