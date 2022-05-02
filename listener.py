@@ -3,7 +3,6 @@ import logging
 import os
 
 import dramatiq
-from aiohttp.client_exceptions import ClientOSError
 from aiohttp_retry import ExponentialRetry, RetryClient
 
 from mev_inspect.block import get_latest_block_number
@@ -129,7 +128,8 @@ async def ping_healthcheck_url(url):
 if __name__ == "__main__":
     try:
         run()
-    except ClientOSError or ConnectionRefusedError:
-        if rpc_list is not None:
+    except Exception as e:
+        logger.error(e)
+        if rpc_list is not None and CURRENT_RPC < len(rpc_list):
             rpc = rpc_list[CURRENT_RPC + 1]
             run()

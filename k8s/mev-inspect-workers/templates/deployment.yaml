@@ -85,6 +85,11 @@ spec:
               configMapKeyRef:
                 name: mev-inspect-rpc
                 key: url
+          - name: RPC_LIST
+            valueFrom:
+              configMapKeyRef:
+                name: mev-inspect-rpc-list
+                key: list
           - name: LISTENER_HEALTHCHECK_URL
             valueFrom:
               configMapKeyRef:
@@ -118,7 +123,7 @@ spec:
           {{- range .Values.extraEnv }}
           - name: {{ .name }}
             value: {{ .value }}
-          {{- end }} 
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
