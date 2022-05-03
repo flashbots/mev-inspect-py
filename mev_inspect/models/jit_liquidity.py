@@ -4,6 +4,8 @@ from .base import Base
 
 
 class JITLiquidityModel(Base):
+    __tablename__ = "jit_liquidity"
+
     id = Column(String, primary_key=True)
     block_number = Column(Numeric(), nullable=False)
     bot_address = Column(String(42), nullable=True)
