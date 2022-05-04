@@ -84,7 +84,14 @@ spec:
             valueFrom:
               configMapKeyRef:
                 name: mev-inspect-rpc
-                key: url
+                key: primary_url
+                optional: true
+          - name: SECONDARY_RPC_URL
+            valueFrom:
+              configMapKeyRef:
+                name: mev-inspect-rpc
+                key: secondary_url
+                optional: true
           - name: LISTENER_HEALTHCHECK_URL
             valueFrom:
               configMapKeyRef:
