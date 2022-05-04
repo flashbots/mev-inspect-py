@@ -45,7 +45,7 @@ async def run():
     logger.info("Starting...")
 
     if _get_inspector_params(rpc_queue[0]) is None and secondary_rpc is not None:
-        rpc_queue.reverse()
+        rpc_queue.rotate(-1)
 
     inspect_params: Optional[Dict] = _get_inspector_params(rpc_queue[0])
 
