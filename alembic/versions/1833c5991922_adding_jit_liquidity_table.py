@@ -26,11 +26,6 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["jit_liquidity_id"], ["jit_liquidity.id"], ondelete="CASCADE"
         ),
-        sa.ForeignKeyConstraint(
-            ["swap_transaction_hash", "swap_trace_address"],
-            ["swaps.transaction_hash", "swaps.trace_address"],
-            ondelete="CASCADE",
-        ),
     )
 
 
