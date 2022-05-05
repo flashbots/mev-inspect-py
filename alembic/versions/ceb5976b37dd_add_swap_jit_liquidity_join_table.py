@@ -16,7 +16,7 @@ depends_on = None
 
 
 def upgrade():
-    sa.create_table(
+    op.create_table(
         "jit_liquidity_swaps",
         sa.Column("created_at", sa.TIMESTAMP, server_default=sa.func.now()),
         sa.Column("jit_liquidity_id", sa.String(1024), primary_key=True),
