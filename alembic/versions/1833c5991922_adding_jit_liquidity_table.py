@@ -15,29 +15,24 @@ branch_labels = None
 depends_on = None
 
 
+# This revision is switched with add_swap_jit_liquidity_table becasue I made them in the wrong order
 def upgrade():
     op.create_table(
-        "jit_liquidity",
-        sa.Column("id", sa.String, primary_key=True),
-        sa.Column("block_number", sa.Numeric(), nullable=False),
-        sa.Column("bot_address", sa.String(42), nullable=True),
-        sa.Column("pool_address", sa.String(42), nullable=False),
-        sa.Column("token0_address", sa.String(42), nullable=True),
-        sa.Column("token1_address", sa.String(42), nullable=True),
-        sa.Column("mint_transaction_hash", sa.String(66), nullable=False),
-        sa.Column("mint_transaction_trace", sa.ARRAY(sa.Integer)),
-        sa.Column("burn_transaction_hash", sa.String(66), nullable=False),
-        sa.Column("burn_transaction_trace", sa.ARRAY(sa.Integer)),
-        sa.Column("mint_token0_amount", sa.Numeric),
-        sa.Column("mint_token1_amount", sa.Numeric),
-        sa.Column("burn_token0_amount", sa.Numeric),
-        sa.Column("burn_token1_amount", sa.Numeric),
-        sa.Column("token0_swap_volume", sa.Numeric),
-        sa.Column("token1_swap_volume", sa.Numeric),
+        "jit_liquidity_swaps",
+        sa.Column("created_at", sa.TIMESTAMP, server_default=sa.func.now()),
+        sa.Column("jit_liquidity_id", sa.String(1024), primary_key=True),
+        sa.Column("swap_transaction_hash", sa.String(66), primary_key=True),
+        sa.Column("swap_trace_address", sa.ARRAY(sa.Integer), primary_key=True),
+        sa.ForeignKeyConstraint(
+            ["jit_liquidity_id"], ["jit_liquidity.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["swap_transaction_hash", "swap_trace_address"],
+            ["swaps.transaction_hash", "swaps.trace_address"],
+            ondelete="CASCADE",
+        ),
     )
-    op.create_index("ix_jit_liquidity_block_number", "jit_liquidity", ["block_number"])
 
 
 def downgrade():
-    op.drop_index("ix_jit_liquidity_block_number")
-    op.drop_table("jit_liquidity")
+    op.drop_table("jit_liquidity_swaps")
