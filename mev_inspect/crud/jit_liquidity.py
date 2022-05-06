@@ -22,10 +22,12 @@ def delete_jit_liquidity_for_blocks(
 
 
 def write_jit_liquidity(
-    db_session, jit_liquidity_instances: List[JITLiquidity]
+    db_session,
+    jit_liquidity_instances: List[JITLiquidity],
 ) -> None:
     jit_liquidity_models = []
     swap_jit_liquidity_ids = []
+
     for jit_liquidity in jit_liquidity_instances:
         jit_liquidity_id = str(uuid4())
         jit_liquidity_models.append(
@@ -42,7 +44,7 @@ def write_jit_liquidity(
                 burn_transaction_trace=jit_liquidity.burn_trace,
                 mint_token0_amount=jit_liquidity.mint_token0_amount,
                 mint_token1_amount=jit_liquidity.mint_token1_amount,
-                burn_token0_amoun=jit_liquidity.burn_token0_amount,
+                burn_token0_amount=jit_liquidity.burn_token0_amount,
                 burn_token1_amount=jit_liquidity.burn_token1_amount,
                 token0_swap_volume=jit_liquidity.token0_swap_volume,
                 token1_swap_volume=jit_liquidity.token1_swap_volume,
