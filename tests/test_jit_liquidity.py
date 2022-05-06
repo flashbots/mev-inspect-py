@@ -96,3 +96,48 @@ def test_single_sandwich_jit_liquidity_CRV_WETH(trace_classifier: TraceClassifie
     ]
 
     assert jit_liquidity_instances == expected_jit_liquidity
+
+
+def test_single_mint_token_jit(trace_classifier):
+    test_block = load_test_block(14643923)
+    classified_traces = trace_classifier.classify(test_block.traces)
+    swaps = get_swaps(classified_traces)
+    jit_liquidity_instances = get_jit_liquidity(classified_traces, swaps)
+
+    jit_swap = Swap(  # Double check these values
+        abi_name="UniswapV3Pool",
+        transaction_hash="0x43f9656e051a8e3b37f66668851922c6e8e4749d5a7aad605f21119cde541e49".lower(),
+        transaction_position=4,
+        block_number=14643923,
+        trace_address=[1, 0, 1, 0, 1, 0, 0],
+        contract_address="0xac4b3dacb91461209ae9d41ec517c2b9cb1b7daf".lower(),
+        from_address="0x74de5d4fcbf63e00296fd95d33236b9794016631".lower(),
+        to_address="0xdef1c0ded9bec7f1a1670819833240f027b25eff".lower(),
+        token_in_address="0x4d224452801aced8b2f0aebe155379bb5d594381".lower(),  # USDC Contract
+        token_in_amount=6522531010660457256888,
+        token_out_address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2".lower(),
+        token_out_amount=36485453136086109896,
+        protocol=Protocol.uniswap_v3,
+    )
+    expected_jit_liquidity = [
+        JITLiquidity(
+            block_number=14643923,
+            bot_address="0xa57Bd00134B2850B2a1c55860c9e9ea100fDd6CF".lower(),
+            pool_address="0xac4b3dacb91461209ae9d41ec517c2b9cb1b7daf".lower(),
+            mint_transaction_hash="0x003e36cb5d78924c5beaeef15db00cad94009856fe483a031d52ae975557ef53".lower(),
+            mint_trace=[0, 7, 1],
+            burn_transaction_hash="0xec9b2988f6c88968250c3904f6d2d6573f7284cb422b8022a14b7f0dac546348".lower(),
+            burn_trace=[0, 1, 0],
+            swaps=[jit_swap],
+            token0_address="0x4d224452801aced8b2f0aebe155379bb5d594381".lower(),
+            token1_address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2".lower(),
+            mint_token0_amount=0,
+            mint_token1_amount=9073930631365320229693,
+            burn_token0_amount=2424427669988518000798,
+            burn_token1_amount=9060377725722224517671,
+            token0_swap_volume=6522531010660457256888,
+            token1_swap_volume=0,
+        )
+    ]
+
+    assert jit_liquidity_instances == expected_jit_liquidity
