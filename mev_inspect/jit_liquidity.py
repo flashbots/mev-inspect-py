@@ -10,12 +10,15 @@ from mev_inspect.schemas.traces import (
     DecodedCallTrace,
     Protocol,
 )
+from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.traces import is_child_trace_address
 from mev_inspect.transfers import get_net_transfers
 
 LIQUIDITY_MINT_ROUTERS = [
     "0xC36442b4a4522E871399CD717aBDD847Ab11FE88".lower(),  # Uniswap V3 NFT Position Manager
 ]
+
+ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 
 class JITTransferInfo(BaseModel):
@@ -179,22 +182,30 @@ def _get_transfer_info(
     if len(mint_net_transfers) > 2 or len(burn_net_transfers) > 2:
         error_found = True
 
-    token0_address, token1_address = _get_token_order(
-        mint_net_transfers[0].token_address, mint_net_transfers[1].token_address
-    )
-    if mint_net_transfers[0].token_address == token0_address:
-        mint_token0 = mint_net_transfers[0].amount
-        mint_token1 = mint_net_transfers[1].amount
-    else:
-        mint_token0 = mint_net_transfers[1].amount
-        mint_token1 = mint_net_transfers[0].amount
+    if (
+        len(mint_net_transfers) < 2 or len(burn_net_transfers) < 2
+    ):  # Uniswap V3 Limit Case
+        if len(mint_net_transfers) == 0 or len(burn_net_transfers) == 0:
+            raise Exception(
+                "JIT Liquidity found where no tokens are transferred to pool address"
+            )
 
-    if burn_net_transfers[0].token_address == token0_address:
-        burn_token0 = burn_net_transfers[0].amount
-        burn_token1 = burn_net_transfers[1].amount
+        return _parse_liquidity_limit_order(
+            mint_net_transfers, burn_net_transfers, error_found
+        )
+
     else:
-        burn_token0 = burn_net_transfers[1].amount
-        burn_token1 = burn_net_transfers[0].amount
+        token0_address, token1_address = _get_token_order(
+            mint_net_transfers[0].token_address, mint_net_transfers[1].token_address
+        )
+
+        mint_token0, mint_token1 = _parse_token_amounts(
+            token0_address, mint_net_transfers
+        )
+
+        burn_token0, burn_token1 = _parse_token_amounts(
+            token0_address, burn_net_transfers
+        )
 
     return JITTransferInfo(
         token0_address=token0_address,
@@ -226,11 +237,72 @@ def _get_bot_address(
             ):
                 return _get_bot_address(bot_trace[0], classified_traces)
             else:
-                return "0x0000000000000000000000000000000000000000"
+                return ZERO_ADDRESS
 
         elif type(mint_trace.from_address) == str:
             return mint_trace.from_address
+
+    return ZERO_ADDRESS
+
+
+def _parse_liquidity_limit_order(
+    mint_net_transfers: List[Transfer],
+    burn_net_transfers: List[Transfer],
+    error_found: bool,
+) -> JITTransferInfo:
+    try:
+        token0_address, token1_address = _get_token_order(
+            burn_net_transfers[0].token_address, burn_net_transfers[1].token_address
+        )
+    except IndexError:
+        token0_address, token1_address = _get_token_order(
+            mint_net_transfers[0].token_address, mint_net_transfers[1].token_address
+        )
+
+    if len(mint_net_transfers) < 2:
+        if token0_address == mint_net_transfers[0].token_address:
+            mint_token0 = mint_net_transfers[0].amount
+            mint_token1 = 0
         else:
-            return "0x0000000000000000000000000000000000000000"
+            mint_token0 = 0
+            mint_token1 = mint_net_transfers[0].amount
+
+        burn_token0, burn_token1 = _parse_token_amounts(
+            token0_address, burn_net_transfers
+        )
+
     else:
-        return "0x0000000000000000000000000000000000000000"
+        if token0_address == burn_net_transfers[0].token_address:
+            burn_token0 = burn_net_transfers[0].amount
+            burn_token1 = 0
+        else:
+            burn_token0 = 0
+            burn_token1 = burn_net_transfers[0].amount
+
+        mint_token0, mint_token1 = _parse_token_amounts(
+            token0_address, mint_net_transfers
+        )
+
+    return JITTransferInfo(
+        token0_address=token0_address,
+        token1_address=token1_address,
+        mint_token0=mint_token0,
+        mint_token1=mint_token1,
+        burn_token0=burn_token0,
+        burn_token1=burn_token1,
+        error=error_found,
+    )
+
+
+def _parse_token_amounts(
+    token0_address: str, net_transfers: List[Transfer]
+) -> Tuple[int, int]:
+    if token0_address == net_transfers[0].token_address:
+        token0_amount = net_transfers[0].amount
+        token1_amount = net_transfers[1].amount
+
+    else:
+        token0_amount = net_transfers[1].amount
+        token1_amount = net_transfers[0].amount
+
+    return token0_amount, token1_amount
