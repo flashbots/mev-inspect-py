@@ -27,7 +27,7 @@ k8s_yaml(secret_from_dict("mev-inspect-db-credentials", inputs = {
     "password": "password",
     "host": "postgresql",
 }))
-
+ 
 # if using https://github.com/taarushv/trace-db
 # k8s_yaml(secret_from_dict("trace-db-credentials", inputs = {
 #     "username" : "username",
