@@ -98,7 +98,7 @@ def test_single_sandwich_jit_liquidity_CRV_WETH(trace_classifier: TraceClassifie
     assert jit_liquidity_instances == expected_jit_liquidity
 
 
-def test_single_mint_token_jit(trace_classifier):
+def test_single_mint_token_WETH_APE(trace_classifier):
     test_block = load_test_block(14643923)
     classified_traces = trace_classifier.classify(test_block.traces)
     swaps = get_swaps(classified_traces)
@@ -136,6 +136,51 @@ def test_single_mint_token_jit(trace_classifier):
             burn_token0_amount=2424427669988518000798,
             burn_token1_amount=9060377725722224517671,
             token0_swap_volume=6522531010660457256888,
+            token1_swap_volume=0,
+        )
+    ]
+
+    assert jit_liquidity_instances == expected_jit_liquidity
+
+
+def test_single_mint_token_jit_ENS_WETH(trace_classifier):
+    test_block = load_test_block(14685550)
+    classified_traces = trace_classifier.classify(test_block.traces)
+    swaps = get_swaps(classified_traces)
+    jit_liquidity_instances = get_jit_liquidity(classified_traces, swaps)
+
+    jit_swap = Swap(  # Double check these values
+        abi_name="UniswapV3Pool",
+        transaction_hash="0xeb9dad13e389ee87d656e9d2ca127061a430b9ccb2dd903a840737c979459aa3".lower(),
+        transaction_position=2,
+        block_number=14685550,
+        trace_address=[17],
+        contract_address="0x92560c178ce069cc014138ed3c2f5221ba71f58a".lower(),
+        from_address="0x36e9b6e7fadc7b8ee289c8a24ad96573cda3d7d9".lower(),
+        to_address="0x36e9b6e7fadc7b8ee289c8a24ad96573cda3d7d9".lower(),
+        token_in_address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2".lower(),  # USDC Contract
+        token_in_amount=25467887766287027275,
+        token_out_address="0xc18360217d8f7ab5e7c516566761ea12ce7f9d72".lower(),
+        token_out_amount=3577729807778124677068,
+        protocol=Protocol.uniswap_v3,
+    )
+    expected_jit_liquidity = [
+        JITLiquidity(
+            block_number=14685550,
+            bot_address="0xa57Bd00134B2850B2a1c55860c9e9ea100fDd6CF".lower(),
+            pool_address="0x92560c178ce069cc014138ed3c2f5221ba71f58a".lower(),
+            mint_transaction_hash="0x1af86b40349a9fdaab5b1290d8fba532c2eefdd13d0ed22e825a45e437a000a4".lower(),
+            mint_trace=[0, 7, 1],
+            burn_transaction_hash="0x3265ce7a2d2c6ca796a87c4904f67324715a9381d6d2200690bfa30c55f238fb".lower(),
+            burn_trace=[0, 1, 0],
+            swaps=[jit_swap],
+            token0_address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2".lower(),
+            token1_address="0xc18360217d8f7ab5e7c516566761ea12ce7f9d72".lower(),
+            mint_token0_amount=0,
+            mint_token1_amount=2928204597556117752715,
+            burn_token0_amount=17321179792304275130,
+            burn_token1_amount=496888833716052284320,
+            token0_swap_volume=25467887766287027275,
             token1_swap_volume=0,
         )
     ]
