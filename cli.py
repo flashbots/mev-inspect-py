@@ -48,7 +48,7 @@ async def inspect_block_command(block_number: int, rpc: str, type: str):
     inspect_db_session = get_inspect_session()
     trace_db_session = get_trace_session()
 
-    inspector = MEVInspector(rpc, inspect_db_session, trace_db_session, type_e)
+    inspector = MEVInspector(rpc, type_e)
 
     await inspector.inspect_single_block(
         inspect_db_session=inspect_db_session,

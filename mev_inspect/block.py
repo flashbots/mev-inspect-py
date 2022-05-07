@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from aiohttp import TraceRequestStartParams
 
 from sqlalchemy import orm
@@ -42,7 +42,7 @@ async def create_from_block_number(
     if type == RPCType.geth:
         block_json = await asyncio.gather(w3.eth.get_block(block_number))
     else:
-        block_json = []
+        block_json = dict()
 
     block_timestamp, receipts, traces, base_fee_per_gas = await asyncio.gather(
         _find_or_fetch_block_timestamp(w3, block_number, trace_db_session),
@@ -81,7 +81,7 @@ async def _find_or_fetch_block_receipts(
     block_number: int,
     trace_db_session: Optional[orm.Session],
     type: RPCType,
-    block_json: list = []
+    block_json: dict
 ) -> List[Receipt]:
     if trace_db_session is not None:
         existing_block_receipts = _find_block_receipts(trace_db_session, block_number)
@@ -90,9 +90,9 @@ async def _find_or_fetch_block_receipts(
 
     if type == RPCType.geth:
         geth_tx_receipts = await geth_get_tx_receipts_async(
-            w3.provider, block_json[0]["transactions"]
+            w3.provider, block_json["transactions"]
         )
-        receipts = geth_receipts_translator(block_json[0], geth_tx_receipts)
+        receipts = geth_receipts_translator(block_json, geth_tx_receipts)
 
     return await _fetch_block_receipts(w3, block_number)
 
@@ -102,7 +102,7 @@ async def _find_or_fetch_block_traces(
     block_number: int,
     trace_db_session: Optional[orm.Session],
     type: RPCType,
-    block_json: list = []
+    block_json: dict
 ) -> List[Trace]:
     if trace_db_session is not None:
         existing_block_traces = _find_block_traces(trace_db_session, block_number)
@@ -111,7 +111,7 @@ async def _find_or_fetch_block_traces(
 
     if type == RPCType.geth:
         #  Translate to parity format
-        traces = await geth_get_tx_traces_parity_format(w3.provider, block_json[0])
+        traces = await geth_get_tx_traces_parity_format(w3.provider, block_json)
         return traces
 
     return await _fetch_block_traces(w3, block_number)

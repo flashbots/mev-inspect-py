@@ -110,8 +110,8 @@ class MEVInspector:
             return await inspect_many_blocks(
                 inspect_db_session,
                 self.w3,
-                self.type,
                 self.trace_classifier,
+                self.type,
                 after_block_number,
                 before_block_number,
                 trace_db_session=trace_db_session,
