@@ -49,6 +49,7 @@ def get_jit_liquidity(
                 if (
                     search_trace.classification == Classification.liquidity_burn
                     and search_trace.to_address == trace.to_address
+                    and search_trace.transaction_hash != trace.transaction_hash
                 ):
 
                     bot_address = _get_bot_address(trace, classified_traces)
