@@ -13,6 +13,7 @@ from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.inspect_block import inspect_block, inspect_many_blocks
 from mev_inspect.methods import get_block_receipts, trace_block
 from mev_inspect.provider import get_base_provider
+from mev_inspect.utils import RPCType
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +28,13 @@ class MEVInspector:
     def __init__(
         self,
         rpc: str,
+        type: RPCType = RPCType.parity,
         max_concurrency: int = 1,
         request_timeout: int = 300,
     ):
-        base_provider = get_base_provider(rpc, request_timeout=request_timeout)
+        base_provider = get_base_provider(rpc, request_timeout, type)
         self.w3 = Web3(base_provider, modules={"eth": (AsyncEth,)}, middlewares=[])
+        self.type = type
 
         self.trace_classifier = TraceClassifier()
         self.max_concurrency = asyncio.Semaphore(max_concurrency)
@@ -43,6 +46,7 @@ class MEVInspector:
     ):
         return await create_from_block_number(
             w3=self.w3,
+            type=self.type,
             block_number=block_number,
             trace_db_session=trace_db_session,
         )
@@ -56,6 +60,7 @@ class MEVInspector:
         return await inspect_block(
             inspect_db_session,
             self.w3,
+            self.type,
             self.trace_classifier,
             block,
             trace_db_session=trace_db_session,
@@ -105,6 +110,7 @@ class MEVInspector:
             return await inspect_many_blocks(
                 inspect_db_session,
                 self.w3,
+                self.type,
                 self.trace_classifier,
                 after_block_number,
                 before_block_number,
