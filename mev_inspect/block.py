@@ -40,7 +40,7 @@ async def create_from_block_number(
 ) -> Block:
     
     if type == RPCType.geth:
-        block_json = await asyncio.gather(w3.eth.get_block(block_number))
+        block_json = await w3.eth.get_block(block_number)
     else:
         block_json = dict()
 
