@@ -51,6 +51,8 @@ def get_jit_liquidity(
                     and search_trace.to_address == trace.to_address
                     and search_trace.transaction_hash != trace.transaction_hash
                 ):
+                    if (search_trace.error is not None) or (trace.error is not None):
+                        continue
 
                     bot_address = _get_bot_address(trace, classified_traces)
                     transfer_info: JITTransferInfo = _get_transfer_info(
