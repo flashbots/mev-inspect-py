@@ -1,7 +1,6 @@
 import asyncio
 import logging
-from typing import List, Optional, Tuple
-from aiohttp import TraceRequestStartParams
+from typing import List, Optional
 
 from sqlalchemy import orm
 from web3 import Web3
@@ -93,6 +92,7 @@ async def _find_or_fetch_block_receipts(
             w3.provider, block_json["transactions"]
         )
         receipts = geth_receipts_translator(block_json, geth_tx_receipts)
+        return receipts
 
     return await _fetch_block_receipts(w3, block_number)
 
