@@ -11,7 +11,7 @@ from mev_inspect.schemas.traces import (
     Protocol,
 )
 from mev_inspect.schemas.transfers import Transfer
-from mev_inspect.traces import is_child_trace_address
+from mev_inspect.traces import get_traces_by_transaction_hash, is_child_trace_address
 from mev_inspect.transfers import get_net_transfers
 
 LIQUIDITY_MINT_ROUTERS = [
@@ -131,92 +131,36 @@ def _get_transfer_info(
     burn_trace: ClassifiedTrace,
 ) -> JITTransferInfo:
 
-    error_found = False
-    mint_slice_start, mint_slice_end, burn_slice_start, burn_slice_end = (
-        None,
-        None,
-        None,
-        None,
-    )
-
-    for index, trace in enumerate(classified_traces):
-        if (
-            mint_slice_start is None
-            and trace.transaction_hash == mint_trace.transaction_hash
-        ):
-            mint_slice_start = index
-        if (
-            mint_slice_end is None
-            and trace.transaction_position > mint_trace.transaction_position
-        ):
-            mint_slice_end = index
-        if (
-            burn_slice_start is None
-            and trace.transaction_hash == burn_trace.transaction_hash
-        ):
-            burn_slice_start = index
-        if (
-            burn_slice_end is None
-            and trace.transaction_position > burn_trace.transaction_position
-        ):
-            burn_slice_end = index
-            break
-
-    mint_net_transfers_full = get_net_transfers(
-        classified_traces[mint_slice_start:mint_slice_end]
-    )
-    burn_net_transfers_full = get_net_transfers(
-        classified_traces[burn_slice_start:burn_slice_end]
-    )
-
+    grouped_traces = get_traces_by_transaction_hash(classified_traces)
     mint_net_transfers, burn_net_transfers = [], []
     pool_address = mint_trace.to_address
 
-    for transfer in mint_net_transfers_full:
+    for transfer in get_net_transfers(grouped_traces[mint_trace.transaction_hash]):
         if transfer.to_address == pool_address:
             mint_net_transfers.append(transfer)
 
-    for transfer in burn_net_transfers_full:
+    for transfer in get_net_transfers(grouped_traces[burn_trace.transaction_hash]):
         if transfer.from_address == pool_address:
             burn_net_transfers.append(transfer)
 
-    if len(mint_net_transfers) > 2 or len(burn_net_transfers) > 2:
-        error_found = True
+    mint_len, burn_len = len(mint_net_transfers), len(burn_net_transfers)
 
-    if (
-        len(mint_net_transfers) < 2 or len(burn_net_transfers) < 2
-    ):  # Uniswap V3 Limit Case
-        if len(mint_net_transfers) == 0 or len(burn_net_transfers) == 0:
-            raise Exception(
-                "JIT Liquidity found where no tokens are transferred to pool address"
-            )
+    if mint_len == 2 and burn_len == 2:
+        return _parse_standard_liquidity(mint_net_transfers, burn_net_transfers)
 
-        return _parse_liquidity_limit_order(
-            mint_net_transfers, burn_net_transfers, error_found
-        )
+    elif (mint_len == 2 and burn_len == 1) or (mint_len == 1 and burn_len == 2):
+        return _parse_liquidity_limit_order(mint_net_transfers, burn_net_transfers)
 
     else:
-        token0_address, token1_address = _get_token_order(
-            mint_net_transfers[0].token_address, mint_net_transfers[1].token_address
+        return JITTransferInfo(
+            token0_address=ZERO_ADDRESS,
+            token1_address=ZERO_ADDRESS,
+            mint_token0=0,
+            mint_token1=0,
+            burn_token0=0,
+            burn_token1=0,
+            error=True,
         )
-
-        mint_token0, mint_token1 = _parse_token_amounts(
-            token0_address, mint_net_transfers
-        )
-
-        burn_token0, burn_token1 = _parse_token_amounts(
-            token0_address, burn_net_transfers
-        )
-
-    return JITTransferInfo(
-        token0_address=token0_address,
-        token1_address=token1_address,
-        mint_token0=mint_token0,
-        mint_token1=mint_token1,
-        burn_token0=burn_token0,
-        burn_token1=burn_token1,
-        error=error_found,
-    )
 
 
 def _get_bot_address(
@@ -246,10 +190,31 @@ def _get_bot_address(
     return ZERO_ADDRESS
 
 
+def _parse_standard_liquidity(
+    mint_net_transfers: List[Transfer],
+    burn_net_transfers: List[Transfer],
+) -> JITTransferInfo:
+    token0_address, token1_address = _get_token_order(
+        mint_net_transfers[0].token_address, mint_net_transfers[1].token_address
+    )
+
+    mint_token0, mint_token1 = _parse_token_amounts(token0_address, mint_net_transfers)
+
+    burn_token0, burn_token1 = _parse_token_amounts(token0_address, burn_net_transfers)
+    return JITTransferInfo(
+        token0_address=token0_address,
+        token1_address=token1_address,
+        mint_token0=mint_token0,
+        mint_token1=mint_token1,
+        burn_token0=burn_token0,
+        burn_token1=burn_token1,
+        error=False,
+    )
+
+
 def _parse_liquidity_limit_order(
     mint_net_transfers: List[Transfer],
     burn_net_transfers: List[Transfer],
-    error_found: bool,
 ) -> JITTransferInfo:
     try:
         token0_address, token1_address = _get_token_order(
@@ -291,7 +256,7 @@ def _parse_liquidity_limit_order(
         mint_token1=mint_token1,
         burn_token0=burn_token0,
         burn_token1=burn_token1,
-        error=error_found,
+        error=False,
     )
 
 
