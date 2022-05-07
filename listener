@@ -18,7 +18,7 @@ case "$1" in
         --quiet \
         --pidfile $PIDFILE \
         --make-pidfile \
-        --startas /bin/bash -- -c "poetry run python listener.py"
+        --startas /bin/bash -- -c "poetry run python listener.py $2"
         echo "."
 	;;
   stop)
@@ -42,7 +42,7 @@ case "$1" in
         --quiet \
         --pidfile $PIDFILE \
         --make-pidfile \
-        --startas /bin/bash -- -c "poetry run python listener.py"
+        --startas /bin/bash -- -c "poetry run python listener.py $2"
         echo "."
     ;;
 

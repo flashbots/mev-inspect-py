@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import sys
 
 import dramatiq
 from aiohttp_retry import ExponentialRetry, RetryClient
@@ -52,7 +53,7 @@ async def run():
         priority=HIGH_PRIORITY,
     )
 
-    inspector = MEVInspector(rpc)
+    inspector = MEVInspector(rpc, type=sys.argv[1])
     base_provider = get_base_provider(rpc)
 
     while not killer.kill_now:
