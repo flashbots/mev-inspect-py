@@ -52,7 +52,7 @@ def test_ironbank_token_liquidation(trace_classifier: TraceClassifier):
             received_token_address="0x8fc8bfd80d6a9f17fb98a373023d72531792b431",
             protocol=Protocol.ironbank,
             transaction_hash=transaction_hash,
-            trace_address=[],
+            trace_address=[0, 1, 1],
             block_number=block_number,
         )
     ]

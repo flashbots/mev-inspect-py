@@ -79,7 +79,7 @@ class IronBankLiquidationClassifier(LiquidationClassifier):
 
 
 IRONBANK_CYETH_SPEC = ClassifierSpec(
-    abi_name="CEther",
+    abi_name="CYEther",
     protocol=Protocol.ironbank,
     valid_contract_addresses=["0x41c84c0e2EE0b740Cf0d31F63f3B6F627DC6b393"],
     classifiers={
@@ -89,7 +89,7 @@ IRONBANK_CYETH_SPEC = ClassifierSpec(
 )
 
 IRONBANK_CTOKEN_SPEC = ClassifierSpec(
-    abi_name="CToken",
+    abi_name="CYToken",
     protocol=Protocol.ironbank,
     valid_contract_addresses=[
         "0x41c84c0e2ee0b740cf0d31f63f3b6f627dc6b393",  # cyWETH
