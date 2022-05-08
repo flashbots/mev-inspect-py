@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import sys
+import traceback
 
 import dramatiq
 from aiohttp_retry import ExponentialRetry, RetryClient
@@ -22,6 +23,8 @@ from mev_inspect.queue.tasks import (
     realtime_export_task,
 )
 from mev_inspect.signal_handler import GracefulKiller
+from mev_inspect.utils import RPCType
+from cli import convert_str_to_enum
 
 logging.basicConfig(filename="listener.log", filemode="a", level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -52,8 +55,9 @@ async def run():
         queue_name=HIGH_PRIORITY_QUEUE,
         priority=HIGH_PRIORITY,
     )
-
-    inspector = MEVInspector(rpc, type=sys.argv[1])
+    
+    type_e = convert_str_to_enum(sys.argv[1])
+    inspector = MEVInspector(rpc, type_e)
     base_provider = get_base_provider(rpc)
 
     while not killer.kill_now:
@@ -125,3 +129,4 @@ if __name__ == "__main__":
         run()
     except Exception as e:
         logger.error(e)
+

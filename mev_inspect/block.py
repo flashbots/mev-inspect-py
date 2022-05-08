@@ -49,8 +49,8 @@ async def create_from_block_number(
         _find_or_fetch_block_traces(w3, block_number, trace_db_session, type, block_json),
         _find_or_fetch_base_fee_per_gas(w3, block_number, trace_db_session),
     )
-
-    miner_address = _get_miner_address_from_traces(traces)
+    
+    miner_address = _get_miner_address_from_traces(traces) if type == RPCType.parity else block_json.miner
 
     return Block(
         block_number=block_number,
@@ -108,7 +108,7 @@ async def _find_or_fetch_block_traces(
         existing_block_traces = _find_block_traces(trace_db_session, block_number)
         if existing_block_traces is not None:
             return existing_block_traces
-
+	
     if type == RPCType.geth:
         #  Translate to parity format
         traces = await geth_get_tx_traces_parity_format(w3.provider, block_json)
@@ -272,8 +272,9 @@ def unwrap_tx_trace_for_parity(
             action_dict[key] = tx_trace[key]
 
         result_dict = dict()
-        for key in ["gasUsed", "output"]:
-            result_dict[key] = tx_trace[key]
+        result_dict["gasUsed"] = tx_trace["gasUsed"]
+        if "output" in tx_trace.keys():
+            result_dict["output"] = tx_trace["output"]
 
         response_list.append(
             Trace(
@@ -289,6 +290,7 @@ def unwrap_tx_trace_for_parity(
             )
         )
     except Exception as e:
+        breakpoint()
         logger.warn(f"error while unwraping tx trace for parity {e}")
         return []
 

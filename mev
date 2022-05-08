@@ -43,7 +43,7 @@ case "$1" in
         redis
     ;;
   listener)
-        kubectl exec -ti deploy/mev-inspect -- ./listener $2
+        kubectl exec -ti deploy/mev-inspect -- ./listener $2 $3
 	;;
   block-list)
         echo "Backfilling blocks from stdin"
