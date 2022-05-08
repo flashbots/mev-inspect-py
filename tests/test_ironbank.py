@@ -1,7 +1,6 @@
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.liquidations import get_liquidations
 from mev_inspect.schemas.liquidations import Liquidation
-from mev_inspect.schemas.prices import ETH_TOKEN_ADDRESS
 from mev_inspect.schemas.traces import Protocol
 from tests.utils import load_test_block
 
@@ -13,7 +12,7 @@ from tests.utils import load_test_block
 #     transaction_hash = (
 #         "0xf5f3df6ec9b51e8e88d0d9078b04373742294530b6bcb9be045525fcab71b915"
 #     )
-#
+
 #     liquidations = [
 #         Liquidation(
 #             liquidated_user="0x44f9636ef615a73688a84da1d714a40be503157d",
