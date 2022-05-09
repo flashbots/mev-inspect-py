@@ -24,7 +24,6 @@ from mev_inspect.queue.tasks import (
 )
 from mev_inspect.signal_handler import GracefulKiller
 from mev_inspect.utils import RPCType
-from cli import convert_str_to_enum
 
 logging.basicConfig(filename="listener.log", filemode="a", level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -32,6 +31,12 @@ logger = logging.getLogger(__name__)
 # lag to make sure the blocks we see are settled
 BLOCK_NUMBER_LAG = 5
 
+def convert_str_to_enum(type: str) -> RPCType:
+    if type == "parity":
+        return RPCType.parity
+    elif type == "geth":
+        return RPCType.geth
+    raise ValueError
 
 @coro
 async def run():
