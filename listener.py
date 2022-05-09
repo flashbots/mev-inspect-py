@@ -2,7 +2,6 @@ import asyncio
 import logging
 import os
 import sys
-import traceback
 
 import dramatiq
 from aiohttp_retry import ExponentialRetry, RetryClient
@@ -31,12 +30,14 @@ logger = logging.getLogger(__name__)
 # lag to make sure the blocks we see are settled
 BLOCK_NUMBER_LAG = 5
 
+
 def convert_str_to_enum(type: str) -> RPCType:
     if type == "parity":
         return RPCType.parity
     elif type == "geth":
         return RPCType.geth
     raise ValueError
+
 
 @coro
 async def run():
@@ -60,7 +61,7 @@ async def run():
         queue_name=HIGH_PRIORITY_QUEUE,
         priority=HIGH_PRIORITY,
     )
-    
+
     type_e = convert_str_to_enum(sys.argv[1])
     inspector = MEVInspector(rpc, type_e)
     base_provider = get_base_provider(rpc)
@@ -134,4 +135,3 @@ if __name__ == "__main__":
         run()
     except Exception as e:
         logger.error(e)
-

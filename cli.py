@@ -21,7 +21,6 @@ from mev_inspect.queue.tasks import (
 )
 from mev_inspect.s3_export import export_block
 from mev_inspect.utils import RPCType
-#from mev_inspect.prices import fetch_all_supported_prices
 
 RPC_URL_ENV = "RPC_URL"
 
@@ -55,6 +54,7 @@ async def inspect_block_command(block_number: int, rpc: str, type: str):
         trace_db_session=trace_db_session,
         block=block_number,
     )
+
 
 def convert_str_to_enum(type: str) -> RPCType:
     if type == "parity":

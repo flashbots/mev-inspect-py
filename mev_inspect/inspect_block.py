@@ -110,7 +110,7 @@ async def inspect_many_blocks(
             w3=w3,
             block_number=block_number,
             trace_db_session=trace_db_session,
-            type=type
+            type=type,
         )
 
         logger.info(f"Block: {block_number} -- Total traces: {len(block.traces)}")
