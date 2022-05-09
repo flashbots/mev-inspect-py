@@ -1,7 +1,7 @@
 from web3 import AsyncHTTPProvider, Web3
 
-from mev_inspect.retry import http_retry_with_backoff_request_middleware
 from mev_inspect.geth_poa_middleware import geth_poa_middleware
+from mev_inspect.retry import http_retry_with_backoff_request_middleware
 from mev_inspect.utils import RPCType
 
 

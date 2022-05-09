@@ -2,14 +2,7 @@
 Modified asynchronous geth_poa_middleware which mirrors functionality of
 https://github.com/ethereum/web3.py/blob/master/web3/middleware/geth_poa.py
 """
-from typing import (
-    Any,
-    Callable,
-)
-
-from hexbytes import (
-    HexBytes,
-)
+from typing import Any, Callable
 
 from eth_utils.curried import (
     apply_formatter_if,
@@ -17,23 +10,11 @@ from eth_utils.curried import (
     apply_key_map,
     is_null,
 )
-from eth_utils.toolz import (
-    complement,
-    compose,
-    assoc,
-)
-
-from web3._utils.rpc_abi import (
-    RPC,
-)
-
-from web3.types import (
-    Formatters,
-    RPCEndpoint,
-    RPCResponse,
-)
-
+from eth_utils.toolz import assoc, complement, compose
+from hexbytes import HexBytes
 from web3 import Web3  # noqa: F401
+from web3._utils.rpc_abi import RPC
+from web3.types import Formatters, RPCEndpoint, RPCResponse
 
 
 async def get_geth_poa_middleware(

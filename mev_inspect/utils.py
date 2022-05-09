@@ -1,4 +1,5 @@
 from enum import Enum
+
 from hexbytes._utils import hexstr_to_bytes
 
 
