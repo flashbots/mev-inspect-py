@@ -34,6 +34,8 @@ class Classification(Enum):
     punk_bid = "punk_bid"
     punk_accept_bid = "punk_accept_bid"
     nft_trade = "nft_trade"
+    liquidity_mint = "liquidity_mint"
+    liquidity_burn = "liquidity_burn"
 
 
 class Protocol(Enum):

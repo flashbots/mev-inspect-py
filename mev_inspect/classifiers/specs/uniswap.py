@@ -1,9 +1,9 @@
 from typing import List, Optional
 
 from mev_inspect.classifiers.helpers import create_swap_from_pool_transfers
-from mev_inspect.schemas.classifiers import ClassifierSpec, SwapClassifier
+from mev_inspect.schemas.classifiers import Classifier, ClassifierSpec, SwapClassifier
 from mev_inspect.schemas.swaps import Swap
-from mev_inspect.schemas.traces import DecodedCallTrace, Protocol
+from mev_inspect.schemas.traces import Classification, DecodedCallTrace, Protocol
 from mev_inspect.schemas.transfers import Transfer
 
 UNISWAP_V2_PAIR_ABI_NAME = "UniswapV2Pair"
@@ -40,6 +40,18 @@ class UniswapV2SwapClassifier(SwapClassifier):
             trace, recipient_address, prior_transfers, child_transfers
         )
         return swap
+
+
+class LiquidityMintClassifier(Classifier):
+    @staticmethod
+    def get_classification() -> Classification:
+        return Classification.liquidity_mint
+
+
+class LiquidityBurnClassifier(Classifier):
+    @staticmethod
+    def get_classification() -> Classification:
+        return Classification.liquidity_burn
 
 
 UNISWAP_V3_CONTRACT_SPECS = [
@@ -106,6 +118,8 @@ UNISWAP_V3_GENERAL_SPECS = [
         protocol=Protocol.uniswap_v3,
         classifiers={
             "swap(address,bool,int256,uint160,bytes)": UniswapV3SwapClassifier,
+            "mint(address,int24,int24,uint128,bytes)": LiquidityMintClassifier,
+            "burn(int24,int24,uint128)": LiquidityBurnClassifier,
         },
     ),
     ClassifierSpec(
