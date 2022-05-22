@@ -38,7 +38,11 @@ async def create_from_block_number(
     trace_db_session: Optional[orm.Session],
 ) -> Block:
 
-    type = RPCType.geth if geth_poa_middleware in w3.provider.middlewares else RPCType.parity
+    type = (
+        RPCType.geth
+        if geth_poa_middleware in w3.provider.middlewares
+        else RPCType.parity
+    )
     if type == RPCType.geth:
         block_json = await w3.eth.get_block(block_number)
     else:
@@ -116,7 +120,7 @@ async def _find_or_fetch_block_traces(
         existing_block_traces = _find_block_traces(trace_db_session, block_number)
         if existing_block_traces is not None:
             return existing_block_traces
-            
+
     if type == RPCType.geth:
         #  Translate to parity format
         traces = await geth_get_tx_traces_parity_format(w3.provider, block_json)

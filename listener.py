@@ -61,17 +61,20 @@ async def run():
         queue_name=HIGH_PRIORITY_QUEUE,
         priority=HIGH_PRIORITY,
     )
-    
+
     w3 = Web3(HTTPProvider(rpc))
-    res = w3.provider.make_request('trace_block', ['earliest'])
-    if 'error' in res and res['error']['message'] == 'the method trace_block does not exist/is not available':
+    res = w3.provider.make_request("trace_block", ["earliest"])
+    if (
+        "error" in res
+        and res["error"]["message"]
+        == "the method trace_block does not exist/is not available"
+    ):
         type_e = RPCType.geth
     else:
         type_e = RPCType.parity
     base_provider = get_base_provider(rpc, type=type_e)
     # type_e = convert_str_to_enum(sys.argv[1])
     inspector = MEVInspector(rpc, type_e)
-    
 
     while not killer.kill_now:
         await inspect_next_block(
