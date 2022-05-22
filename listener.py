@@ -1,12 +1,10 @@
 import asyncio
 import logging
 import os
-import sys
 
 import dramatiq
 from aiohttp_retry import ExponentialRetry, RetryClient
-from web3 import Web3, HTTPProvider
-import traceback
+from web3 import HTTPProvider, Web3
 
 from mev_inspect.block import get_latest_block_number
 from mev_inspect.concurrency import coro

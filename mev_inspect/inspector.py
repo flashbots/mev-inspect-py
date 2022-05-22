@@ -46,7 +46,6 @@ class MEVInspector:
     ):
         return await create_from_block_number(
             w3=self.w3,
-            type=self.type,
             block_number=block_number,
             trace_db_session=trace_db_session,
         )
@@ -110,7 +109,6 @@ class MEVInspector:
                 inspect_db_session,
                 self.w3,
                 self.trace_classifier,
-                self.type,
                 after_block_number,
                 before_block_number,
                 trace_db_session=trace_db_session,
