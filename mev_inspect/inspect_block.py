@@ -53,7 +53,6 @@ from mev_inspect.schemas.traces import ClassifiedTrace
 from mev_inspect.schemas.transfers import Transfer
 from mev_inspect.swaps import get_swaps
 from mev_inspect.transfers import get_transfers
-from mev_inspect.utils import RPCType
 
 logger = logging.getLogger(__name__)
 
