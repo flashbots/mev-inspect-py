@@ -58,15 +58,17 @@ case "$1" in
 	;;
   inspect)
         block_number=$2
+        rpc_type=$3
         echo "Inspecting block $block_number"
-        kubectl exec -ti deploy/mev-inspect -- poetry run inspect-block $block_number
+        kubectl exec -ti deploy/mev-inspect -- poetry run inspect-block $block_number --type $rpc_type
 	;;
   inspect-many)
-        after_block_number=$2
-        before_block_number=$3
-        echo "Inspecting from block $after_block_number to $before_block_number"
+        start_block_number=$2
+        end_block_number=$3
+        rpc_type=$4
+        echo "Inspecting from block $start_block_number to $end_block_number"
         kubectl exec -ti deploy/mev-inspect -- \
-            poetry run inspect-many-blocks $after_block_number $before_block_number
+            poetry run inspect-many-blocks $start_block_number $end_block_number --type $rpc_type
 	;;
   test)
         shift

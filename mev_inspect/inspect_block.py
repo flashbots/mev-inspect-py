@@ -103,9 +103,9 @@ async def inspect_many_blocks(
 
     for block_number in range(after_block_number, before_block_number):
         block = await create_from_block_number(
-            w3,
-            block_number,
-            trace_db_session,
+            w3=w3,
+            block_number=block_number,
+            trace_db_session=trace_db_session,
         )
 
         logger.info(f"Block: {block_number} -- Total traces: {len(block.traces)}")

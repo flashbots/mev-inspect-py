@@ -4,6 +4,7 @@ import os
 
 import dramatiq
 from aiohttp_retry import ExponentialRetry, RetryClient
+from web3 import HTTPProvider, Web3
 
 from mev_inspect.block import get_latest_block_number
 from mev_inspect.concurrency import coro
@@ -21,12 +22,21 @@ from mev_inspect.queue.tasks import (
     realtime_export_task,
 )
 from mev_inspect.signal_handler import GracefulKiller
+from mev_inspect.utils import RPCType
 
 logging.basicConfig(filename="listener.log", filemode="a", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # lag to make sure the blocks we see are settled
 BLOCK_NUMBER_LAG = 5
+
+
+def convert_str_to_enum(type: str) -> RPCType:
+    if type == "parity":
+        return RPCType.parity
+    elif type == "geth":
+        return RPCType.geth
+    raise ValueError
 
 
 @coro
@@ -52,8 +62,19 @@ async def run():
         priority=HIGH_PRIORITY,
     )
 
-    inspector = MEVInspector(rpc)
-    base_provider = get_base_provider(rpc)
+    w3 = Web3(HTTPProvider(rpc))
+    res = w3.provider.make_request("trace_block", ["earliest"])
+    if (
+        "error" in res
+        and res["error"]["message"]
+        == "the method trace_block does not exist/is not available"
+    ):
+        type_e = RPCType.geth
+    else:
+        type_e = RPCType.parity
+    base_provider = get_base_provider(rpc, type=type_e)
+    # type_e = convert_str_to_enum(sys.argv[1])
+    inspector = MEVInspector(rpc, type_e)
 
     while not killer.kill_now:
         await inspect_next_block(

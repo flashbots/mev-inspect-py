@@ -45,6 +45,7 @@ Example:
 export RPC_URL="http://111.111.111.111:8546"
 ```
 
+**Note**: mev-inspect-py currently requires an RPC of a full archive node with support for Erigon traces and receipts. Geth additions have been added to translate geth traces and receipts to Erigon ones and can be accessed using `--geth` flag.
 
 Next, start all services with:
 
@@ -71,17 +72,19 @@ And load prices data
 ### Inspect a single block
 
 Inspecting block [12914944](https://twitter.com/mevalphaleak/status/1420416437575901185):
+**Note**: Add `geth` at the end instead of `parity` if RPC_URL points to a geth / geth like node.
 
 ```
-./mev inspect 12914944
+./mev inspect 12914944 parity
 ```
 
 ### Inspect many blocks
 
 Inspecting blocks 12914944 to 12914954:
+**Note**: Add `geth` at the end instead of `parity` if RPC_URL points to a geth / geth like node.
 
 ```
-./mev inspect-many 12914944 12914954
+./mev inspect-many 12914944 12914954 parity
 ```
 
 ### Inspect all incoming blocks
