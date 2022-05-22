@@ -60,7 +60,6 @@ class MEVInspector:
         return await inspect_block(
             inspect_db_session,
             self.w3,
-            self.type,
             self.trace_classifier,
             block,
             trace_db_session=trace_db_session,

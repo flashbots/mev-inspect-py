@@ -5,6 +5,8 @@ import sys
 
 import dramatiq
 from aiohttp_retry import ExponentialRetry, RetryClient
+from web3 import Web3, HTTPProvider
+import traceback
 
 from mev_inspect.block import get_latest_block_number
 from mev_inspect.concurrency import coro
@@ -61,10 +63,17 @@ async def run():
         queue_name=HIGH_PRIORITY_QUEUE,
         priority=HIGH_PRIORITY,
     )
-
-    type_e = convert_str_to_enum(sys.argv[1])
+    
+    w3 = Web3(HTTPProvider(rpc))
+    res = w3.provider.make_request('trace_block', ['earliest'])
+    if 'error' in res and res['error']['message'] == 'the method trace_block does not exist/is not available':
+        type_e = RPCType.geth
+    else:
+        type_e = RPCType.parity
+    base_provider = get_base_provider(rpc, type=type_e)
+    # type_e = convert_str_to_enum(sys.argv[1])
     inspector = MEVInspector(rpc, type_e)
-    base_provider = get_base_provider(rpc)
+    
 
     while not killer.kill_now:
         await inspect_next_block(

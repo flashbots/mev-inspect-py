@@ -10,6 +10,7 @@ from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.receipts import Receipt
 from mev_inspect.schemas.traces import Trace, TraceType
 from mev_inspect.utils import RPCType, hex_to_int
+from mev_inspect.geth_poa_middleware import geth_poa_middleware
 
 logger = logging.getLogger(__name__)
 _calltype_mapping = {
@@ -33,16 +34,15 @@ async def get_latest_block_number(base_provider) -> int:
 
 async def create_from_block_number(
     w3: Web3,
-    type: RPCType,
     block_number: int,
     trace_db_session: Optional[orm.Session],
 ) -> Block:
 
+    type = RPCType.geth if geth_poa_middleware in w3.provider.middlewares else RPCType.parity
     if type == RPCType.geth:
         block_json = await w3.eth.get_block(block_number)
     else:
         block_json = dict()
-
     block_timestamp, receipts, traces, base_fee_per_gas = await asyncio.gather(
         _find_or_fetch_block_timestamp(w3, block_number, trace_db_session),
         _find_or_fetch_block_receipts(
@@ -116,7 +116,7 @@ async def _find_or_fetch_block_traces(
         existing_block_traces = _find_block_traces(trace_db_session, block_number)
         if existing_block_traces is not None:
             return existing_block_traces
-
+            
     if type == RPCType.geth:
         #  Translate to parity format
         traces = await geth_get_tx_traces_parity_format(w3.provider, block_json)
