@@ -15,6 +15,7 @@ class Receipt(CamelModel):
     effective_gas_price: int
     cumulative_gas_used: int
     to: Optional[str]
+    status: int
 
     @validator(
         "block_number",
@@ -22,6 +23,7 @@ class Receipt(CamelModel):
         "gas_used",
         "effective_gas_price",
         "cumulative_gas_used",
+        "status",
         pre=True,
     )
     def maybe_hex_to_int(v):
