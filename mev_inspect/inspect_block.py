@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import List, Optional, Any, Dict
 
 from sqlalchemy import orm
 from web3 import Web3
@@ -90,11 +90,13 @@ async def inspect_many_blocks(
     arbitrages_payload = []
     async for swaps in get_classified_traces_from_events(w3, after_block_number, before_block_number):
         arbitrages = get_arbitrages(swaps)
+
+
         count += len(arbitrages)
         logger.info(f"{count} Found {len(swaps)} swaps and {len(arbitrages)} arbitrages")
         if len(arbitrages) > 0:
             for arb in arbitrages:
-                arb_payload = dict()
+                arb_payload: Dict[str, Any] = dict()
                 arb_payload['block_number'] = arb.block_number
                 arb_payload['transaction'] = arb.transaction_hash
                 arb_payload['account'] = arb.account_address

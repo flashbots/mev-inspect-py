@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import time
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict
 
 from sqlalchemy import orm
 from web3 import Web3
@@ -99,10 +99,10 @@ async def get_classified_traces_from_events(w3: Web3, after_block: int, before_b
     base_provider = w3.provider
     start = after_block
     stride = 300
-    reserves = dict()
+    reserves: Dict[str, Tuple[str, str]] = dict()
     while start < before_block:
         begin = start
-        end = start + stride if (start + stride) < before_block else before_block
+        end = start + stride if (start + stride) < before_block else before_block-1
         start += stride
         print("fetching from node...", begin, end, flush=True)
         swaplogs = await _get_logs_for_topics(base_provider, begin, end, ["0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822"])
