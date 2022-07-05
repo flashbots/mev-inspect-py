@@ -88,6 +88,7 @@ async def inspect_many_blocks(
 
     count = 0
     arbitrages_payload = []
+    liquidations_payload = []
     async for swaps, liquidations in get_classified_traces_from_events(w3, after_block_number, before_block_number):
         arbitrages = get_arbitrages(swaps)
 
@@ -104,16 +105,35 @@ async def inspect_many_blocks(
                 arb_payload['token'] = arb.profit_token_address
                 arbitrages_payload.append(arb_payload)
                 count += 1
-        
-            if count >= 100:
-                print("sending to endpoint now")
-                # resp = requests.post("https://asia-south1-marlin-internal.cloudfunctions.net/mevPolygon/alerts", headers={'Content-type': 'application/json'}, json={"arbitrages": arbitrages_payload})
-                # print("sending to endpoint ", resp.content.decode("utf-8"), flush=True)
-                arbitrages_payload = []
-                count = 0
 
         if len(liquidations) > 0:
-            print(liquidations)
+            for liq in liquidations:
+                liq_payload: Dict[str, Any] = dict()
+                liq_payload['block_number'] = liq.block_number
+                liq_payload['transaction'] = liq.transaction_hash
+                liq_payload['liquidator'] = liq.liquidator_user
+                liq_payload['purchase_addr'] = liq.debt_token_address
+                liq_payload['receive_addr'] = liq.received_token_address
+                liq_payload['purchase_amount'] = liq.debt_purchase_amount
+                liq_payload['receive_amount'] = liq.received_amount
+                liquidations_payload.append(liq_payload)
+                count+=1
+
+        if count >= 100:
+                print("sending to endpoint now")
+                # resp = requests.post("https://asia-south1-marlin-internal.cloudfunctions.net/mevPolygon/alerts", headers={'Content-type': 'application/json'}, json={"arbitrages": arbitrages_payload, "liquidations": liquidations_payload})
+                # print("sending to endpoint ", resp.content.decode("utf-8"), flush=True)
+                arbitrages_payload = []
+                liquidations_payload = []
+                count = 0
+
+    if count > 0:
+        print("sending to endpoint now")
+        # resp = requests.post("https://asia-south1-marlin-internal.cloudfunctions.net/mevPolygon/alerts", headers={'Content-type': 'application/json'}, json={"arbitrages": arbitrages_payload, "liquidations": liquidations_payload})
+        # print("sending to endpoint ", resp.content.decode("utf-8"), flush=True)
+        arbitrages_payload = []
+        liquidations_payload = []
+        count = 0
 
     # all_blocks: List[Block] = []
     # all_classified_traces: List[ClassifiedTrace] = []
