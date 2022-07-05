@@ -88,7 +88,7 @@ async def inspect_many_blocks(
 
     count = 0
     arbitrages_payload = []
-    async for swaps in get_classified_traces_from_events(w3, after_block_number, before_block_number):
+    async for swaps, liquidations in get_classified_traces_from_events(w3, after_block_number, before_block_number):
         arbitrages = get_arbitrages(swaps)
 
 
@@ -111,6 +111,9 @@ async def inspect_many_blocks(
                 # print("sending to endpoint ", resp.content.decode("utf-8"), flush=True)
                 arbitrages_payload = []
                 count = 0
+
+        if len(liquidations) > 0:
+            print(liquidations)
 
     # all_blocks: List[Block] = []
     # all_classified_traces: List[ClassifiedTrace] = []
