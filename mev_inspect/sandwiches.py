@@ -42,32 +42,37 @@ def _get_sandwich_starting_with_swap(
     ]:
         return None
 
-    for other_swap in rest_swaps:
-        if other_swap.transaction_hash == front_swap.transaction_hash:
+    for back_swap in rest_swaps:
+        if back_swap.transaction_hash == front_swap.transaction_hash:
             continue
 
-        if other_swap.contract_address == front_swap.contract_address:
+        if back_swap.contract_address == front_swap.contract_address:
             if (
-                other_swap.token_in_address == front_swap.token_in_address
-                and other_swap.token_out_address == front_swap.token_out_address
-                and other_swap.from_address != sandwicher_address
+                back_swap.token_in_address == front_swap.token_in_address
+                and back_swap.token_out_address == front_swap.token_out_address
+                and back_swap.from_address != sandwicher_address
             ):
-                sandwiched_swaps.append(other_swap)
+                sandwiched_swaps.append(back_swap)
             elif (
-                other_swap.token_out_address == front_swap.token_in_address
-                and other_swap.token_in_address == front_swap.token_out_address
-                and other_swap.from_address == sandwicher_address
+                back_swap.token_out_address == front_swap.token_in_address
+                and back_swap.token_in_address == front_swap.token_out_address
+                and back_swap.from_address == sandwicher_address
             ):
                 if len(sandwiched_swaps) > 0:
+                    if back_swap.token_in_amount == 0 and back_swap.error is None:
+                        raise ValueError("Backrun cannot swap 0 tokens")
+                    exchange_rate = front_swap.token_out_amount / back_swap.token_in_amount
+                    profit_amount = exchange_rate * back_swap.token_out_amount - front_swap.token_in_amount
                     return Sandwich(
                         block_number=front_swap.block_number,
                         sandwicher_address=sandwicher_address,
                         frontrun_swap=front_swap,
-                        backrun_swap=other_swap,
+                        backrun_swap=back_swap,
                         sandwiched_swaps=sandwiched_swaps,
                         profit_token_address=front_swap.token_in_address,
-                        profit_amount=other_swap.token_out_amount
-                        - front_swap.token_in_amount,
-                    )
+                        profit_amount=profit_amount,
+                    )                    
+
 
     return None
+ 
