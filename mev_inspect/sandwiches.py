@@ -59,10 +59,32 @@ def _get_sandwich_starting_with_swap(
                 and back_swap.from_address == sandwicher_address
             ):
                 if len(sandwiched_swaps) > 0:
+                    profit_amount: float
                     if back_swap.token_in_amount == 0 and back_swap.error is None:
                         raise ValueError("Backrun cannot swap 0 tokens")
-                    exchange_rate = front_swap.token_out_amount / back_swap.token_in_amount
-                    profit_amount = exchange_rate * back_swap.token_out_amount - front_swap.token_in_amount
+                    if back_swap.token_in_amount == front_swap.token_out_amount:
+                        profit_amount = (
+                            back_swap.token_out_amount - front_swap.token_in_amount
+                        )
+
+                    if back_swap.token_in_amount > front_swap.token_out_amount:
+                        exchange_rate = (
+                            front_swap.token_out_amount / back_swap.token_in_amount
+                        )
+                        profit_amount = (
+                            exchange_rate * back_swap.token_out_amount
+                            - front_swap.token_in_amount
+                        )
+
+                    if back_swap.token_in_amount < front_swap.token_out_amount:
+                        exchange_rate = (
+                            back_swap.token_in_amount / front_swap.token_out_amount
+                        )
+                        profit_amount = (
+                            back_swap.token_out_amount
+                            - exchange_rate * front_swap.token_in_amount
+                        )
+
                     return Sandwich(
                         block_number=front_swap.block_number,
                         sandwicher_address=sandwicher_address,
@@ -71,8 +93,6 @@ def _get_sandwich_starting_with_swap(
                         sandwiched_swaps=sandwiched_swaps,
                         profit_token_address=front_swap.token_in_address,
                         profit_amount=profit_amount,
-                    )                    
-
+                    )
 
     return None
- 
