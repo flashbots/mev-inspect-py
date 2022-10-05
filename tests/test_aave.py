@@ -9,6 +9,7 @@ from tests.utils import load_test_block
 
 
 def test_single_weth_liquidation(trace_classifier: TraceClassifier):
+
     transaction_hash = (
         "0xb7575eedc9d8cfe82c4a11cd1a851221f2eafb93d738301995ac7103ffe877f7"
     )
@@ -61,6 +62,11 @@ def test_single_liquidation(trace_classifier: TraceClassifier):
     block = load_test_block(block_number)
     classified_traces = trace_classifier.classify(block.traces)
     result = get_liquidations(classified_traces)
+
+    print("Liquidation result:")
+    print(result)
+    print("Defined liquidation:")
+    print(liquidations)
 
     for liquidation in liquidations:
         assert liquidation in result
@@ -185,6 +191,35 @@ def test_liquidations_with_eth_transfer(trace_classifier: TraceClassifier):
     classified_traces = trace_classifier.classify(block.traces)
     result = get_liquidations(classified_traces)
     liquidations = [liquidation1, liquidation2]
+
+    for liquidation in liquidations:
+        assert liquidation in result
+
+
+def test_single_eth_liquidation(trace_classifier: TraceClassifier):
+    transaction_hash = (
+        "0x1ba93cb9471dad0843e04f3565314e6d2f3281168f57410ca138cc4065047797"
+    )
+    block_number = 10384319
+
+    liquidations = [
+        Liquidation(
+            liquidated_user="0x6cf4e3764b4e295d58f90e6cfcea2b3144f2bdbd",
+            liquidator_user="0x467927774b59f7cb023863b07960669f958ec19a",
+            debt_token_address=ETH_TOKEN_ADDRESS,
+            debt_purchase_amount=15225889288137910,
+            received_amount=15656880507938246456,
+            received_token_address="0x0d8775f648430679a709e98d2b0cb6250d2887ef",
+            protocol=Protocol.aave,
+            transaction_hash=transaction_hash,
+            trace_address=[],
+            block_number=block_number,
+        )
+    ]
+
+    block = load_test_block(block_number)
+    classified_traces = trace_classifier.classify(block.traces)
+    result = get_liquidations(classified_traces)
 
     for liquidation in liquidations:
         assert liquidation in result

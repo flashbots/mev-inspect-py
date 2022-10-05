@@ -47,9 +47,9 @@ class AaveLiquidationClassifier(LiquidationClassifier):
                 debt_token_address=debt_token_address,
                 liquidator_user=liquidator,
                 debt_purchase_amount=debt_purchase_amount,
-                protocol=Protocol.aave,
                 received_amount=received_amount,
                 received_token_address=received_token_address,
+                protocol=Protocol.aave,
                 transaction_hash=liquidation_trace.transaction_hash,
                 trace_address=liquidation_trace.trace_address,
                 block_number=liquidation_trace.block_number,
@@ -74,11 +74,33 @@ class AaveTransferClassifier(TransferClassifier):
         )
 
 
+class AaveEthTransferClassifier(TransferClassifier):
+    @staticmethod
+    def get_transfer(trace: DecodedCallTrace) -> Transfer:
+        return Transfer(
+            block_number=trace.block_number,
+            transaction_hash=trace.transaction_hash,
+            trace_address=trace.trace_address,
+            amount=trace.inputs["_amount"],
+            to_address=trace.to_address,
+            from_address=trace.inputs["_user"],
+            token_address=trace.inputs["_reserve"],
+        )
+
+
 AAVE_SPEC = ClassifierSpec(
     abi_name="AaveLendingPool",
     protocol=Protocol.aave,
     classifiers={
         "liquidationCall(address,address,address,uint256,bool)": AaveLiquidationClassifier,
+    },
+)
+
+AAVE_ETHTRANSFER_SPEC = ClassifierSpec(
+    abi_name="LendingPoolCore",
+    protocol=Protocol.aave,
+    classifiers={
+        "transferToReserve(address,address,uint256)": AaveEthTransferClassifier,
     },
 )
 
@@ -90,4 +112,8 @@ ATOKENS_SPEC = ClassifierSpec(
     },
 )
 
-AAVE_CLASSIFIER_SPECS: List[ClassifierSpec] = [AAVE_SPEC, ATOKENS_SPEC]
+AAVE_CLASSIFIER_SPECS: List[ClassifierSpec] = [
+    AAVE_SPEC,
+    ATOKENS_SPEC,
+    AAVE_ETHTRANSFER_SPEC,
+]
