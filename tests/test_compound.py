@@ -115,3 +115,18 @@ def test_c_token_liquidation(trace_classifier: TraceClassifier):
 
     for liquidation in liquidations:
         assert liquidation in result
+
+
+def test_reverted_liquidation(trace_classifier: TraceClassifier):
+    block_number = 15049646
+    transaction_hash = (
+        "0x6dd0d8be8a77651f64ef399b47fbc87011bd796b43349c3164ff7da965e0b345"
+    )
+
+    block = load_test_block(block_number)
+    classified_traces = trace_classifier.classify(block.traces)
+    result = get_liquidations(classified_traces)
+
+    assert transaction_hash not in [
+        liquidation.transaction_hash for liquidation in result
+    ]
