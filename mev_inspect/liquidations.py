@@ -30,9 +30,6 @@ def get_liquidations(classified_traces: List[ClassifiedTrace]) -> List[Liquidati
         if _is_child_liquidation(trace, parent_liquidations):
             continue
 
-        if trace.error == "Reverted":
-            continue
-
         if trace.classification == Classification.liquidate:
 
             parent_liquidations.append(trace)
