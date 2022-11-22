@@ -30,9 +30,10 @@ def get_inspect_database_uri():
 def _get_engine(uri: str):
     return create_engine(
         uri,
-        executemany_mode="values",
+        executemany_mode="batch",
         executemany_values_page_size=10000,
-        executemany_batch_page_size=500,
+        executemany_batch_page_size=10000,
+
     )
 
 

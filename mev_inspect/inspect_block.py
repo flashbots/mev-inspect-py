@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional, Any, Dict
+from typing import List, Optional, Any, Dict, Tuple
 
 from sqlalchemy import orm
 from web3 import Web3
@@ -8,6 +8,7 @@ from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.block import create_from_block_number, get_classified_traces_from_events
 from mev_inspect.classifiers.trace import TraceClassifier
 from mev_inspect.crud.arbitrages import delete_arbitrages_for_blocks, write_arbitrages
+from mev_inspect.crud.reserves import get_reserves, set_reserves
 from mev_inspect.crud.blocks import delete_blocks, write_blocks
 from mev_inspect.crud.liquidations import (
     delete_liquidations_for_blocks,
@@ -56,6 +57,10 @@ from mev_inspect.transfers import get_transfers
 
 logger = logging.getLogger(__name__)
 
+import psycopg2
+import pickle
+import time
+
 
 async def inspect_block(
     inspect_db_session: orm.Session,
@@ -75,6 +80,8 @@ async def inspect_block(
         should_write_classified_traces,
     )
 
+reserves: Dict[str, Tuple[str, str]] = dict()
+
 
 async def inspect_many_blocks(
     inspect_db_session: orm.Session,
@@ -86,54 +93,28 @@ async def inspect_many_blocks(
     should_write_classified_traces: bool = True,
 ):
 
-    count = 0
-    arbitrages_payload = []
-    liquidations_payload = []
-    async for swaps, liquidations in get_classified_traces_from_events(w3, after_block_number, before_block_number):
+    for row in get_reserves(inspect_db_session).fetchall():
+        reserves[row[0]] = (row[1], row[2])
+
+    all_swaps: List[Swap] = []
+    all_arbitrages: List[Arbitrage] = []
+    all_liquidations: List[Liquidation] = []
+    
+    async for swaps, liquidations, new_reserves in get_classified_traces_from_events(w3, after_block_number, before_block_number, reserves):
         arbitrages = get_arbitrages(swaps)
+        if len(new_reserves) > 0:
+            set_reserves(inspect_db_session, new_reserves)
 
-
-        count += len(arbitrages)
-        logger.info(f"{count} Found {len(swaps)} swaps and {len(arbitrages)} arbitrages")
-        if len(arbitrages) > 0:
-            for arb in arbitrages:
-                arb_payload: Dict[str, Any] = dict()
-                arb_payload['block_number'] = arb.block_number
-                arb_payload['transaction'] = arb.transaction_hash
-                arb_payload['account'] = arb.account_address
-                arb_payload['profit_amt'] = arb.profit_amount
-                arb_payload['token'] = arb.profit_token_address
-                arbitrages_payload.append(arb_payload)
-                count += 1
-
-        if len(liquidations) > 0:
-            for liq in liquidations:
-                liq_payload: Dict[str, Any] = dict()
-                liq_payload['block_number'] = liq.block_number
-                liq_payload['transaction'] = liq.transaction_hash
-                liq_payload['liquidator'] = liq.liquidator_user
-                liq_payload['purchase_addr'] = liq.debt_token_address
-                liq_payload['receive_addr'] = liq.received_token_address
-                liq_payload['purchase_amount'] = liq.debt_purchase_amount
-                liq_payload['receive_amount'] = liq.received_amount
-                liquidations_payload.append(liq_payload)
-                count+=1
-
-        if count >= 100:
-                print("sending to endpoint now")
-                # resp = requests.post("https://asia-south1-marlin-internal.cloudfunctions.net/mevPolygon/alerts", headers={'Content-type': 'application/json'}, json={"arbitrages": arbitrages_payload, "liquidations": liquidations_payload})
-                # print("sending to endpoint ", resp.content.decode("utf-8"), flush=True)
-                arbitrages_payload = []
-                liquidations_payload = []
-                count = 0
-
-    if count > 0:
-        print("sending to endpoint now")
-        # resp = requests.post("https://asia-south1-marlin-internal.cloudfunctions.net/mevPolygon/alerts", headers={'Content-type': 'application/json'}, json={"arbitrages": arbitrages_payload, "liquidations": liquidations_payload})
-        # print("sending to endpoint ", resp.content.decode("utf-8"), flush=True)
-        arbitrages_payload = []
-        liquidations_payload = []
-        count = 0
+        all_swaps.extend(swaps)
+        all_arbitrages.extend(arbitrages)
+        all_liquidations.extend(liquidations)
+        
+    start = time.time()
+    write_swaps(inspect_db_session, all_swaps)
+    write_arbitrages(inspect_db_session, all_arbitrages)
+    write_liquidations(inspect_db_session, all_liquidations)
+    print("sent swaps: {}, arbitrages: {}, time: {}".format(len(all_swaps), len(all_arbitrages), time.time()-start))
+    print("inspect complete...", after_block_number, before_block_number, flush=True)
 
     # all_blocks: List[Block] = []
     # all_classified_traces: List[ClassifiedTrace] = []

@@ -73,7 +73,7 @@ async def fetch_block_command(block_number: int, rpc: str):
     "--max-concurrency",
     type=int,
     help="maximum number of concurrent connections",
-    default=5,
+    default=1,
 )
 @click.option(
     "--request-timeout", type=int, help="timeout for requests to nodes", default=500

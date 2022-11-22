@@ -5,7 +5,7 @@ from mev_inspect.schemas.arbitrages import Arbitrage
 from mev_inspect.schemas.swaps import Swap
 from mev_inspect.utils import equal_within_percent
 
-MAX_TOKEN_AMOUNT_PERCENT_DIFFERENCE = 0.01
+MAX_TOKEN_AMOUNT_PERCENT_DIFFERENCE = 0.00001
 
 
 def get_arbitrages(swaps: List[Swap]) -> List[Arbitrage]:
@@ -55,7 +55,8 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
             continue
 
         unused_ends = [end for end in ends if end not in used_swaps]
-        route = _get_shortest_route(start, unused_ends, swaps)
+        unused_swaps = [swap for swap in swaps if swap not in used_swaps]
+        route = _get_shortest_route(start, unused_ends, unused_swaps)
 
         if route is not None:
             start_amount = route[0].token_in_amount
@@ -81,14 +82,7 @@ def _get_arbitrages_from_swaps(swaps: List[Swap]) -> List[Arbitrage]:
             all_arbitrages.append(arb)
             used_swaps.extend(route)
 
-    if len(all_arbitrages) == 1:
-        return all_arbitrages
-    else:
-        return [
-            arb
-            for arb in all_arbitrages
-            if (arb.swaps[0].trace_address < arb.swaps[-1].trace_address)
-        ]
+    return all_arbitrages
 
 
 def _get_shortest_route(
