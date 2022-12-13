@@ -63,11 +63,6 @@ def test_single_liquidation(trace_classifier: TraceClassifier):
     classified_traces = trace_classifier.classify(block.traces)
     result = get_liquidations(classified_traces)
 
-    print("Liquidation result:")
-    print(result)
-    print("Defined liquidation:")
-    print(liquidations)
-
     for liquidation in liquidations:
         assert liquidation in result
 
