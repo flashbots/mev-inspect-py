@@ -11,7 +11,7 @@ from mev_inspect.crud.latest_block_update import (
     find_latest_block_update,
     update_latest_block,
 )
-from mev_inspect.db import get_inspect_session, get_trace_session
+from mev_inspect.db import get_inspect_session
 from mev_inspect.inspector import MEVInspector
 from mev_inspect.provider import get_base_provider
 from mev_inspect.queue.broker import connect_broker
@@ -42,7 +42,6 @@ async def run():
     killer = GracefulKiller()
 
     inspect_db_session = get_inspect_session()
-    trace_db_session = get_trace_session()
 
     broker = connect_broker()
     export_actor = dramatiq.actor(
@@ -59,7 +58,6 @@ async def run():
         await inspect_next_block(
             inspector,
             inspect_db_session,
-            trace_db_session,
             base_provider,
             healthcheck_url,
             export_actor,
@@ -71,7 +69,6 @@ async def run():
 async def inspect_next_block(
     inspector: MEVInspector,
     inspect_db_session,
-    trace_db_session,
     base_provider,
     healthcheck_url,
     export_actor,
@@ -94,7 +91,6 @@ async def inspect_next_block(
 
         await inspector.inspect_single_block(
             inspect_db_session=inspect_db_session,
-            trace_db_session=trace_db_session,
             block=block_number,
         )
 

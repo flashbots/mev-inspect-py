@@ -8,7 +8,7 @@ from mev_inspect.schemas.traces import Protocol
 class Swap(BaseModel):
     abi_name: str
     transaction_hash: str
-    transaction_position: int
+    transaction_position: Optional[int]
     block_number: int
     trace_address: List[int]
     contract_address: str
@@ -18,5 +18,5 @@ class Swap(BaseModel):
     token_in_amount: int
     token_out_address: str
     token_out_amount: int
-    protocol: Protocol
+    protocol: Optional[Protocol]
     error: Optional[str]
