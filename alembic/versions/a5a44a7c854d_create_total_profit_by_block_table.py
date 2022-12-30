@@ -18,7 +18,10 @@ depends_on = None
 def upgrade():
     op.create_table(
         "total_profit_by_block",
-        sa.Column("block_number", sa.Numeric, primary_key=True),
+        sa.Column(
+            "id", sa.Integer, nullable=False, autoincrement=True, primary_key=True
+        ),
+        sa.Column("block_number", sa.Numeric, nullable=False),
         sa.Column("transaction_hash", sa.String(66), nullable=False),
         sa.Column("token_debt", sa.String(66), nullable=True),
         sa.Column("amount_debt", sa.Numeric, nullable=False),

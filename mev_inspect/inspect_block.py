@@ -1,11 +1,13 @@
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from sqlalchemy import orm
 from web3 import Web3
 
 from mev_inspect.arbitrages import get_arbitrages
 from mev_inspect.block import get_classified_traces_from_events
+from mev_inspect.crud.total_profits import write_total_profits_for_blocks
+from mev_inspect.schemas.total_profits import TotalProfits
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +37,7 @@ async def inspect_many_blocks(
     arbitrages_payload = []
     liquidations_payload = []
 
-    profits = []
+    profits: List[TotalProfits] = []
     async for swaps, liquidations in get_classified_traces_from_events(
         w3, after_block_number, before_block_number
     ):
@@ -52,14 +54,16 @@ async def inspect_many_blocks(
                 arbitrages_payload.append(arb_payload)
                 count += 1
                 profits.append(
-                    [
-                        arb.block_number,
-                        arb.transaction_hash,
-                        "",
-                        0,
-                        str(arb.profit_token_address).replace(TRAILING_ZEROS, ""),
-                        arb.profit_amount,
-                    ]
+                    TotalProfits(
+                        block_number=arb.block_number,
+                        transaction_hash=arb.transaction_hash,
+                        token_debt="",
+                        amount_debt=0,
+                        token_received=str(arb.profit_token_address).replace(
+                            TRAILING_ZEROS, ""
+                        ),
+                        amount_received=arb.profit_amount,
+                    )
                 )
 
         if len(liquidations) > 0:
@@ -75,20 +79,25 @@ async def inspect_many_blocks(
                 liquidations_payload.append(liq_payload)
                 count += 1
                 profits.append(
-                    [
-                        liq.block_number,
-                        liq.transaction_hash,
-                        str(liq.debt_token_address).replace(TRAILING_ZEROS, ""),
-                        liq.debt_purchase_amount,
-                        str(liq.received_amount).replace(TRAILING_ZEROS, ""),
-                        liq.received_amount,
-                    ]
+                    TotalProfits(
+                        block_number=liq.block_number,
+                        transaction_hash=liq.transaction_hash,
+                        token_debt=str(liq.debt_token_address).replace(
+                            TRAILING_ZEROS, ""
+                        ),
+                        amount_debt=liq.debt_purchase_amount,
+                        token_received=str(liq.received_amount).replace(
+                            TRAILING_ZEROS, ""
+                        ),
+                        amount_received=liq.received_amount,
+                    )
                 )
 
     if count > 0:
         print("writing profits of {0} mev transactions".format(count))
-        # @TODO: Write profits to DB
-        print(inspect_db_session.info)
+        write_total_profits_for_blocks(
+            inspect_db_session=inspect_db_session, total_profits_for_blocks=profits
+        )
         arbitrages_payload = []
         liquidations_payload = []
         count = 0
