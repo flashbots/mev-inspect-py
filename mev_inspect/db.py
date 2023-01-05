@@ -33,7 +33,6 @@ def _get_engine(uri: str):
         executemany_mode="batch",
         executemany_values_page_size=10000,
         executemany_batch_page_size=10000,
-
     )
 
 

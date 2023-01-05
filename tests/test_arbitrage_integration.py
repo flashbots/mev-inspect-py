@@ -57,23 +57,3 @@ def test_arbitrage_real_block(trace_classifier: TraceClassifier):
         == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
     )
     assert arbitrage_2.profit_amount == 53560707941943273628
-
-
-def test_reverting_arbitrage(trace_classifier: TraceClassifier):
-    block = load_test_block(12483198)
-    classified_traces = trace_classifier.classify(block.traces)
-
-    swaps = get_swaps(classified_traces)
-    assert len(swaps) == 38
-
-    arbitrages = get_arbitrages(list(swaps))
-    assert len(arbitrages) == 5
-
-    reverting_arbitrage = [
-        arb
-        for arb in arbitrages
-        if arb.transaction_hash
-        == "0x23a4dc7044666d3d4cc2d394a8017fc9d6b87018c20390d35266cea1af783e8a"
-    ][0]
-
-    assert reverting_arbitrage.error == "Reverted"

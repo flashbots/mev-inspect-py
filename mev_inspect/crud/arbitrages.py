@@ -41,7 +41,11 @@ def write_arbitrages(
                 end_amount=arbitrage.end_amount,
                 profit_amount=arbitrage.profit_amount,
                 error=arbitrage.error,
-                protocols={swap.protocol.value for swap in arbitrage.swaps if swap.protocol is not None},
+                protocols={
+                    swap.protocol.value
+                    for swap in arbitrage.swaps
+                    if swap.protocol is not None
+                },
             )
         )
 
@@ -66,4 +70,4 @@ def write_arbitrages(
             params=swap_arbitrage_ids,
         )
 
-        db_session.commit()
+        # db_session.commit()

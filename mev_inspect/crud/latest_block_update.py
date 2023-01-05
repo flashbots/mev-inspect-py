@@ -2,13 +2,17 @@ from typing import Optional
 
 
 def find_latest_block_update(db_session) -> Optional[int]:
-    result = db_session.execute(
-        "SELECT block_number FROM latest_block_update LIMIT 1"
+    result1 = db_session.execute(
+        "SELECT block_number FROM swaps order by block_number desc LIMIT 1"
     ).one_or_none()
-    if result is None:
+    result2 = db_session.execute(
+        "SELECT block_number FROM liquidations order by block_number desc LIMIT 1"
+    ).one_or_none()
+
+    if result1 is None or result2 is None:
         return None
     else:
-        return int(result[0])
+        return max(int(result1[0]), int(result2[0]))
 
 
 def update_latest_block(db_session, block_number) -> None:

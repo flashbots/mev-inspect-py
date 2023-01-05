@@ -31,4 +31,4 @@ def write_liquidations(
     ]
 
     db_session.bulk_save_objects(models)
-    db_session.commit()
+    # db_session.commit()

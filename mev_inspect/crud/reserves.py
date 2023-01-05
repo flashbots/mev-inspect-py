@@ -1,8 +1,7 @@
 def get_reserves(db_session):
-    result = db_session.execute(
-        "SELECT * FROM reserves"
-    )
+    result = db_session.execute("SELECT * FROM reserves")
     return result
+
 
 def set_reserves(db_session, values):
     db_session.execute(
@@ -12,6 +11,6 @@ def set_reserves(db_session, values):
         VALUES
         (:pool_address, :token0, :token1)
         """,
-        params = values,
+        params=values,
     )
     db_session.commit()

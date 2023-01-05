@@ -1,65 +1,22 @@
 import logging
-from typing import List, Optional, Any, Dict, Tuple
+import time
+from typing import Dict, List, Optional, Tuple
 
 from sqlalchemy import orm
 from web3 import Web3
 
 from mev_inspect.arbitrages import get_arbitrages
-from mev_inspect.block import create_from_block_number, get_classified_traces_from_events
+from mev_inspect.block import get_classified_traces_from_events
 from mev_inspect.classifiers.trace import TraceClassifier
-from mev_inspect.crud.arbitrages import delete_arbitrages_for_blocks, write_arbitrages
+from mev_inspect.crud.arbitrages import write_arbitrages
+from mev_inspect.crud.liquidations import write_liquidations
 from mev_inspect.crud.reserves import get_reserves, set_reserves
-from mev_inspect.crud.blocks import delete_blocks, write_blocks
-from mev_inspect.crud.liquidations import (
-    delete_liquidations_for_blocks,
-    write_liquidations,
-)
-from mev_inspect.crud.miner_payments import (
-    delete_miner_payments_for_blocks,
-    write_miner_payments,
-)
-from mev_inspect.crud.nft_trades import delete_nft_trades_for_blocks, write_nft_trades
-from mev_inspect.crud.punks import (
-    delete_punk_bid_acceptances_for_blocks,
-    delete_punk_bids_for_blocks,
-    delete_punk_snipes_for_blocks,
-    write_punk_bid_acceptances,
-    write_punk_bids,
-    write_punk_snipes,
-)
-from mev_inspect.crud.sandwiches import delete_sandwiches_for_blocks, write_sandwiches
-from mev_inspect.crud.summary import update_summary_for_block_range
-from mev_inspect.crud.swaps import delete_swaps_for_blocks, write_swaps
-from mev_inspect.crud.traces import (
-    delete_classified_traces_for_blocks,
-    write_classified_traces,
-)
-from mev_inspect.crud.transfers import delete_transfers_for_blocks, write_transfers
-from mev_inspect.liquidations import get_liquidations
-from mev_inspect.miner_payments import get_miner_payments
-from mev_inspect.nft_trades import get_nft_trades
-from mev_inspect.punks import get_punk_bid_acceptances, get_punk_bids, get_punk_snipes
-from mev_inspect.sandwiches import get_sandwiches
+from mev_inspect.crud.swaps import write_swaps
 from mev_inspect.schemas.arbitrages import Arbitrage
-from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.liquidations import Liquidation
-from mev_inspect.schemas.miner_payments import MinerPayment
-from mev_inspect.schemas.nft_trades import NftTrade
-from mev_inspect.schemas.punk_accept_bid import PunkBidAcceptance
-from mev_inspect.schemas.punk_bid import PunkBid
-from mev_inspect.schemas.punk_snipe import PunkSnipe
-from mev_inspect.schemas.sandwiches import Sandwich
 from mev_inspect.schemas.swaps import Swap
-from mev_inspect.schemas.traces import ClassifiedTrace
-from mev_inspect.schemas.transfers import Transfer
-from mev_inspect.swaps import get_swaps
-from mev_inspect.transfers import get_transfers
 
 logger = logging.getLogger(__name__)
-
-import psycopg2
-import pickle
-import time
 
 
 async def inspect_block(
@@ -80,6 +37,7 @@ async def inspect_block(
         should_write_classified_traces,
     )
 
+
 reserves: Dict[str, Tuple[str, str]] = dict()
 
 
@@ -92,15 +50,17 @@ async def inspect_many_blocks(
     trace_db_session: Optional[orm.Session],
     should_write_classified_traces: bool = True,
 ):
-
+    _, _, _ = trace_classifier, trace_db_session, should_write_classified_traces
     for row in get_reserves(inspect_db_session).fetchall():
         reserves[row[0]] = (row[1], row[2])
 
     all_swaps: List[Swap] = []
     all_arbitrages: List[Arbitrage] = []
     all_liquidations: List[Liquidation] = []
-    
-    async for swaps, liquidations, new_reserves in get_classified_traces_from_events(w3, after_block_number, before_block_number, reserves):
+
+    async for swaps, liquidations, new_reserves in get_classified_traces_from_events(
+        w3, after_block_number, before_block_number, reserves
+    ):
         arbitrages = get_arbitrages(swaps)
         if len(new_reserves) > 0:
             set_reserves(inspect_db_session, new_reserves)
@@ -108,13 +68,20 @@ async def inspect_many_blocks(
         all_swaps.extend(swaps)
         all_arbitrages.extend(arbitrages)
         all_liquidations.extend(liquidations)
-        
+
     start = time.time()
     write_swaps(inspect_db_session, all_swaps)
     write_arbitrages(inspect_db_session, all_arbitrages)
     write_liquidations(inspect_db_session, all_liquidations)
-    print("sent swaps: {}, arbitrages: {}, time: {}".format(len(all_swaps), len(all_arbitrages), time.time()-start))
-    print("inspect complete...", after_block_number, before_block_number, flush=True)
+    inspect_db_session.commit()
+    logger.info(
+        "sent swaps: {}, arbitrages: {}, time: {}".format(
+            len(all_swaps), len(all_arbitrages), time.time() - start
+        )
+    )
+    logger.info(
+        "inspect complete... {} {}".format(after_block_number, before_block_number)
+    )
 
     # all_blocks: List[Block] = []
     # all_classified_traces: List[ClassifiedTrace] = []

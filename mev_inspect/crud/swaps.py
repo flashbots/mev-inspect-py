@@ -28,4 +28,4 @@ def write_swaps(
     models = [SwapModel(**json.loads(swap.json())) for swap in swaps]
 
     db_session.bulk_save_objects(models)
-    db_session.commit()
+    # db_session.commit()
