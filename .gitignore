@@ -25,3 +25,6 @@ cache
 
 # pycharm
 .idea
+
+# generated csvs
+*.csv

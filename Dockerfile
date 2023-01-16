@@ -18,7 +18,7 @@ WORKDIR /app/
 USER flashbot
 
 RUN poetry config virtualenvs.create false \
-    && poetry install
+    && rm poetry.lock ; poetry lock && poetry install
 
 COPY --chown=flashbot . /app
 

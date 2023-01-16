@@ -68,6 +68,14 @@ case "$1" in
         kubectl exec -ti deploy/mev-inspect -- \
             poetry run inspect-many-blocks $after_block_number $before_block_number
 	;;
+  analyze-profit)
+        after_block_number=$2
+        before_block_number=$3
+        save_to_csv=$4
+        echo "Analyzing profit from block $after_block_number to $before_block_number"
+        kubectl exec -ti deploy/mev-inspect -- \
+            poetry run analyze-profit $after_block_number $before_block_number $save_to_csv
+	;;
   test)
         shift
         echo "Running tests"
@@ -122,7 +130,7 @@ case "$1" in
         kubectl exec -ti deploy/mev-inspect -- $@
   ;;
   *)
-	echo "Usage: "$1" {db|backfill|inspect|test}"
+	echo "Usage: "$1" {db|backfill|inspect|test|analyze-profit}"
 	exit 1
 esac
 
