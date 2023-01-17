@@ -163,6 +163,8 @@ def _get_all_start_end_swaps(swaps: List[Swap]) -> List[Tuple[Swap, List[Swap]]]
             if (
                 potential_start_swap.token_in_address
                 == potential_end_swap.token_out_address
+                and potential_start_swap.contract_address
+                != potential_end_swap.contract_address
                 and potential_start_swap.from_address == potential_end_swap.to_address
                 and not potential_start_swap.from_address in pool_addrs
             ):
