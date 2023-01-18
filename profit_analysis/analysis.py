@@ -40,13 +40,14 @@ def analyze_profit(inspect_db_session, block_from, block_to, save_to_csv=False):
     profit = read_profit_from_to(inspect_db_session, block_from, block_to)
     w3 = create_web3()
     profit = add_block_timestamp(w3, profit)
-    profit = add_cg_ids(profit)
-    profit = get_usd_profit(profit, save_to_csv)
+    chain = get_chain_from_url(w3.provider.endpoint_uri)
+    profit = add_cg_ids(profit, chain)
+    profit = get_usd_profit(profit, chain, save_to_csv)
     print(profit)
     return profit
 
 
-def get_usd_profit(profit, save_to_csv=False):
+def get_usd_profit(profit, chain, save_to_csv=False):
     """
     For each token involved in mev transactions, will get its price at the time of the transaction and
     compute the profit of each mev transaction.
@@ -54,6 +55,7 @@ def get_usd_profit(profit, save_to_csv=False):
     :param profit: pd.DataFrame, with columns = ['block_number', 'timestamp', 'transaction_hash',
         'token_debt', 'amount_debt', 'cg_id_debt',
        'token_received', 'amount_received', 'cg_id_received']
+    :param chain: str, the blockchain
     :param save_to_csv: bool, whether to save the analysed profits to csv or not
     :return: pd.DataFrame, with columns = ['block_number', 'timestamp', 'date', 'transaction_hash',
        'amount_received', 'token_received', 'price_received',
@@ -61,7 +63,7 @@ def get_usd_profit(profit, save_to_csv=False):
        'profit_usd' ]
     """
     tokens = profit[CG_ID_RECEIVED_KEY].unique()
-    mapping = get_address_to_coingecko_ids_mapping()
+    mapping = get_address_to_coingecko_ids_mapping(chain)
     profit_with_price_tokens = pd.DataFrame()
     failures = {}
     for token in tokens:
@@ -93,7 +95,7 @@ def get_usd_profit(profit, save_to_csv=False):
 
             # get received token decimals
             decimals = get_decimals(
-                profit_by_received_token[TOKEN_RECEIVED_KEY].values[0]
+                profit_by_received_token[TOKEN_RECEIVED_KEY].values[0], chain
             )
 
             # get debt tokens prices
@@ -125,7 +127,7 @@ def get_usd_profit(profit, save_to_csv=False):
                 profit_by_received_token[TOKEN_DEBT_KEY].astype(str).unique().tolist()
             ):
                 if debt_token != "":
-                    debt_token_decimals = get_decimals(debt_token)
+                    debt_token_decimals = get_decimals(debt_token, chain)
                     debt_tokens_decimals = pd.concat(
                         [
                             debt_tokens_decimals,
@@ -260,3 +262,16 @@ def create_web3():
         return w3_provider
     else:
         raise Exception("Failed to connect")
+
+
+def get_chain_from_url(url):
+    if "ether" in url:
+        return "ethereum"
+    elif "poly" in url:
+        return "polygon"
+    elif "arb" in url:
+        return "arbitrum"
+    elif "opti" in url:
+        return "optimism"
+    else:
+        raise Exception(f"Could not determine blockchain from url: {url}")

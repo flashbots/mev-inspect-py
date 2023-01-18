@@ -15,8 +15,9 @@ from profit_analysis.constants import DATA_PATH
 TRAILING_ZEROS = "000000000000000000000000"
 
 
-def get_address_to_coingecko_ids_mapping():
+def get_address_to_coingecko_ids_mapping(chain):
     token_cg_ids = pd.read_csv(DATA_PATH + "address_to_coingecko_ids.csv")
+    token_cg_ids = token_cg_ids.loc[token_cg_ids["chain"] == chain]
     token_cg_ids[TOKEN_DEBT_KEY] = token_cg_ids[TOKEN_KEY].astype(str)
     token_cg_ids[CG_ID_RECEIVED_KEY] = token_cg_ids[CG_ID_KEY]
     token_cg_ids[CG_ID_DEBT_KEY] = token_cg_ids[CG_ID_KEY]
@@ -24,8 +25,8 @@ def get_address_to_coingecko_ids_mapping():
     return token_cg_ids
 
 
-def add_cg_ids(profit_by_block):
-    token_cg_ids = get_address_to_coingecko_ids_mapping()
+def add_cg_ids(profit_by_block, chain):
+    token_cg_ids = get_address_to_coingecko_ids_mapping(chain)
     token_cg_ids[TOKEN_DEBT_KEY] = token_cg_ids[TOKEN_DEBT_KEY].str.lower()
     token_cg_ids[TOKEN_RECEIVED_KEY] = token_cg_ids[TOKEN_RECEIVED_KEY].str.lower()
     profit_by_block[TOKEN_RECEIVED_KEY] = (
