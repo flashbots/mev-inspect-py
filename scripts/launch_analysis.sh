@@ -1,11 +1,10 @@
 #!/bin/bash
 # This is a script to analyze MEV profits
-# Input the pool Id of mev-inspect (can be found on your TILT interface)
-# TODO: How to extract the mev-inspect pool id to copy the csv files?
-mevInspectPoolId="mev-inspect-759f8dc6f7-2nnzl"
+# Input the pool Id of mev-inspect (can also be found on your TILT interface)
+mevInspectPoolId=$(kubectl get pods | sed -n -e '/^mev-inspect-/p' | sed '/^mev-inspect-workers/d' | awk '{print $1}')
 # Input the starting and ending blocks you want to run the profit analysis for
 blockFrom=$((34500000))
-blockTo=$((34800000))
+blockTo=$((34500100))
 window=$((100))
 reps=$(((${blockTo}-${blockFrom})/${window}))
 echo "${reps}"
