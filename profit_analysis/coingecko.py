@@ -45,6 +45,12 @@ def add_cg_ids(profit_by_block, chain):
     profit_by_block = profit_by_block.merge(
         token_cg_ids[[TOKEN_RECEIVED_KEY, CG_ID_RECEIVED_KEY]], how="left"
     )
+    addresses_with_nan_cg_ids = profit_by_block.loc[
+        pd.isna(profit_by_block[CG_ID_RECEIVED_KEY]), TOKEN_RECEIVED_KEY
+    ]
+    print(
+        f"Tokens with missing coingecko ids in mapping:\n{addresses_with_nan_cg_ids.value_counts()}"
+    )
     return profit_by_block[
         [
             "block_number",

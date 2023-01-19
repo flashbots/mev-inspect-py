@@ -63,11 +63,14 @@ def get_usd_profit(profit, chain, save_to_csv=False):
        'profit_usd' ]
     """
     tokens = profit[CG_ID_RECEIVED_KEY].unique()
+    addresses = profit[TOKEN_RECEIVED_KEY].unique()
     mapping = get_address_to_coingecko_ids_mapping(chain)
     profit_with_price_tokens = pd.DataFrame()
     failures = {}
-    for token in tokens:
-        print("Processing", token)
+    for i in range(len(tokens)):
+        token = tokens[i]
+        token_address = addresses[i]
+        print(f"Processing {token} ({token_address})")
         try:
 
             profit_by_received_token = pd.DataFrame(
@@ -196,9 +199,9 @@ def get_usd_profit(profit, chain, save_to_csv=False):
             )
         except Exception as e:
             # @TODO: save into list to add later
-            print("    Failed for token=", token)
+            print("    Failed for token=", token_address)
             print(e)
-            failures[token] = e
+            failures[token_address] = e
     print("Finished processing all tokens")
     profit_with_price_tokens[PRICE_DEBT_KEY] = profit_with_price_tokens[
         PRICE_DEBT_KEY
