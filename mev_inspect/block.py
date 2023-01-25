@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from time import sleep
 from typing import Dict, List, Optional, Tuple
 
 from sqlalchemy import orm
@@ -22,17 +23,23 @@ UNI_TOKEN_1 = "0xd21220a7"
 
 
 async def _get_logs_for_topics(base_provider, after_block, before_block, topics):
-    logs = await base_provider.make_request(
-        "eth_getLogs",
-        [
-            {
-                "fromBlock": hex(after_block),
-                "toBlock": hex(before_block),
-                "topics": topics,
-            }
-        ],
-    )
-    return logs["result"]
+    while True:
+        try:
+            logs = await base_provider.make_request(
+                "eth_getLogs",
+                [
+                    {
+                        "fromBlock": hex(after_block),
+                        "toBlock": hex(before_block),
+                        "topics": topics,
+                    }
+                ],
+            )
+
+            return logs["result"]
+        except Exception as e:
+            print(f"Error, retrying {e}")
+            sleep(0.05)
 
 
 def _logs_by_tx(logs):
@@ -83,13 +90,19 @@ async def classify_logs(logs, pool_reserves, w3):
                 token0, token1 = pool_reserves[pool_address]
             else:
                 addr = Web3.toChecksumAddress(pool_address)
-                token0, token1 = await asyncio.gather(
-                    w3.eth.call({"to": addr, "data": UNI_TOKEN_0}),
-                    w3.eth.call({"to": addr, "data": UNI_TOKEN_1}),
-                )
-                token0 = w3.toHex(token0)
-                token1 = w3.toHex(token1)
-                pool_reserves[pool_address] = (token0, token1)
+                while True:
+                    try:
+                        token0, token1 = await asyncio.gather(
+                            w3.eth.call({"to": addr, "data": UNI_TOKEN_0}),
+                            w3.eth.call({"to": addr, "data": UNI_TOKEN_1}),
+                        )
+                        token0 = w3.toHex(token0)
+                        token1 = w3.toHex(token1)
+                        pool_reserves[pool_address] = (token0, token1)
+                        break
+                    except Exception as e:
+                        print(f"Error, retrying {e}")
+                        sleep(0.05)
 
             am0in, am1in, am0out, am1out = get_swap(log["data"])
             swap = Swap(
