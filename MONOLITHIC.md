@@ -1,3 +1,4 @@
+
 # Running mev-inspect-py without kubernetes ('monolithic mode')
 
 Running mev-inspect-py outside of kubernetes can be useful for debug purposes. In this case, the steps for installation are:
@@ -62,19 +63,28 @@ poetry install
 ```
 
 ### Create database
-mev-inspect-py outputs to a postgres database, so we need to set this up.
+mev-inspect-py outputs to a postgres database, so we need to set this up. There are various ways of doing this, two options are presented here.
+
+#### Option 1 — Run postgres locally
 ```
 sudo -u postgres psql
 \password
-[set a password at the prompt]
+postgres
 create database mev_inspect;
 \q
-``` 
+```
+
+#### Option 2 — Use postgres docker image
+To avoid interfering with your local postgres instance, you may prefer to run postgres within a docker container. First ensure that postgres is not currently running to ensure port `5432` is available:
+`sudo systemctl stop postgresql`
+and then start a containerised postgres instance:
+`sudo docker run -d -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=mev_inspect postgres`
+
 ### Environment variables
-We will need to set a few environment variables to use mev-inspect-py. **These will be required every time mev-inspect-py runs**, so again you may wish to add these to your `~/.bashrc` and/or `~/.profile` as appropriate. Note that you need to substitute your password and archive node URL in the below.
+We will need to set a few environment variables to use mev-inspect-py. **These will be required every time mev-inspect-py runs**, so again you may wish to add these to your `~/.bashrc` and/or `~/.profile` as appropriate. Note that you need to substitute the correct URL for your archive node below if you are not running Erigon locally.
 ```
 export POSTGRES_USER=postgres
-export POSTGRES_PASSWORD=[the password you set above]
+export POSTGRES_PASSWORD=postgres
 export POSTGRES_HOST=localhost
 export RPC_URL="http://127.0.0.1:8545"
 ```
