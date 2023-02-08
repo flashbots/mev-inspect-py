@@ -94,6 +94,9 @@ def create_swap_from_pool_transfers(
     transfer_in = transfers_to_pool[-1]
     transfer_out = transfers_from_pool_to_recipient[0]
 
+    if transfer_in.token_address == transfer_out.token_address:
+        return None
+
     return Swap(
         abi_name=trace.abi_name,
         transaction_hash=trace.transaction_hash,
