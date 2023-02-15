@@ -74,7 +74,10 @@ def _get_punk_bid_acceptances_for_transaction(
         if not isinstance(trace, DecodedCallTrace):
             continue
 
-        elif trace.classification == Classification.punk_accept_bid:
+        elif (
+            trace.classification == Classification.punk_accept_bid
+            and trace.error is None
+        ):
             punk_accept_bid = PunkBidAcceptance(
                 block_number=trace.block_number,
                 transaction_hash=trace.transaction_hash,
