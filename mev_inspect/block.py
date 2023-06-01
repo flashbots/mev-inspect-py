@@ -35,6 +35,19 @@ async def create_from_block_number(
         _find_or_fetch_base_fee_per_gas(w3, block_number, trace_db_session),
     )
 
+    # filter out failed transactions
+    failed_transactions = set(
+        receipt.transaction_hash for receipt in receipts if receipt.status == 0
+    )
+    receipts = [
+        receipt
+        for receipt in receipts
+        if receipt.transaction_hash not in failed_transactions
+    ]
+    traces = [
+        trace for trace in traces if trace.transaction_hash not in failed_transactions
+    ]
+
     miner_address = _get_miner_address_from_traces(traces)
 
     return Block(

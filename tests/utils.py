@@ -23,6 +23,9 @@ def load_test_block(block_number: int) -> Block:
 
     with open(block_path, "r") as block_file:
         block_json = json.load(block_file)
+        for item in block_json["receipts"]:
+            if "status" not in item:
+                item["status"] = "0x1"
         return Block(
             **{
                 **defaults,
