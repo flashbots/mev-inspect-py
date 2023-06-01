@@ -27,7 +27,7 @@ k8s_yaml(secret_from_dict("mev-inspect-db-credentials", inputs = {
     "password": "password",
     "host": "postgresql",
 }))
-
+ 
 # if using https://github.com/taarushv/trace-db
 # k8s_yaml(secret_from_dict("trace-db-credentials", inputs = {
 #     "username" : "username",
@@ -79,6 +79,8 @@ k8s_resource(
     resource_deps=["postgresql", "redis-master"],
 )
 
+# k8s_resource(workload='mev-inspect', port_forwards='8101')
+
 k8s_resource(
     workload="mev-inspect-workers",
     resource_deps=["postgresql", "redis-master"],
@@ -102,17 +104,17 @@ local_resource(
 #    "export-aws-secret-access-key": "foobar",
 #}))
 
-#helm_remote(
+# helm_remote(
 #    "localstack",
 #    repo_name="localstack-charts",
 #    repo_url="https://localstack.github.io/helm-charts",
-#)
-#
-#local_resource(
+# )
+
+# local_resource(
 #    'localstack-port-forward',
 #    serve_cmd='kubectl port-forward --namespace default svc/localstack 4566:4566',
 #    resource_deps=["localstack"]
-#)
+# )
 #
 #k8s_yaml(configmap_from_dict("mev-inspect-export", inputs = {
 #    "services": "s3",
