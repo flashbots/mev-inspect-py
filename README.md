@@ -66,6 +66,10 @@ And load prices data
 ./mev prices fetch-all
 ```
 
+## Monolithic (non-kubernetes) install instructions
+
+For an alternative means of running mev-inspect-py for smaller set-ups or debug purposes see the [monolithic install instructions](MONOLITHIC.md).
+
 ## Usage
 
 ### Inspect a single block
