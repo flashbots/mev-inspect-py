@@ -13,7 +13,7 @@ class CallResult(CamelModel):
     gas_used: int
 
     @validator("gas_used", pre=True)
-    def maybe_hex_to_int(v):
+    def maybe_hex_to_int(cls, v):
         if isinstance(v, str):
             return hex_to_int(v)
         return v
@@ -27,7 +27,7 @@ class CallAction(Web3Model):
     gas: int
 
     @validator("value", "gas", pre=True)
-    def maybe_hex_to_int(v):
+    def maybe_hex_to_int(cls, v):
         if isinstance(v, str):
             return hex_to_int(v)
         return v
