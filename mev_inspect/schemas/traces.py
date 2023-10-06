@@ -41,6 +41,8 @@ class Protocol(Enum):
     uniswap_v3 = "uniswap_v3"
     sushiswap = "sushiswap"
     aave = "aave"
+    aave_v2 = "aave_v2"
+    aave_v3 = "aave_v3"
     weth = "weth"
     curve = "curve"
     zero_ex = "0x"
