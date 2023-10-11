@@ -2,8 +2,6 @@ import json
 import os
 from typing import Dict, List
 
-from pydantic import parse_file_as
-
 from mev_inspect.schemas.blocks import Block
 from mev_inspect.schemas.sandwiches import Sandwich
 
@@ -14,7 +12,10 @@ TEST_SANDWICHES_DIRECTORY = os.path.join(THIS_FILE_DIRECTORY, "sandwiches")
 
 def load_test_sandwiches(block_number: int) -> List[Sandwich]:
     sandwiches_path = f"{TEST_SANDWICHES_DIRECTORY}/{block_number}.json"
-    return parse_file_as(List[Sandwich], sandwiches_path)
+
+    with open(sandwiches_path, "r") as file:
+        sandwiches_data = json.load(file)
+    return [Sandwich(**sandwich) for sandwich in sandwiches_data]
 
 
 def load_test_block(block_number: int) -> Block:

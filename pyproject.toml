@@ -10,12 +10,13 @@ web3 = "^5.23.0"
 pydantic = "^1.8.2"
 hexbytes = "^0.2.1"
 click = "^8.0.1"
-psycopg2 = "^2.9.1"
+psycopg2-binary = "^2.9.7"
 aiohttp = "^3.8.0"
 dramatiq = {extras = ["redis"], version = "^1.12.1"}
 pycoingecko = "^2.2.0"
 boto3 = "^1.20.48"
 aiohttp-retry = "^2.4.6"
+pyyaml = "^6.0.1"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.13.0"
@@ -30,6 +31,7 @@ alembic = "^1.6.5"
 CProfileV = "^1.0.7"
 regex = "^2021.10.8"
 pytest-profiling = "^1.7.0"
+sqlalchemy = "^1.4.23"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -82,3 +84,6 @@ filter_files = true
 known_first_party = "mev_inspect"
 known_third_party = "alembic"
 py_version=39
+
+[pytest]
+asyncio_mode = "auto"
