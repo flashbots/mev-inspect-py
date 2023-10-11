@@ -66,12 +66,18 @@ UNISWAP_V3_CONTRACT_SPECS = [
     ClassifierSpec(
         abi_name="Quoter",
         protocol=Protocol.uniswap_v3,
-        valid_contract_addresses=["0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"],
+        valid_contract_addresses=[
+            "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+            "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
+        ],
     ),
     ClassifierSpec(
         abi_name="SwapRouter",
         protocol=Protocol.uniswap_v3,
-        valid_contract_addresses=["0xE592427A0AEce92De3Edee1F18E0157C05861564"],
+        valid_contract_addresses=[
+            "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+            "0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45",
+        ],
     ),
     ClassifierSpec(
         abi_name="NFTDescriptor",
@@ -97,6 +103,19 @@ UNISWAP_V3_CONTRACT_SPECS = [
         abi_name="V3Migrator",
         protocol=Protocol.uniswap_v3,
         valid_contract_addresses=["0xA5644E29708357803b5A882D272c41cC0dF92B34"],
+    ),
+    ClassifierSpec(
+        abi_name="Permit2",
+        protocol=Protocol.uniswap_v3,
+        valid_contract_addresses=["0x000000000022d473030f116ddee9f6b43ac78ba3"],
+    ),
+    ClassifierSpec(
+        abi_name="UniversalRouter",
+        protocol=Protocol.uniswap_v3,
+        valid_contract_addresses=[
+            "0xef1c6e67703c7bd7107eed8303fbe6ec2554bf6b",
+            "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
+        ],
     ),
 ]
 

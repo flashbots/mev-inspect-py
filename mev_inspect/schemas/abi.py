@@ -13,6 +13,7 @@ class ABIDescriptionType(str, Enum):
     fallback = "fallback"
     event = "event"
     receive = "receive"
+    error = "error"
 
 
 NON_FUNCTION_DESCRIPTION_TYPES = Union[
@@ -20,6 +21,7 @@ NON_FUNCTION_DESCRIPTION_TYPES = Union[
     Literal[ABIDescriptionType.fallback],
     Literal[ABIDescriptionType.event],
     Literal[ABIDescriptionType.receive],
+    Literal[ABIDescriptionType.error],
 ]
 
 

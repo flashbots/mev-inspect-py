@@ -34,6 +34,8 @@ def is_known_router_address(address):
         "0x11111254369792b2Ca5d084aB5eEA397cA8fa48B",  # 1inch v1 router
         "0x111111125434b319222cdbf8c261674adb56f3ae",  # 1inch v2 router
         "0x11111112542d85b3ef69ae05771c2dccff4faa26",  # 1inch v3 router
+        "0x1111111254fb6c44bac0bed2854e76f90643097d"   # 1inch v4 router
+        "0x1111111254eeb25477b68fb85ed929f73a960582"   # 1inch v5 router
         "0xa356867fdcea8e71aeaf87805808803806231fdc",  # DODO
         "0xdef1c0ded9bec7f1a1670819833240f027b25eff",  # 0x proxy
         "0x90f765f63e7dc5ae97d6c576bf693fb6af41c129",  # Set Trade
@@ -41,17 +43,21 @@ def is_known_router_address(address):
         "0x9509665d015bfe3c77aa5ad6ca20c8afa1d98989",  # Paraswap
         "0x86969d29F5fd327E1009bA66072BE22DB6017cC6",  # Paraswap v2
         "0xf90e98f3d8dce44632e5020abf2e122e0f99dfab",  # Paraswap v3
+        "0x1bD435F3C054b6e901B7b108a0ab7617C808677b",  # Paraswap v4
         "0x57805e5a227937bac2b0fdacaa30413ddac6b8e1",  # Furucombo
         "0x17e8ca1b4798b97602895f63206afcd1fc90ca5f",  # Furucombo proxy
         "0x881d40237659c251811cec9c364ef91dc08d300c",  # Metamask swap
         "0x745daa146934b27e3f0b6bff1a6e36b9b90fb131",  # DEX.ag
         "0xb2be281e8b11b47fec825973fc8bb95332022a54",  # Zerion SDK
-        "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",  # UniswapV2Router02
-        "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",  # SushiswapV2Router02
-        "0xE592427A0AEce92De3Edee1F18E0157C05861564",  # Uniswap v3 router
         "0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21",  # Balance exchange proxy
-        "0x1bD435F3C054b6e901B7b108a0ab7617C808677b",  # Paraswap v4
         "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",  # SNX proxy synth issuer
+        "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",  # SushiswapV2Router02
+        "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a",  # UniswapV2Router
+        "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",  # UniswapV2Router02
+        "0xE592427A0AEce92De3Edee1F18E0157C05861564",  # UniswapV3SwapRouter
+        "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",  # UniswapV3SwapRouter02
+        "0xEf1c6E67703c7BD7107eed8303Fbe6EC2554BF6B",  # UniswapV3UniversalRouter
+        "0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD",  # UniswapV3UniversalRouter02
     ]
     return address in known_router_addresses
 
