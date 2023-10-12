@@ -237,7 +237,7 @@ tilt down
 Delete it with:
 
 ```
-kubectl delete pvc data-postgresql-postgresql-0
+kubectl delete pvc data-postgresql-0
 ```
 
 Start back up again:
