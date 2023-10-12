@@ -41,6 +41,7 @@ async def inspect_block_command(block_number: int, rpc: str):
     trace_db_session = get_trace_session()
 
     inspector = MEVInspector(rpc)
+    logger.info(f"Using the RPC node {rpc}")
 
     await inspector.inspect_single_block(
         inspect_db_session=inspect_db_session,
@@ -94,6 +95,8 @@ async def inspect_many_blocks_command(
         max_concurrency=max_concurrency,
         request_timeout=request_timeout,
     )
+    logger.info(f"Using the RPC node {rpc}")
+
     await inspector.inspect_many_blocks(
         inspect_db_session=inspect_db_session,
         trace_db_session=trace_db_session,
