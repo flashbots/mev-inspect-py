@@ -20,12 +20,17 @@ class AaveLiquidationClassifier(LiquidationClassifier):
         child_transfers: List[Transfer],
         child_traces: List[ClassifiedTrace],
     ) -> Optional[Liquidation]:
-
         liquidator = liquidation_trace.from_address
-        liquidated = liquidation_trace.inputs["_user"]
 
-        debt_token_address = liquidation_trace.inputs["_reserve"]
-        received_token_address = liquidation_trace.inputs["_collateral"]
+        if liquidation_trace.protocol == Protocol.aave:
+            liquidated = liquidation_trace.inputs["_user"]
+            debt_token_address = liquidation_trace.inputs["_reserve"]
+            received_token_address = liquidation_trace.inputs["_collateral"]
+
+        else:
+            liquidated = liquidation_trace.inputs["user"]
+            debt_token_address = liquidation_trace.inputs["debtAsset"]
+            received_token_address = liquidation_trace.inputs["collateralAsset"]
 
         debt_purchase_amount = None
         received_amount = None
@@ -47,7 +52,7 @@ class AaveLiquidationClassifier(LiquidationClassifier):
                 debt_token_address=debt_token_address,
                 liquidator_user=liquidator,
                 debt_purchase_amount=debt_purchase_amount,
-                protocol=Protocol.aave,
+                protocol=liquidation_trace.protocol,
                 received_amount=received_amount,
                 received_token_address=received_token_address,
                 transaction_hash=liquidation_trace.transaction_hash,
@@ -74,13 +79,32 @@ class AaveTransferClassifier(TransferClassifier):
         )
 
 
-AAVE_SPEC = ClassifierSpec(
-    abi_name="AaveLendingPool",
-    protocol=Protocol.aave,
-    classifiers={
-        "liquidationCall(address,address,address,uint256,bool)": AaveLiquidationClassifier,
-    },
-)
+AAVE_SPEC = [
+    ClassifierSpec(
+        abi_name="AaveLendingPool",
+        protocol=Protocol.aave,
+        classifiers={
+            "liquidationCall(address,address,address,uint256,bool)": AaveLiquidationClassifier,
+        },
+        valid_contract_addresses=["0x398eC7346DcD622eDc5ae82352F02bE94C62d119"],
+    ),
+    ClassifierSpec(
+        abi_name="AaveLendingPoolV2",
+        protocol=Protocol.aave_v2,
+        classifiers={
+            "liquidationCall(address,address,address,uint256,bool)": AaveLiquidationClassifier,
+        },
+        valid_contract_addresses=["0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9"],
+    ),
+    ClassifierSpec(
+        abi_name="AaveLendingPoolV3",
+        protocol=Protocol.aave_v3,
+        classifiers={
+            "liquidationCall(address,address,address,uint256,bool)": AaveLiquidationClassifier,
+        },
+        valid_contract_addresses=["0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"],
+    ),
+]
 
 ATOKENS_SPEC = ClassifierSpec(
     abi_name="aTokens",
@@ -90,4 +114,7 @@ ATOKENS_SPEC = ClassifierSpec(
     },
 )
 
-AAVE_CLASSIFIER_SPECS: List[ClassifierSpec] = [AAVE_SPEC, ATOKENS_SPEC]
+AAVE_CLASSIFIER_SPECS: List[ClassifierSpec] = [
+    *AAVE_SPEC,
+    ATOKENS_SPEC,
+]
