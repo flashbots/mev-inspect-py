@@ -4,126 +4,132 @@ set -e
 
 DB_NAME=mev_inspect
 
-function get_kube_secret(){
-    kubectl get secrets $1 -o jsonpath="{.data.$2}" | base64 --decode
+function get_kube_secret() {
+  kubectl get secrets $1 -o jsonpath="{.data.$2}" | base64 --decode
 }
 
-function get_kube_db_secret(){
-    kubectl get secrets mev-inspect-db-credentials -o jsonpath="{.data.$1}" | base64 --decode
+function get_kube_db_secret() {
+  kubectl get secrets mev-inspect-db-credentials -o jsonpath="{.data.$1}" | base64 --decode
 }
 
-function db(){
-    host=$(get_kube_secret "mev-inspect-db-credentials" "host")
-    username=$(get_kube_secret "mev-inspect-db-credentials" "username")
-    password=$(get_kube_secret "mev-inspect-db-credentials" "password")
+function db() {
+  host=$(get_kube_secret "mev-inspect-db-credentials" "host")
+  username=$(get_kube_secret "mev-inspect-db-credentials" "username")
+  password=$(get_kube_secret "mev-inspect-db-credentials" "password")
 
-    kubectl run -i --rm --tty postgres-client-$RANDOM \
-        --env="PGPASSWORD=$password"  \
-        --image=jbergknoff/postgresql-client \
-        -- $DB_NAME --host=$host --user=$username
+  kubectl run -i --rm --tty postgres-client-$RANDOM \
+    --env="PGPASSWORD=$password" \
+    --image=jbergknoff/postgresql-client \
+    -- $DB_NAME --host=$host --user=$username
 }
 
-function redis(){
-    echo "To continue, enter 'shift + r'"
-    redis_password=$(get_kube_secret "redis" "redis-password")
-    kubectl run -i --rm --tty \
-        --namespace default redis-client-$RANDOM \
-        --env REDIS_PASSWORD=$redis_password \
-        --image docker.io/bitnami/redis:6.2.6-debian-10-r0 \
-        --command -- redis-cli -h redis-master -a $redis_password
+function redis() {
+  echo "To continue, enter 'shift + r'"
+  redis_password=$(get_kube_secret "redis" "redis-password")
+  kubectl run -i --rm --tty \
+    --namespace default redis-client-$RANDOM \
+    --env REDIS_PASSWORD=$redis_password \
+    --image docker.io/bitnami/redis:6.2.6-debian-10-r0 \
+    --command -- redis-cli -h redis-master -a $redis_password
 }
 
 case "$1" in
-  db)
-        echo "Connecting to $DB_NAME"
-        db
-	;;
-  redis)
-        echo "Connecting to redis"
-        redis
+db)
+  echo "Connecting to $DB_NAME"
+  db
+  ;;
+redis)
+  echo "Connecting to redis"
+  redis
+  ;;
+listener)
+  kubectl exec -ti deploy/mev-inspect -- ./listener $2
+  ;;
+block-list)
+  echo "Backfilling blocks from stdin"
+  kubectl exec -i deploy/mev-inspect -- poetry run enqueue-block-list
+  ;;
+backfill)
+  after_block_number=$2
+  before_block_number=$3
+
+  echo "Backfilling from $after_block_number to $before_block_number"
+  kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-blocks $after_block_number $before_block_number
+  ;;
+inspect)
+  block_number=$2
+  echo "Inspecting block $block_number"
+  kubectl exec -ti deploy/mev-inspect -- poetry run inspect-block $block_number
+  ;;
+inspect-many)
+  after_block_number=$2
+  before_block_number=$3
+  echo "Inspecting from block $after_block_number to $before_block_number"
+  kubectl exec -ti deploy/mev-inspect -- \
+    poetry run inspect-many-blocks $after_block_number $before_block_number
+  ;;
+test)
+  shift
+  echo "Running tests"
+  kubectl exec -ti deploy/mev-inspect -- poetry run pytest tests $@
+  ;;
+fetch)
+  block_number=$2
+  echo "Fetching block $block_number"
+  kubectl exec -ti deploy/mev-inspect -- poetry run fetch-block $block_number
+  ;;
+prices)
+  shift
+  case "$1" in
+  fetch-all)
+    echo "Running price fetch-all"
+    kubectl exec -ti deploy/mev-inspect -- \
+      poetry run fetch-all-prices
     ;;
-  listener)
-        kubectl exec -ti deploy/mev-inspect -- ./listener $2
-	;;
-  block-list)
-        echo "Backfilling blocks from stdin"
-        kubectl exec -i deploy/mev-inspect -- poetry run enqueue-block-list
-	;;
-  backfill)
-        after_block_number=$2
-        before_block_number=$3
-
-        echo "Backfilling from $after_block_number to $before_block_number"
-        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-blocks $after_block_number $before_block_number
-	;;
-  inspect)
-        block_number=$2
-        echo "Inspecting block $block_number"
-        kubectl exec -ti deploy/mev-inspect -- poetry run inspect-block $block_number
-	;;
-  inspect-many)
-        after_block_number=$2
-        before_block_number=$3
-        echo "Inspecting from block $after_block_number to $before_block_number"
-        kubectl exec -ti deploy/mev-inspect -- \
-            poetry run inspect-many-blocks $after_block_number $before_block_number
-	;;
-  test)
-        shift
-        echo "Running tests"
-        kubectl exec -ti deploy/mev-inspect -- poetry run pytest tests $@
-	;;
-  fetch)
-      block_number=$2
-      echo "Fetching block $block_number"
-      kubectl exec -ti deploy/mev-inspect -- poetry run fetch-block $block_number
-  ;;
-  prices)
-        shift
-        case "$1" in
-          fetch-all)
-                echo "Running price fetch-all"
-                kubectl exec -ti deploy/mev-inspect -- \
-                    poetry run fetch-all-prices
-            ;;
-          fetch-range)
-                after=$2
-                before=$3
-                echo "Running price fetch-range"
-                kubectl exec -ti deploy/mev-inspect -- \
-                    poetry run fetch-range $after $before
-            ;;
-            *)
-            echo "prices usage: "$1" {fetch-all}"
-            exit 1
-        esac
-  ;;
-  backfill-export)
-        after_block=$2
-        before_block=$3
-
-        echo "Sending $after_block to $before_block export to queue"
-        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-s3-exports $after_block $before_block
-  ;;
-  enqueue-s3-export)
-        block_number=$2
-
-        echo "Sending $block_number export to queue"
-        kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-s3-export $block_number
-  ;;
-  s3-export)
-        block_number=$2
-
-        echo "Exporting $block_number"
-        kubectl exec -ti deploy/mev-inspect -- poetry run s3-export $block_number
-  ;;
-  exec)
-        shift
-        kubectl exec -ti deploy/mev-inspect -- $@
-  ;;
+  fetch-range)
+    after=$2
+    before=$3
+    echo "Running price fetch-range"
+    kubectl exec -ti deploy/mev-inspect -- \
+      poetry run fetch-range $after $before
+    ;;
   *)
-	echo "Usage: "$1" {db|backfill|inspect|test}"
-	exit 1
+    echo "prices usage: "$1" {fetch-all}"
+    exit 1
+    ;;
+  esac
+  ;;
+backfill-export)
+  after_block=$2
+  before_block=$3
+
+  echo "Sending $after_block to $before_block export to queue"
+  kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-many-s3-exports $after_block $before_block
+  ;;
+enqueue-s3-export)
+  block_number=$2
+
+  echo "Sending $block_number export to queue"
+  kubectl exec -ti deploy/mev-inspect -- poetry run enqueue-s3-export $block_number
+  ;;
+s3-export)
+  block_number=$2
+
+  echo "Exporting $block_number"
+  kubectl exec -ti deploy/mev-inspect -- poetry run s3-export $block_number
+  ;;
+migrate)
+  echo "Applying database migrations"
+  kubectl exec -ti deploy/mev-inspect -- poetry run alembic upgrade head
+  ;;
+exec)
+  shift
+  kubectl exec -ti deploy/mev-inspect -- $@
+  ;;
+*)
+  echo "Usage: "$1" {db|backfill|inspect|test}"
+  exit 1
+  ;;
 esac
 
 exit 0
