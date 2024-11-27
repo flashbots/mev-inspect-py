@@ -1,3 +1,5 @@
+⚠️ This tool has been deprecated. You can visit [Flashbots Data](https://datasets.flashbots.net/) for historical mev-inspect data on Ethereum and join us on the [Flashbots forum](https://collective.flashbots.net). ⚠️
+
 # mev-inspect-py
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
